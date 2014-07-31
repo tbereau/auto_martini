@@ -109,7 +109,7 @@ def genMoleculeSDF(sdf):
   return mol
 
 def printHeader():
-  print ";;;; GENERATED WITH map-aa-to-cg"
+  print ";;;; GENERATED WITH auto-martini"
   if args.smi:
     print "; INPUT SMILES:",args.smi
   else:
@@ -637,7 +637,7 @@ def substruct2smi(mol, atomPartitioning, cgBead, cgBeads, ringAtoms):
           frag.RemoveAtom(j)
   # Wildman-Crippen logP
   wcLogP = rdMolDescriptors.CalcCrippenDescriptors(frag.GetMol())[0]
-  tmpfile = 'tmp-map-aa-to-cg.smi'
+  tmpfile = 'tmp-auto-martini.smi'
   sw = Chem.rdmolfiles.SmilesWriter(tmpfile,nameHeader='')
   # Charge -- look at atoms that are only part of the bead (no ring rule)
   chg = 0
