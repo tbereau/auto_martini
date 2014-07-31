@@ -1036,7 +1036,7 @@ if __name__ == '__main__':
   listCGBeads,listBeadPos = findBeadPos(mol, feats, ringAtoms)
 
   # Loop through best 1% cgBeads and avgPos
-  maxAttempts = 0.01*len(listCGBeads)
+  maxAttempts = math.ceil(0.01*len(listCGBeads))
   attempt = 0
   while attempt < maxAttempts:
     cgBeads = listCGBeads[attempt]
