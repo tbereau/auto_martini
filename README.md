@@ -66,12 +66,12 @@ auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --gro gua.gro
 Atomistic coordinates can be output in XYZ format using the `--xyz output.xyz` option.
 
 ##Caveats
-Since ALOGPS, the prediction algorithm for solubilities, relies on whole fragments rather than individual atoms, the prediction of certain fragments can pose problem, e.g., small inorganic groups. In this case, `auto-martini` tries to parametrize alternative mappings. If none of them shows successful, the code will return an error.
+Since ALOGPS, the prediction algorithm for octanol/water partitioning, relies on whole fragments rather than individual atoms, the prediction of certain fragments can pose problem, e.g., small inorganic groups. In this case, `auto-martini` tries to parametrize alternative mappings. If none of them shows successful, the code will return an error.
 ```
 ; ERROR: no successful mapping found.
 ; Try running with the '--fpred' and/or '--verbose' options.
 ```
-As mentioned in the error message, an alternative solution consists of relying on an atom-based solubility prediction algorithm (Wildman-Crippen), which is less accurate but can predict any fragment.  In case the `--fpred` option is selected, only fragments for which ALOGPS fail will be predicted using Wildman-Crippen.
+As mentioned in the error message, an alternative solution consists of relying on an atom-based partitioning coefficient prediction algorithm (Wildman-Crippen), which is less accurate but can predict any fragment.  In case the `--fpred` option is selected, only fragments for which ALOGPS fail will be predicted using Wildman-Crippen.
 
 
 
