@@ -259,8 +259,8 @@ def atomsInGaussian(mol, beadId, ringAtoms):
     sigma = rvdwAromatic
   for i in xrange(conf.GetNumAtoms()):
     distBdAt = Chem.rdMolTransforms.GetBondLength(conf,i,beadId)
-    # if distBdAt < rvdw:
-    lumpedAtoms.append(i)
+    if distBdAt < sigma:
+      lumpedAtoms.append(i)
     weightSum -= mol.GetAtomWithIdx(i).GetMass() * \
       math.exp(-distBdAt**2/2/sigma**2)
   return atInBdCoeff*weightSum,lumpedAtoms
