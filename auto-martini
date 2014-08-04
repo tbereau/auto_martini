@@ -77,10 +77,10 @@ deltaFTypes = {
 rvdw = 4.7/2.
 rvdwAromatic = 4.3/2.
 rvdwCross = 0.5*(rvdw+rvdwAromatic)
-offsetBeadWeight = 55.#40.5
+# Optimized parameters
+offsetBeadWeight = 55
 offsetBeadAromaticWeight = 20.
-lonelyAtomPenalize = 0.18#0.18>=0.1697 and <=0.17 for hexadecane
-
+lonelyAtomPenalize = 0.18 
 bdBdOverlapCoeff = 2.0
 atInBdCoeff = 0.9
 
