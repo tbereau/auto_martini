@@ -800,7 +800,7 @@ def printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, trial=False):
         bead+1, beadType, args.molname, atomName, bead+1, charge, smiFrag)
   return atomNames
 
-def printBonds(cgBeads, cgBeadCoords,ringAtoms, trial=False):
+def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
   '''print CG bonds in itp format'''
   if trial == False:
     print ""
@@ -809,8 +809,6 @@ def printBonds(cgBeads, cgBeadCoords,ringAtoms, trial=False):
   constList = []
   if len(cgBeads) > 1:
     for i in xrange(len(cgBeads)):
-      closestBond = -1
-      closestVal  = 1000.0
       for j in xrange(i+1,len(cgBeads)):
         dist = np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1
         if dist < 0.65:
@@ -826,11 +824,25 @@ def printBonds(cgBeads, cgBeadCoords,ringAtoms, trial=False):
             # Check that the bond is not too short
             if dist < 0.2:
               raise NameError('Bond too short')
-            if dist < closestVal:
-              closestBond = j
-              closestVal = dist
-      if closestBond != -1:
-        bondList.append([i,closestBond,closestVal])
+            # Look for a bond between an atom of i and an atom of j
+            foundConnection = False
+            atomsInBeadI = []
+            for aa in atomPartitioning.keys():
+              if atomPartitioning[aa] == i:
+                atomsInBeadI.append(aa)
+            atomsInBeadJ = []
+            for aa in atomPartitioning.keys():
+              if atomPartitioning[aa] == j:
+                atomsInBeadJ.append(aa)            
+            for ib in xrange(len(mol.GetBonds())):
+              abond = mol.GetBondWithIdx(ib)
+              if (abond.GetBeginAtomIdx() in atomsInBeadI and \
+                abond.GetEndAtomIdx() in atomsInBeadJ) or \
+                (abond.GetBeginAtomIdx() in atomsInBeadJ and \
+                abond.GetEndAtomIdx() in atomsInBeadI):
+                foundConnection = True
+            if foundConnection:
+              bondList.append([i,j,dist])
 
     for ring in ringAtoms:
       # Only keep one bond between a ring and a given external bead
@@ -1071,14 +1083,14 @@ if __name__ == '__main__':
     if atomNames == []:
       success = False   
     try:
-      bondList, constList = printBonds(cgBeads, cgBeadCoords, ringAtoms, True)
+      bondList, constList = printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, True)
     except:
       success = False
 
     if success:
       printHeader()
       atomNames = printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, False)
-      bondList, constList = printBonds(cgBeads, cgBeadCoords, ringAtoms, False)
+      bondList, constList = printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, False)
       printAngles(cgBeads, mol, atomPartitioning, cgBeadCoords, 
         bondList, constList, ringAtoms)
       printDihedrals(cgBeads,constList,ringAtoms)
@@ -1086,11 +1098,11 @@ if __name__ == '__main__':
       attempt = maxAttempts+1
     else:
       attempt += 1
-if attempt == maxAttempts:
-  err = "; ERROR: no successful mapping found.\n" + \
-    "; Try running with the '--fpred' and/or '--verbose' options.\n"
-  sys.stderr.write(err)
-  exit(1)
+  if attempt == maxAttempts:
+    err = "; ERROR: no successful mapping found.\n" + \
+      "; Try running with the '--fpred' and/or '--verbose' options.\n"
+    sys.stderr.write(err)
+    exit(1)
 
   # Optional atomistic output to XYZ file
   if args.xyz:
