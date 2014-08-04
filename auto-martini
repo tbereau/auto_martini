@@ -77,12 +77,12 @@ deltaFTypes = {
 rvdw = 4.7/2.
 rvdwAromatic = 4.3/2.
 rvdwCross = 0.5*(rvdw+rvdwAromatic)
-offsetBeadWeight = 40.5#40.5
+offsetBeadWeight = 55.#40.5
 offsetBeadAromaticWeight = 20.
 lonelyAtomPenalize = 0.18#0.18>=0.1697 and <=0.17 for hexadecane
 
-bdBdOverlapCoeff = 1.0
-atInBdCoeff = 1.0
+bdBdOverlapCoeff = 2.0
+atInBdCoeff = 0.9
 
 def genMoleculeSMI(smi):
   '''Generate mol object from smiles string'''
@@ -543,23 +543,18 @@ def allAtomsInBeadsConnected(trialComb, heavyAtomCoords, listHeavyAtoms, bondLis
 def voronoiAtoms(cgBeadCoords, heavyAtomCoords):
   '''Partition all atoms between CG beads'''
   atomPartitioning = {}
-  for i in xrange(len(cgBeadCoords)):
-    foundConnection = True
-    while foundConnection:
-      foundConnection = False
-      for j in xrange(len(heavyAtomCoords)):
-        if j not in atomPartitioning.keys():
-          # Voronoi to check whether atom is closest to bead
-          closestBead = True
-          distBeadAt = np.linalg.norm(cgBeadCoords[i]-heavyAtomCoords[j])
-          for k in xrange(len(cgBeadCoords)):
-            distk = np.linalg.norm(cgBeadCoords[k]-heavyAtomCoords[j])
-            if np.linalg.norm(cgBeadCoords[k]-heavyAtomCoords[j]) < distBeadAt:
-              closestBead = False
-              break
-          if closestBead:
-            foundConnection = True
-            atomPartitioning[j] = i
+  for j in xrange(len(heavyAtomCoords)):
+    if j not in atomPartitioning.keys():
+      # Voronoi to check whether atom is closest to bead
+      closestBead = True
+      beadAt     = -1
+      distBeadAt = 1000
+      for k in xrange(len(cgBeadCoords)):
+        distk = np.linalg.norm(cgBeadCoords[k]-heavyAtomCoords[j])
+        if distk < distBeadAt:
+          distBeadAt = distk
+          beadAt = k
+      atomPartitioning[j] = beadAt
   if len(cgBeadCoords) > 1:
     # Book-keeping of closest atoms to every bead
     closestAtoms = {}
@@ -805,7 +800,7 @@ def printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, trial=False):
         bead+1, beadType, args.molname, atomName, bead+1, charge, smiFrag)
   return atomNames
 
-def printBonds(cgBeads,cgBeadCoords,ringAtoms, trial=False):
+def printBonds(cgBeads, cgBeadCoords,ringAtoms, trial=False):
   '''print CG bonds in itp format'''
   if trial == False:
     print ""
@@ -814,6 +809,8 @@ def printBonds(cgBeads,cgBeadCoords,ringAtoms, trial=False):
   constList = []
   if len(cgBeads) > 1:
     for i in xrange(len(cgBeads)):
+      closestBond = -1
+      closestVal  = 1000.0
       for j in xrange(i+1,len(cgBeads)):
         dist = np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1
         if dist < 0.65:
@@ -829,7 +826,11 @@ def printBonds(cgBeads,cgBeadCoords,ringAtoms, trial=False):
             # Check that the bond is not too short
             if dist < 0.2:
               raise NameError('Bond too short')
-            bondList.append([i,j,dist])
+            if dist < closestVal:
+              closestBond = j
+              closestVal = dist
+      if closestBond != -1:
+        bondList.append([i,closestBond,closestVal])
 
     for ring in ringAtoms:
       # Only keep one bond between a ring and a given external bead
@@ -910,7 +911,8 @@ def printBonds(cgBeads,cgBeadCoords,ringAtoms, trial=False):
           exit(1)
   return bondList, constList
 
-def printAngles(cgBeads,cgBeadCoords,bondList,constList,ringAtoms):
+def printAngles(cgBeads, mol, atomPartitioning, cgBeadCoords, 
+  bondList, constList, ringAtoms):
   '''print CG angles in itp format'''
   if len(cgBeads) > 2:
     # Angles
@@ -951,7 +953,20 @@ def printAngles(cgBeads,cgBeadCoords,bondList,constList,ringAtoms):
               cgBeadCoords[k]-cgBeadCoords[j])/(
               np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j]) *
               np.linalg.norm(cgBeadCoords[k]-cgBeadCoords[j])))
+            # Look for any double bond between atoms belonging to these CG beads.
+            atomsInFragment = []
+            for aa in atomPartitioning.keys():
+              if atomPartitioning[aa] == j:
+                atomsInFragment.append(aa)
             forcConst = 25.0
+            for ib in xrange(len(mol.GetBonds())):
+              abond = mol.GetBondWithIdx(ib)
+              if abond.GetBeginAtomIdx() in atomsInFragment and \
+                abond.GetEndAtomIdx() in atomsInFragment:
+                bondType = mol.GetBondBetweenAtoms(abond.GetBeginAtomIdx(),
+                  abond.GetEndAtomIdx()).GetBondType()
+                if bondType == Chem.rdchem.BondType.DOUBLE:
+                  forcConst = 45.0
             newAngle = True
             for a in angleList:
               if i in a and j in a and k in a:
@@ -1064,7 +1079,8 @@ if __name__ == '__main__':
       printHeader()
       atomNames = printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, False)
       bondList, constList = printBonds(cgBeads, cgBeadCoords, ringAtoms, False)
-      printAngles(cgBeads,cgBeadCoords,bondList,constList,ringAtoms)
+      printAngles(cgBeads, mol, atomPartitioning, cgBeadCoords, 
+        bondList, constList, ringAtoms)
       printDihedrals(cgBeads,constList,ringAtoms)
       # We've reached all the way here, exit the while loop
       attempt = maxAttempts+1
