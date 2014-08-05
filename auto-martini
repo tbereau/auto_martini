@@ -582,9 +582,11 @@ def voronoiAtoms(cgBeadCoords, heavyAtomCoords):
           if atomPartitioning[j] != lonelyBead:
             distBeadAt = np.linalg.norm(cgBeadCoords[lonelyBead] - 
               heavyAtomCoords[j])
-            # Only consider if it's closer and not a CG bead itself.
+            # Only consider if it's closer, not a CG bead itself, and 
+            # the CG bead it belongs to has more than one other atom.
             if distBeadAt < closestBeadDist and \
-              j != closestAtoms[atomPartitioning[j]]:
+              j != closestAtoms[atomPartitioning[j]] and \
+              sum(x == atomPartitioning[j] for x in atomPartitioning.values()) > 2:
               closestBead = j
               closestBeadDist = distBeadAt
         if closestBead == -1:
