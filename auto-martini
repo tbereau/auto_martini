@@ -754,9 +754,44 @@ def determineBeadType(deltaF,charge,hbondA,hbondD,inRing):
     beadType = "S" + beadType
   return beadType
 
+def checkAdditivity(beadTypes, mol):
+  '''Check additivity assumption between sum of free energies of CG beads 
+  and free energy of whole molecule'''
+  sumFrag = 0.0
+  for bead in beadTypes:
+    if bead[0] == "S":
+      bead = bead[1:]
+    sumFrag += deltaFTypes[bead]
+  # Wildman-Crippen logP
+  wcLogP = rdMolDescriptors.CalcCrippenDescriptors(mol)[0]
+  # Write out SMILES string of entire molecule
+  tmpfile = 'tmp-auto-martini.smi'
+  sw = Chem.rdmolfiles.SmilesWriter(tmpfile,nameHeader='')
+  Chem.rdmolfiles.SmilesWriter.write(sw, mol)
+  sw.close()
+  # Read file
+  try:
+    f = open(tmpfile,'r')
+    s = f.readlines()
+    f.close()
+  except IOError as e:
+    print "Error. Can't read file",tmpfile
+    print e
+    exit(1)
+  os.remove(tmpfile)
+  wholeMoldG = smi2alogps(s[1].split()[0], wcLogP, "MOL", True)
+  mad = math.fabs((wholeMoldG - sumFrag)/wholeMoldG)
+  if args.verbose:
+    print "; Mapping additivity assumption ratio:",mad
+  if mad < 0.3:
+    return True
+  else:
+    return False
+
 def printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, trial=False):
   '''print CG Atoms in itp format'''
   atomNames = []
+  beadTypes = []
   for bead in xrange(len(cgBeads)):
     # Determine SMI of substructure
     try:
@@ -800,7 +835,8 @@ def printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, trial=False):
     if trial == False:
       print '  {:<5d} {:5s}   1       {:5s}   {:7s} {:<5d}  {:2d}     ; {:s}'.format(
         bead+1, beadType, args.molname, atomName, bead+1, charge, smiFrag)
-  return atomNames
+    beadTypes.append(beadType)
+  return atomNames, beadTypes
 
 def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
   '''print CG bonds in itp format'''
@@ -1065,7 +1101,9 @@ if __name__ == '__main__':
   listCGBeads,listBeadPos = findBeadPos(mol, feats, ringAtoms)
 
   # Loop through best 1% cgBeads and avgPos
-  maxAttempts = math.ceil(0.01*len(listCGBeads))
+  maxAttempts = int(math.ceil(0.5*len(listCGBeads)))
+  if args.verbose:
+    print "; Max. number of attempts:",maxAttempts
   attempt = 0
   while attempt < maxAttempts:
     cgBeads = listCGBeads[attempt]
@@ -1081,9 +1119,13 @@ if __name__ == '__main__':
     if args.verbose:
       print "; Atom partitioning:", atomPartitioning
 
-    atomNames = printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, True)
+    atomNames, beadTypes = printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, True)
     if atomNames == []:
       success = False   
+    # Check additivity between fragments and entire molecule
+    if not checkAdditivity(beadTypes, mol):
+      success = False
+    # Bond list
     try:
       bondList, constList = printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, True)
     except:
@@ -1091,7 +1133,7 @@ if __name__ == '__main__':
 
     if success:
       printHeader()
-      atomNames = printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, False)
+      atomNames, beadTypes = printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, False)
       bondList, constList = printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, False)
       printAngles(cgBeads, mol, atomPartitioning, cgBeadCoords, 
         bondList, constList, ringAtoms)
