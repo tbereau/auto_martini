@@ -783,7 +783,7 @@ def checkAdditivity(beadTypes, mol):
   mad = math.fabs((wholeMoldG - sumFrag)/wholeMoldG)
   if args.verbose:
     print "; Mapping additivity assumption ratio:",mad
-  if mad < 0.3:
+  if mad < 0.5:
     return True
   else:
     return False
