@@ -757,6 +757,9 @@ def determineBeadType(deltaF,charge,hbondA,hbondD,inRing):
 def checkAdditivity(beadTypes, mol):
   '''Check additivity assumption between sum of free energies of CG beads 
   and free energy of whole molecule'''
+  # If there's only one bead, don't check.
+  if len(beadTypes) == 1:
+    return True
   sumFrag = 0.0
   for bead in beadTypes:
     if bead[0] == "S":
@@ -782,7 +785,8 @@ def checkAdditivity(beadTypes, mol):
   wholeMoldG = smi2alogps(s[1].split()[0], wcLogP, "MOL", True)
   mad = math.fabs((wholeMoldG - sumFrag)/wholeMoldG)
   if args.verbose:
-    print "; Mapping additivity assumption ratio:",mad
+    print "; Mapping additivity assumption ratio: {0:7.4f} ({1:7.4f} vs {2:7.4f})".format(
+      mad,wholeMoldG,sumFrag)
   if mad < 0.5:
     return True
   else:
@@ -871,7 +875,7 @@ def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
             atomsInBeadJ = []
             for aa in atomPartitioning.keys():
               if atomPartitioning[aa] == j:
-                atomsInBeadJ.append(aa)            
+                atomsInBeadJ.append(aa)
             for ib in xrange(len(mol.GetBonds())):
               abond = mol.GetBondWithIdx(ib)
               if (abond.GetBeginAtomIdx() in atomsInBeadI and \
@@ -884,15 +888,13 @@ def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
 
     for ring in ringAtoms:
       # Only keep one bond between a ring and a given external bead
-      beadsBondedToRing = []
       for i in xrange(len(cgBeads)):
         at = cgBeads[i]
         if at not in ring:
-          beadsBondedToRing.append(at)
           bondsToRing = []
           for b in bondList:
-            if (cgBeads[b[0]] in ring and cgBeads[b[1]] == at) or \
-              (cgBeads[b[0]] == at and cgBeads[b[1]] in ring):
+            if (b[0] in ring and b[1] == at) or \
+              (b[0] == at and b[1] in ring):
               bondsToRing.append(b)
           # keep closest
           closestBond = [-1,-1,1000.0]
@@ -903,6 +905,16 @@ def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
           for b in bondsToRing:
             if b != closestBond:
               bondList.remove(b)
+      beadsBondedToRing = []
+      for i in xrange(len(cgBeads)):
+        atomsInBead = []
+        for key, val in atomPartitioning.iteritems():
+          if val == i:
+            atomsInBead.append(key)
+        for b in bondList:
+          if (b[0] in ring and b[1] in atomsInBead) or \
+            (b[0] in atomsInBead and b[1] in ring):
+            beadsBondedToRing.append(i)
       # Delete bond between 2 beads if they're both linked 
       # to the same ring.
       for i in xrange(len(cgBeads)):
