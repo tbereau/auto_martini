@@ -1044,7 +1044,7 @@ def printAngles(cgBeads, mol, atomPartitioning, cgBeadCoords,
       print ""
   return 
 
-def printDihedrals(cgBeads,constList,ringAtoms):
+def printDihedrals(cgBeads,bondList,constList,ringAtoms,cgBeadCoords):
   '''Print CG dihedrals in itp format'''
   if len(cgBeads) > 3:
     # Dihedrals
@@ -1054,11 +1054,11 @@ def printDihedrals(cgBeads,constList,ringAtoms):
       for j in xrange(i+1,len(cgBeads)):
         for k in xrange(j+1,len(cgBeads)):
           for l in xrange(k+1,len(cgBeads)):
-            # 3 atoms need to be ring like
+            # 3 atoms need to be ring like (in one ring!)
             threeInRing = False
             for ring in ringAtoms:
               if [[cgBeads[i] in ring], [cgBeads[j] in ring],
-                [cgBeads[k] in ring], [cgBeads[l] in ring]].count([True]) == 3:
+                [cgBeads[k] in ring], [cgBeads[l] in ring]].count([True]) >= 3:
                 threeInRing = True
                 break
             # Forbid all atoms linked by constraints
@@ -1069,15 +1069,20 @@ def printDihedrals(cgBeads,constList,ringAtoms):
             for b in constList:
               if i in [b[0],b[1]] and j in [b[0],b[1]]:
                 ijConst = True
-            for b in constList:
               if j in [b[0],b[1]] and k in [b[0],b[1]]:
                 jkConst = True
-            for b in constList:
               if k in [b[0],b[1]] and l in [b[0],b[1]]:
                 klConst = True
+            # Distance criterion--beads can't be far apart
+            disThres = 0.35
+            closeEnough = False
+            if np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1 < disThres \
+              and np.linalg.norm(cgBeadCoords[j]-cgBeadCoords[k])*0.1 < disThres \
+              and np.linalg.norm(cgBeadCoords[k]-cgBeadCoords[l])*0.1 < disThres:
+              closeEnough = True
             if ijConst and jkConst and klConst:
               allConstraints = True
-            if threeInRing and not allConstraints:
+            if threeInRing and not allConstraints and closeEnough:
               angle = 0.0
               forcConst = 10.0
               dihedList.append([i,j,k,l,angle,forcConst])
@@ -1149,7 +1154,7 @@ if __name__ == '__main__':
       bondList, constList = printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, False)
       printAngles(cgBeads, mol, atomPartitioning, cgBeadCoords, 
         bondList, constList, ringAtoms)
-      printDihedrals(cgBeads,constList,ringAtoms)
+      printDihedrals(cgBeads,bondList,constList,ringAtoms,cgBeadCoords)
       # We've reached all the way here, exit the while loop
       attempt = maxAttempts+1
     else:
