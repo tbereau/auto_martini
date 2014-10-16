@@ -1079,7 +1079,7 @@ def printDihedrals(cgBeads,constList,ringAtoms):
               allConstraints = True
             if threeInRing and not allConstraints:
               angle = 0.0
-              forcConst = 50.0
+              forcConst = 10.0
               dihedList.append([i,j,k,l,angle,forcConst])
     if len(dihedList) > 0:
       print "[dihedrals]"
