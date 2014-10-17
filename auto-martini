@@ -1061,11 +1061,6 @@ def printDihedrals(cgBeads,bondList,constList,ringAtoms,cgBeadCoords):
                 [cgBeads[k] in ring], [cgBeads[l] in ring]].count([True]) >= 3:
                 threeInRing = True
                 break
-            # Forbid all atoms linked by constraints
-            allConstraints = False
-            ijConst = False
-            jkConst = False
-            klConst = False
             for b in constList:
               if i in [b[0],b[1]] and j in [b[0],b[1]]:
                 ijConst = True
@@ -1080,9 +1075,7 @@ def printDihedrals(cgBeads,bondList,constList,ringAtoms,cgBeadCoords):
               and np.linalg.norm(cgBeadCoords[j]-cgBeadCoords[k])*0.1 < disThres \
               and np.linalg.norm(cgBeadCoords[k]-cgBeadCoords[l])*0.1 < disThres:
               closeEnough = True
-            if ijConst and jkConst and klConst:
-              allConstraints = True
-            if threeInRing and not allConstraints and closeEnough:
+            if threeInRing and closeEnough:
               angle = 0.0
               forcConst = 10.0
               dihedList.append([i,j,k,l,angle,forcConst])
