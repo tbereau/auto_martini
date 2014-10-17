@@ -946,6 +946,29 @@ def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
           bondList.remove(b)
       bondListIdx += 1
 
+    # Go through list of constraints. If we find an extra
+    # possible constraint between beads that have constraints,
+    # add it.
+    beadsWithConst = []
+    for c in constList:
+      if c[0] not in beadsWithConst:
+        beadsWithConst.append(c[0])
+      if c[1] not in beadsWithConst:
+        beadsWithConst.append(c[1])
+    beadsWithConst = sorted(beadsWithConst)
+    for i in xrange(len(beadsWithConst)):
+      for j in xrange(1+i,len(beadsWithConst)):
+        constExists = False
+        for c in constList:
+          if (c[0] == i  and c[1] == j) or \
+            (c[0] == j and c[1] == i):
+            constExists = True
+            break
+        if not constExists:
+          dist = np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1
+          if dist < 0.35:
+            constList.append([i,j,dist])
+
     if trial == False:
       if len(bondList) > 0:
         print "[bonds]"
