@@ -1074,34 +1074,52 @@ def printDihedrals(cgBeads,bondList,constList,ringAtoms,cgBeadCoords):
     dihedList = []
     # Three ring atoms and one non ring
     for i in xrange(len(cgBeads)):
-      for j in xrange(i+1,len(cgBeads)):
-        for k in xrange(j+1,len(cgBeads)):
-          for l in xrange(k+1,len(cgBeads)):
-            # 3 atoms need to be ring like (in one ring!)
-            threeInRing = False
-            for ring in ringAtoms:
-              if [[cgBeads[i] in ring], [cgBeads[j] in ring],
-                [cgBeads[k] in ring], [cgBeads[l] in ring]].count([True]) >= 3:
-                threeInRing = True
-                break
-            for b in constList:
-              if i in [b[0],b[1]] and j in [b[0],b[1]]:
-                ijConst = True
-              if j in [b[0],b[1]] and k in [b[0],b[1]]:
-                jkConst = True
-              if k in [b[0],b[1]] and l in [b[0],b[1]]:
-                klConst = True
-            # Distance criterion--beads can't be far apart
-            disThres = 0.35
-            closeEnough = False
-            if np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1 < disThres \
-              and np.linalg.norm(cgBeadCoords[j]-cgBeadCoords[k])*0.1 < disThres \
-              and np.linalg.norm(cgBeadCoords[k]-cgBeadCoords[l])*0.1 < disThres:
-              closeEnough = True
-            if threeInRing and closeEnough:
-              angle = 0.0
-              forcConst = 10.0
-              dihedList.append([i,j,k,l,angle,forcConst])
+      for j in xrange(len(cgBeads)):
+        for k in xrange(len(cgBeads)):
+          for l in xrange(len(cgBeads)):
+            if i != j and i != k and i != l \
+              and j != k and j != l and k != l:
+              # 3 atoms need to be ring like (in one ring!)
+              threeInRing = False
+              for ring in ringAtoms:
+                if [[cgBeads[i] in ring], [cgBeads[j] in ring],
+                  [cgBeads[k] in ring], [cgBeads[l] in ring]].count([True]) >= 3:
+                  threeInRing = True
+                  break
+              for b in constList:
+                if i in [b[0],b[1]] and j in [b[0],b[1]]:
+                  ijConst = True
+                if j in [b[0],b[1]] and k in [b[0],b[1]]:
+                  jkConst = True
+                if k in [b[0],b[1]] and l in [b[0],b[1]]:
+                  klConst = True
+              # Distance criterion--beads can't be far apart
+              disThres = 0.35
+              closeEnough = False
+              if np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1 < disThres \
+                and np.linalg.norm(cgBeadCoords[j]-cgBeadCoords[k])*0.1 < disThres \
+                and np.linalg.norm(cgBeadCoords[k]-cgBeadCoords[l])*0.1 < disThres:
+                closeEnough = True
+              alreadyDih = False
+              for dih in dihedList:
+                if dih[0] == l and dih[1] == k and \
+                  dih[2] == j and dih[3] == i:
+                  alreadyDih = True
+                  break
+              if threeInRing and closeEnough and not alreadyDih:
+                r1 = cgBeadCoords[j]-cgBeadCoords[i]
+                r2 = cgBeadCoords[k]-cgBeadCoords[j]
+                r3 = cgBeadCoords[l]-cgBeadCoords[k]
+                p1 = np.cross(r1, r2)/(np.linalg.norm(r1)*
+                  np.linalg.norm(r2))
+                p2 = np.cross(r2, r3)/(np.linalg.norm(r2)*
+                  np.linalg.norm(r3))
+                r2 = r2 / np.linalg.norm(r2)
+                cosphi = np.dot(p1,p2)
+                sinphi = np.dot(r2,np.cross(p1,p2))
+                angle = 180./math.pi*np.arctan2(sinphi,cosphi)
+                forcConst = 10.0
+                dihedList.append([i,j,k,l,angle,forcConst])
     if len(dihedList) > 0:
       print "[dihedrals]"
       print ";  i     j    k    l   funct   angle  force.c."
