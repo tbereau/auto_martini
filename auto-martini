@@ -702,6 +702,8 @@ def mad(Type,deltaF,inRing=False):
 def determineBeadType(deltaF,charge,hbondA,hbondD,inRing):
   '''Determine CG bead type from deltaF value, charge, 
   and hbond acceptor, and donor'''
+  # if args.verbose:
+  #   print "; dF:",deltaF/4.2,'kcal/mol'
   if charge < -1 or charge > +1:
     print "Charge is too large:",charge
     print "No adequate force-field parameter"
@@ -711,7 +713,7 @@ def determineBeadType(deltaF,charge,hbondA,hbondD,inRing):
     # We're in a ring, divide free energy by 3
     # (average number of beads per ring)
     if abs(deltaF) > 0.1:
-      deltaF /= 3.
+      deltaF *= 2/3.
   error = 0.0
   if charge != 0:
     # The compound has a +/- charge -> Q type
@@ -728,7 +730,7 @@ def determineBeadType(deltaF,charge,hbondA,hbondD,inRing):
     # Neutral group
     # Use Hbond information only if we're close to Nda, Na, Nd types
     error = mad('Nda',deltaF,inRing)
-    if error < 5.0 and (hbondA > 0 or hbondD > 0):
+    if error < 3.0 and (hbondA > 0 or hbondD > 0):
       if hbondA > 0 and hbondD > 0:
         beadType = "Nda"
       elif hbondA > 0 and hbondD == 0:
@@ -761,9 +763,11 @@ def checkAdditivity(beadTypes, mol):
   if len(beadTypes) == 1:
     return True
   sumFrag = 0.0
+  rings = False
   for bead in beadTypes:
     if bead[0] == "S":
       bead = bead[1:]
+      rings = True
     sumFrag += deltaFTypes[bead]
   # Wildman-Crippen logP
   wcLogP = rdMolDescriptors.CalcCrippenDescriptors(mol)[0]
@@ -787,7 +791,7 @@ def checkAdditivity(beadTypes, mol):
   if args.verbose:
     print "; Mapping additivity assumption ratio: {0:7.4f} ({1:7.4f} vs {2:7.4f})".format(
       mad,wholeMoldG,sumFrag)
-  if mad < 0.5:
+  if (not rings and mad < 0.5) or (rings):
     return True
   else:
     return False
