@@ -730,7 +730,7 @@ def determineBeadType(deltaF,charge,hbondA,hbondD,inRing):
     # Neutral group
     # Use Hbond information only if we're close to Nda, Na, Nd types
     error = mad('Nda',deltaF,inRing)
-    if error < 3.0 and (hbondA > 0 or hbondD > 0):
+    if error < 2.0 and (hbondA > 0 or hbondD > 0):
       if hbondA > 0 and hbondD > 0:
         beadType = "Nda"
       elif hbondA > 0 and hbondD == 0:
