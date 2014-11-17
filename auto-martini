@@ -971,7 +971,15 @@ def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
         if not constExists:
           dist = np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1
           if dist < 0.35:
-            constList.append([i,j,dist])
+            # Check that it's not in the bond list
+            inBondList = False
+            for b in bondList:
+              if (b[0] == i and b[1] == j) or \
+                (b[0] == j and b[0] == i):
+                inBondList = True
+                break
+            if not inBondList:
+              constList.append([i,j,dist])
 
     if trial == False:
       if len(bondList) > 0:
