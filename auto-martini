@@ -88,7 +88,7 @@ def genMoleculeSMI(smi):
   '''Generate mol object from smiles string'''
   mol = Chem.MolFromSmiles(args.smi)
   mol = Chem.AddHs(mol)
-  AllChem.EmbedMolecule(mol)
+  AllChem.EmbedMolecule(mol,useRandomCoords=True)
   try:
     AllChem.UFFOptimizeMolecule(mol)
   except ValueError,e:
