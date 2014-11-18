@@ -613,11 +613,12 @@ def substruct2smi(mol, atomPartitioning, cgBead, cgBeads, ringAtoms):
   atomsInRing = []
   for ring in ringAtoms:
     if cgBeads[cgBead] in ring:
-      atomsInRing = ring
+      atomsInRing = ring[:] ;# CHANGED
       break
-  # Add atoms that belong to any bead of the ring.
+  # Add atoms off the ring that belong to the fragment.
   for atom in atomsInRing:
-    if atom in cgBeads:
+    # if atom in cgBeads:
+    if atom == cgBeads:
       for atp in atomPartitioning.keys():
         if atomPartitioning[atp] == atomPartitioning[atom] and atp not in atomsInRing:
           atomsInRing.append(atp)
@@ -796,10 +797,11 @@ def checkAdditivity(beadTypes, mol):
   else:
     return False
 
-def printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, trial=False):
+def printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, ringAtomsFlat, trial=False):
   '''print CG Atoms in itp format'''
   atomNames = []
   beadTypes = []
+
   for bead in xrange(len(cgBeads)):
     # Determine SMI of substructure
     try:
@@ -1182,7 +1184,8 @@ if __name__ == '__main__':
     if args.verbose:
       print "; Atom partitioning:", atomPartitioning
 
-    atomNames, beadTypes = printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, True)
+    atomNames, beadTypes = printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, 
+      ringAtomsFlat, True)
     if atomNames == []:
       success = False   
     # Check additivity between fragments and entire molecule
@@ -1196,7 +1199,8 @@ if __name__ == '__main__':
 
     if success:
       printHeader()
-      atomNames, beadTypes = printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, False)
+      atomNames, beadTypes = printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, 
+        ringAtomsFlat, False)
       bondList, constList = printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, False)
       printAngles(cgBeads, mol, atomPartitioning, cgBeadCoords, 
         bondList, constList, ringAtoms)
