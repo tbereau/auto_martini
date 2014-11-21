@@ -291,7 +291,7 @@ def evalGaussianInterac(mol, listBeads, ringAtoms):
   # Repulsive overlap between CG beads
   for i in xrange(len(listBeads)):
     for j in xrange(i+1,len(listBeads)):
-      weightSum += gaussianOverlap(i, j, ringAtoms)
+      weightSum += gaussianOverlap(listBeads[i], listBeads[j], ringAtoms)
   # Attraction between atoms nearby to CG bead
   for i in xrange(len(listBeads)):
     weight,lumped = atomsInGaussian(mol, \
