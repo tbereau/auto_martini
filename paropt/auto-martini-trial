@@ -80,9 +80,9 @@ rvdwCross = 0.5*(rvdw+rvdwAromatic)
 # Optimized parameters
 offsetBeadWeight = 50
 offsetBeadAromaticWeight = 20.
-lonelyAtomPenalize = 0.20 
+lonelyAtomPenalize = 0.20
 bdBdOverlapCoeff = 9.0
-atInBdCoeff = 0.9
+atInBdCoeff = 0.90
 
 def genMoleculeSMI(smi):
   '''Generate mol object from smiles string'''
