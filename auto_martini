@@ -818,9 +818,15 @@ def printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, ringAtomsFlat, trial=F
           atomName += "{:s}".format(character)
         else:
           atomName += "{:s}{:s}".format(character, str(count))
+    # Get charge for smiFrag
+    molFrag = genMoleculeSMI(smiFrag)
+    chargeFrag = getCharge(molFrag)
     # Extract ALOGPS free energy
     try:
-      alogps = smi2alogps(smiFrag, wcLogP, bead+1, trial)
+      if chargeFrag == 0:
+        alogps = smi2alogps(smiFrag, wcLogP, bead+1, trial)
+      else:
+        alogps = 0.0
     except:
       return []
     hbondAFlag = 0
