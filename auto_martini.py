@@ -315,7 +315,7 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, listbonds):
         if val != 1:
             all_different = False
             acceptable_trial = False
-            logger.info('Error. Multiple beads on the same atom position.')
+            logger.debug('Error. Multiple beads on the same atom position for %s' % trial_comb)
             break
     if all_different:
         acceptable_trial = True
@@ -332,13 +332,13 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, listbonds):
                             bond_in_ring = True
                     if not bond_in_ring:
                         acceptable_trial = False
-                        logger.info('Error. No bond in ring.')
+                        logger.debug('Error. No bond in ring for %s' % trial_comb)
                         break
         if acceptable_trial:
             # Don't allow bonds between atoms of the same ring.
             for bir in xrange(len(bonds_in_rings)):
                 if bonds_in_rings[bir] > 0:
-                    logger.info('Error. Bonds between atoms of the same ring for %s', trial_comb)
+                    logger.debug('Error. Bonds between atoms of the same ring for %s', trial_comb)
                     acceptable_trial = False
         if acceptable_trial:
             # Check for two terminal beads linked by only one atom
@@ -363,13 +363,13 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, listbonds):
                                 partnerj = bond[0]
                         if partneri == partnerj:
                             acceptable_trial = False
-                            logger.info('Error. Two terminal beads linked to the same atom.')
+                            logger.debug('Error. Two terminal beads linked to the same atom for %s' % trial_comb)
                             break
         if acceptable_trial:
             # Make sure all atoms within one bead would be connected
             if not all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, listbonds):
                 acceptable_trial = False
-                logger.info('Error. Not all atoms within bead connected.')
+                logger.debug('Error. Not all atoms within bead connected for %s' % trial_comb)
     return acceptable_trial
 
 
@@ -388,7 +388,8 @@ def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringat
         best_trial_comb = np.array(list(itertools.combinations(range(len(list_heavy_atoms)), 1)))
         avg_pos = [[conformer.GetAtomPosition(best_trial_comb[0])[j] for j in range(3)]]
         return best_trial_comb, avg_pos
-    if len(list_heavyatoms) > 25:
+###    if len(list_heavyatoms) > 25:
+    if len(list_heavyatoms) > 50:
         logger.warning('Error. Exhaustive enumeration can\'t handle large molecules.')
         logger.warning('Number of heavy atoms: %d' % len(list_heavyatoms))
         exit(1)
