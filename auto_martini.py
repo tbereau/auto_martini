@@ -23,8 +23,10 @@ from rdkit import RDConfig
 from rdkit.Chem import AllChem
 from rdkit.Chem import ChemicalFeatures
 from rdkit.Chem import rdchem
+from rdkit.Chem import rdmolops
 from rdkit.Chem import rdmolfiles
 from rdkit.Chem import rdMolDescriptors
+from rdkit.Chem import rdMolTransforms
 from itertools import chain
 from collections import defaultdict
 from operator import itemgetter
@@ -108,7 +110,7 @@ def gen_molecule_sdf(sdf):
 def print_header(arguments):
     """Print topology header"""
     logger.debug('Entering print_header()')
-    print(";;;; GENERATED WITH auto-martini")
+    print("; GENERATED WITH auto-martini")
     if arguments.smi:
         print("; INPUT SMILES:", arguments.smi)
     else:
@@ -192,7 +194,7 @@ def output_gro(output_file, sites, site_names, molname):
             f.write("{:10.5f}{:10.5f}{:10.5f}\n".format(10., 10., 10.))
             f.close()
     except IOError:
-        print("Can't write to file " + output_file)
+        logger.warning('Can\'t write to file %s' % output_file)
         exit(1)
     return
 
@@ -288,7 +290,7 @@ def get_atoms(molecule):
     num_atoms = conformer.GetNumAtoms()
     list_heavyatoms = []
     list_heavyatomnames = []
-    logger.info('-----------------------')
+    logger.info('------------------------------------------------------')
     logger.info('; Heavy atoms:')
     for i in range(num_atoms):
         atom_name = molecule.GetAtomWithIdx(i).GetSymbol()
@@ -313,6 +315,7 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, listbonds):
         if val != 1:
             all_different = False
             acceptable_trial = False
+            logger.info('Error. Multiple beads on the same atom position.')
             break
     if all_different:
         acceptable_trial = True
@@ -329,11 +332,13 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, listbonds):
                             bond_in_ring = True
                     if not bond_in_ring:
                         acceptable_trial = False
+                        logger.info('Error. No bond in ring.')
                         break
         if acceptable_trial:
             # Don't allow bonds between atoms of the same ring.
             for bir in xrange(len(bonds_in_rings)):
                 if bonds_in_rings[bir] > 0:
+                    logger.info('Error. Bonds between atoms of the same ring for %s', trial_comb)
                     acceptable_trial = False
         if acceptable_trial:
             # Check for two terminal beads linked by only one atom
@@ -358,11 +363,13 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, listbonds):
                                 partnerj = bond[0]
                         if partneri == partnerj:
                             acceptable_trial = False
+                            logger.info('Error. Two terminal beads linked to the same atom.')
                             break
         if acceptable_trial:
             # Make sure all atoms within one bead would be connected
             if not all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, listbonds):
                 acceptable_trial = False
+                logger.info('Error. Not all atoms within bead connected.')
     return acceptable_trial
 
 
@@ -374,7 +381,7 @@ def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringat
     logger.debug('Entering find_bead_pos()')
     # Check number of heavy atoms
     if len(list_heavyatoms) == 0:
-        print("Error. No heavy atom found.")
+        logger.warning('Error. No heavy atom found.')
         exit(1)
     if len(list_heavyatoms) == 1:
         # Put one CG bead on the one heavy atom.
@@ -382,8 +389,8 @@ def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringat
         avg_pos = [[conformer.GetAtomPosition(best_trial_comb[0])[j] for j in range(3)]]
         return best_trial_comb, avg_pos
     if len(list_heavyatoms) > 25:
-        print("Error. Exhaustive enumeration can't handle large molecules.")
-        print(("Number of heavy atoms:", len(list_heavyatoms)))
+        logger.warning('Error. Exhaustive enumeration can\'t handle large molecules.')
+        logger.warning('Number of heavy atoms: %d' % len(list_heavyatoms))
         exit(1)
     # List of bonds between heavy atoms
     list_bonds = []
@@ -523,7 +530,7 @@ def voronoi_atoms(cgbead_coords, heavyatom_coords):
                     closest_dist = dist_bead_at
                     closest_atom = j
             if closest_atom == -1:
-                print("Error. Can't find closest atom to bead", i)
+                logger.warning('Error. Can\'t find closest atom to bead %s' % i)
                 exit(1)
             closest_atoms[i] = closest_atom
         # If one bead has only one heavy atom, include one more
@@ -545,7 +552,7 @@ def voronoi_atoms(cgbead_coords, heavyatom_coords):
                             closest_bead = j
                             closest_bead_dist = dist_bead_at
                 if closest_bead == -1:
-                    print("Error. Can't find an atom close to atom", lonely_bead)
+                    logger.warning('Error. Can\'t find an atom close to atom $s' % lonely_bead)
                     exit(1)
                 partitioning[closest_bead] = lonely_bead
     return partitioning
@@ -607,8 +614,8 @@ def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
         s = f.readlines()
         f.close()
     except IOError as e:
-        print("Error. Can't read file", tmpfile)
-        print(e)
+        logger.warning('Error. Can\'t read file %s' % tmpfile)
+        logger.warning(e)
         exit(1)
     os.remove(tmpfile)
     return s[1].split()[0], wc_log_p, chg
@@ -665,8 +672,8 @@ def determine_bead_type(delta_f, charge, hbonda, hbondd, in_ring):
     """Determine CG bead type from delta_f value, charge,
     and hbond acceptor, and donor"""
     if charge < -1 or charge > +1:
-        print("Charge is too large:", charge)
-        print("No adequate force-field parameter")
+        logger.warning('Charge is too large: %s' % charge)
+        logger.warning('No adequate force-field parameter.')
         exit(1)
     bead_type = []
     if in_ring:
@@ -742,14 +749,14 @@ def check_additivity(arguments, beadtypes, molecule):
         s = f.readlines()
         f.close()
     except IOError as e:
-        print("Error. Can't read file", tmpfile)
-        print(e)
+        logger.warning('Error. Can\'t read file %s' % tmpfile)
+        logger.warning(e)
         exit(1)
     os.remove(tmpfile)
     whole_mol_dg = smi2alogps(arguments, s[1].split()[0], wc_log_p, "MOL", True)
     m_ad = math.fabs((whole_mol_dg - sum_frag) / whole_mol_dg)
-    logger.info('; Mapping additivity assumption ratio: {0:7.4f} ({1:7.4f} vs {2:7.4f})' % m_ad,
-                whole_mol_dg, sum_frag)
+    logger.info('; Mapping additivity assumption ratio: {0:%7.4f} ({1:%7.4f} vs. {2:%7.4f})'
+                % (m_ad, whole_mol_dg, sum_frag))
     if (not rings and m_ad < 0.5) or rings:
         return True
     else:
@@ -790,12 +797,12 @@ def print_atoms(arguments, cgbeads, molecule, hbonda, hbondd, partitioning, ring
             return []
         hbond_a_flag = 0
         for at in hbonda:
-            if partitioning[at] == bead and at != 0:
+            if partitioning[at] == bead and len(hbonda) > 1:
                 hbond_a_flag = 1
                 break
         hbond_d_flag = 0
         for at in hbondd:
-            if partitioning[at] == bead and at != 0:
+            if partitioning[at] == bead and len(hbondd) > 1:
                 hbond_d_flag = 1
                 break
         in_ring = cgbeads[bead] in ringatoms_flat
@@ -970,7 +977,7 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                     if i in [b[0], b[1]]:
                         bond_to_i = True
                 if not bond_to_i:
-                    print("Error. No bond to atom", i + 1)
+                    logger.warning('Error. No bond to atom %d' % (i + 1))
                     exit(1)
     return bondlist, constlist
 
@@ -1179,6 +1186,7 @@ if __name__ == '__main__':
         # Partition atoms into coarse-grained beads
         atom_partitioning = voronoi_atoms(cg_bead_coords, heavy_atom_coords)
         logger.info('; Atom partitioning: %s' % atom_partitioning)
+        logger.info('------------------------------------------------------')
 
         cg_bead_names, bead_types = print_atoms(args, cg_beads, mol, hbond_a, hbond_d, atom_partitioning,
                                                 ring_atoms, ring_atoms_flat, True)
