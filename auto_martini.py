@@ -77,7 +77,7 @@ def gen_molecule_smi(smi):
     """Generate mol object from smiles string"""
     logger.debug('Entering gen_molecule_smi()')
     if '.' in smi:
-        print("Error. Only one molecule may be provided.")
+        logger.warning('Error. Only one molecule may be provided.')
         exit(1)
     molecule = Chem.MolFromSmiles(smi)
     molecule = Chem.AddHs(molecule)
@@ -85,7 +85,7 @@ def gen_molecule_smi(smi):
     try:
         AllChem.UFFOptimizeMolecule(molecule)
     except ValueError as e:
-        print(e)
+        logger.warning('%s' % e)
         exit(1)
     return molecule
 
@@ -95,12 +95,12 @@ def gen_molecule_sdf(sdf):
     logger.debug('Entering gen_molecule_sdf()')
     suppl = Chem.SDMolSupplier(sdf)
     if len(suppl) > 1:
-        print("Error. Only one molecule may be provided.")
+        logger.warning('Error. Only one molecule may be provided.')
         exit(1)
     molecule = ''
     for molecule in suppl:
         if molecule is None:
-            print("Error. Can't read molecule.")
+            logger.warning('Error. Can\'t read molecule.')
             exit(1)
     return molecule
 
@@ -288,18 +288,16 @@ def get_atoms(molecule):
     num_atoms = conformer.GetNumAtoms()
     list_heavyatoms = []
     list_heavyatomnames = []
-    logger.info("-----------------------")
-    logger.info("; Heavy atoms:")
-    logger.info("; ")
+    logger.info('-----------------------')
+    logger.info('; Heavy atoms:')
     for i in range(num_atoms):
         atom_name = molecule.GetAtomWithIdx(i).GetSymbol()
         if atom_name != "H":
             list_heavyatoms.append(i)
             list_heavyatomnames.append(atom_name)
-            logger.info("%s" % atom_name)
-    logger.info("")
+    logger.info('; %s' % list_heavyatomnames)
     if len(list_heavyatoms) == 0:
-        logger.warning("Error. No heavy atom found.")
+        logger.warning('Error. No heavy atom found.')
         exit(1)
     return list_heavyatoms, list_heavyatomnames
 
@@ -418,8 +416,7 @@ def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringat
                 trial_ene = eval_gaussian_interac(molecule, trial_comb, ringatoms_flat)
                 combs.append(trial_comb)
                 energies.append(trial_ene)
-                if args.verbose:
-                    print(";", trial_comb, trial_ene)
+                logger.info('; %s %s', trial_comb, trial_ene)
                 # Make sure all atoms within one bead would be connected
                 if all_atoms_in_beads_connected(trial_comb,
                    heavyatom_coords, list_heavyatoms, list_bonds):
@@ -438,10 +435,9 @@ def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringat
         last_best_trial_comb = best_trial_comb
         list_combs.append(combs)
         list_energies.append(energies)
-    if args.verbose:
         for at in best_trial_comb:
-            print("; CG bead:", at)
-        print("; with energy:", ene_best_trial)
+            logger.info('; CG bead: %s' % at)
+        logger.info('; with energy: %s' % ene_best_trial)
     sorted_combs = np.array(sorted(list_trial_comb, key=itemgetter(2)))
     return sorted_combs[:, 0], sorted_combs[:, 1]
 
@@ -643,8 +639,7 @@ def smi2alogps(arguments, smi, wc_log_p, bead, trial=False):
                 sys.stderr.write(wrn)
             log_p = wc_log_p
         else:
-            if arguments.verbose:
-                print("ALOGPS can't predict fragment:", smi)
+            logger.warning('ALOGPS can\'t predict fragment: %s' % smi)
             exit(1)
     return convert_log_k(log_p)
 
@@ -669,8 +664,6 @@ def mad(bead_type, delta_f, in_ring=False):
 def determine_bead_type(delta_f, charge, hbonda, hbondd, in_ring):
     """Determine CG bead type from delta_f value, charge,
     and hbond acceptor, and donor"""
-    # if args.verbose:
-    # print "; dF:",delta_f/4.2,'kcal/mol'
     if charge < -1 or charge > +1:
         print("Charge is too large:", charge)
         print("No adequate force-field parameter")
@@ -755,9 +748,8 @@ def check_additivity(arguments, beadtypes, molecule):
     os.remove(tmpfile)
     whole_mol_dg = smi2alogps(arguments, s[1].split()[0], wc_log_p, "MOL", True)
     m_ad = math.fabs((whole_mol_dg - sum_frag) / whole_mol_dg)
-    if args.verbose:
-        print("; Mapping additivity assumption ratio: {0:7.4f} ({1:7.4f} vs {2:7.4f})".format(m_ad,
-                                                                                              whole_mol_dg, sum_frag))
+    logger.info('; Mapping additivity assumption ratio: {0:7.4f} ({1:7.4f} vs {2:7.4f})' % m_ad,
+                whole_mol_dg, sum_frag)
     if (not rings and m_ad < 0.5) or rings:
         return True
     else:
@@ -1143,15 +1135,6 @@ if __name__ == '__main__':
     logging.basicConfig()
     logger.setLevel(level)
 
-    # Create console handler
-    ch = logging.StreamHandler()
-    # Create formatter
-    formatter = logging.Formatter('\x1b[80D\x1b[1A\x1b[K%(message)s')
-    # Add formatter to console handler
-    ch.setFormatter(formatter)
-    # Add console handler to logger
-    logger.addHandler(ch)
-
     # Generate molecule's structure from SDF or SMILES
     if args.sdf:
         mol = gen_molecule_sdf(args.sdf)
@@ -1183,8 +1166,7 @@ if __name__ == '__main__':
     cg_bead_names = []
     cg_bead_coords = []
     max_attempts = int(math.ceil(0.5 * len(list_cg_beads)))
-    if args.verbose:
-        print("; Max. number of attempts:", max_attempts)
+    logger.info('; Max. number of attempts: %s' % max_attempts)
     attempt = 0
     while attempt < max_attempts:
         cg_beads = list_cg_beads[attempt]
@@ -1196,8 +1178,7 @@ if __name__ == '__main__':
 
         # Partition atoms into coarse-grained beads
         atom_partitioning = voronoi_atoms(cg_bead_coords, heavy_atom_coords)
-        if args.verbose:
-            print("; Atom partitioning:", atom_partitioning)
+        logger.info('; Atom partitioning: %s' % atom_partitioning)
 
         cg_bead_names, bead_types = print_atoms(args, cg_beads, mol, hbond_a, hbond_d, atom_partitioning,
                                                 ring_atoms, ring_atoms_flat, True)
