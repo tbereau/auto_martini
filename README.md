@@ -1,4 +1,4 @@
-Auto-MARTINI
+Auto_MARTINI
 ============
 ***
 *Author:* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
