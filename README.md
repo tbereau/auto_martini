@@ -4,7 +4,7 @@ Auto_MARTINI
 *Author:* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
 *Created:* 2014  
 ***
-Automatized MARTINI mapping and parametrization of small organic molecules.
+Automated MARTINI mapping and parametrization of small organic molecules.
 
 ##Installation
 `auto-martini` is a python script that requires a number of dependencies:
