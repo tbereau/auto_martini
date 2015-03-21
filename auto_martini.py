@@ -110,13 +110,13 @@ def gen_molecule_sdf(sdf):
 def print_header(arguments):
     """Print topology header"""
     logger.debug('Entering print_header()')
-    print("; GENERATED WITH auto-martini")
+    print('; GENERATED WITH auto_martini.py')
     if arguments.smi:
-        print("; INPUT SMILES:", arguments.smi)
+        print('; INPUT SMILES:', arguments.smi)
     else:
-        print(";", arguments.sdf)
-    print("; Tristan Bereau (2014)")
-    print("")
+        print(';', arguments.sdf)
+    print('; Tristan Bereau (2014)')
+    print('')
     print('[moleculetype]')
     print('; molname       nrexcl')
     print('  {:5s}         2'.format(arguments.molname))
@@ -178,7 +178,7 @@ def output_gro(output_file, sites, site_names, molname):
     logger.debug('Entering output_gro()')
     num_beads = len(sites)
     if len(sites) != len(site_names):
-        print("Error. Incompatible number of beads and bead names.")
+        logging.warning('Error. Incompatible number of beads and bead names.')
         exit(1)
     if output_file[-4:] != ".gro":
         output_file += ".gro"
@@ -253,7 +253,7 @@ def penalize_lonely_atoms(molecule, conformer, lumped_atoms):
     return lonelyAtomPenalize * weight_sum
 
 
-def eval_gaussian_interac(molecule, list_beads, ringatoms):
+def eval_gaussian_interac(molecule, conformer, list_beads, ringatoms):
     """From collection of CG beads placed on mol, evaluate
     objective function of interacting beads"""
     logger.debug('Entering eval_gaussian_interac()')
@@ -270,16 +270,16 @@ def eval_gaussian_interac(molecule, list_beads, ringatoms):
     # Repulsive overlap between CG beads
     for i in range(len(list_beads)):
         for j in range(i + 1, len(list_beads)):
-            weight_sum += gaussian_overlap(conf, list_beads[i], list_beads[j], ringatoms)
+            weight_sum += gaussian_overlap(conformer, list_beads[i], list_beads[j], ringatoms)
     # Attraction between atoms nearby to CG bead
     for i in range(len(list_beads)):
-        weight, lumped = atoms_in_gaussian(molecule, conf, list_beads[i], ringatoms)
+        weight, lumped = atoms_in_gaussian(molecule, conformer, list_beads[i], ringatoms)
         weight_sum += weight
         for j in lumped:
             if j not in lumped_atoms:
                 lumped_atoms.append(j)
     # Penalty for excluding atoms
-    weight_sum += penalize_lonely_atoms(molecule, conf, lumped_atoms)
+    weight_sum += penalize_lonely_atoms(molecule, conformer, lumped_atoms)
     return weight_sum
 
 
@@ -304,7 +304,7 @@ def get_atoms(molecule):
     return list_heavyatoms, list_heavyatomnames
 
 
-def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, listbonds):
+def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, ring_atoms, listbonds):
     """Check if CG bead positions in trailComb are acceptable"""
     logger.debug('Entering check_beads()')
     acceptable_trial = ''
@@ -388,8 +388,7 @@ def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringat
         best_trial_comb = np.array(list(itertools.combinations(range(len(list_heavy_atoms)), 1)))
         avg_pos = [[conformer.GetAtomPosition(best_trial_comb[0])[j] for j in range(3)]]
         return best_trial_comb, avg_pos
-###    if len(list_heavyatoms) > 25:
-    if len(list_heavyatoms) > 50:
+    if len(list_heavyatoms) > 30:
         logger.warning('Error. Exhaustive enumeration can\'t handle large molecules.')
         logger.warning('Number of heavy atoms: %d' % len(list_heavyatoms))
         exit(1)
@@ -418,10 +417,10 @@ def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringat
         # Trial positions: any heavy atom
         for seq in seq_one_beads:
             trial_comb = list(seq)
-            acceptable_trial = check_beads(list_heavy_atoms, heavyatom_coords, trial_comb, list_bonds)
+            acceptable_trial = check_beads(list_heavy_atoms, heavyatom_coords, trial_comb, ring_atoms, list_bonds)
             if acceptable_trial:
                 # Do the energy evaluation
-                trial_ene = eval_gaussian_interac(molecule, trial_comb, ringatoms_flat)
+                trial_ene = eval_gaussian_interac(molecule, conformer, trial_comb, ringatoms_flat)
                 combs.append(trial_comb)
                 energies.append(trial_ene)
                 logger.info('; %s %s', trial_comb, trial_ene)
@@ -713,10 +712,6 @@ def determine_bead_type(delta_f, charge, hbonda, hbondd, in_ring):
                 if tmp_error < min_error:
                     min_error = tmp_error
                     bead_type = cgtype
-    # if error > 5:
-    # print "Warning: large error between beead type and log_k value:"
-    # print " type {:s} ({:5.2f}) vs. {:5.2f}".format(bead_type,
-    # delta_f_types[bead_type],delta_f)
     if in_ring:
         bead_type = "S" + bead_type
     return bead_type
@@ -765,7 +760,7 @@ def check_additivity(arguments, beadtypes, molecule):
 
 
 def print_atoms(arguments, cgbeads, molecule, hbonda, hbondd, partitioning, ringatoms, ringatoms_flat, trial=False):
-    """print CG Atoms in itp format"""
+    """Print CG Atoms in itp format"""
     logger.debug('Entering print_atoms()')
     atomnames = []
     beadtypes = []
@@ -825,7 +820,7 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
     """print CG bonds in itp format"""
     logger.debug('Entering print_bonds()')
     if not trial:
-        print("")
+        print('')
     # Bond information
     bondlist = []
     constlist = []
@@ -957,20 +952,20 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
 
         if not trial:
             if len(bondlist) > 0:
-                print("[bonds]")
-                print("; i j     funct     length    force.c.")
+                print('[bonds]')
+                print('; i j     funct     length    force.c.')
                 for b in bondlist:
                     # Make sure atoms in bond are not part of the same ring
-                    print("  {:d} {:d}       1         {:4.2f}     1250".format(
+                    print('  {:d} {:d}       1         {:4.2f}     1250'.format(
                         b[0] + 1, b[1] + 1, b[2]))
-                print("")
+                print('')
             if len(constlist) > 0:
-                print("[constraints]")
-                print(";  i   j     funct   length")
+                print('[constraints]')
+                print(';  i   j     funct   length')
                 for c in constlist:
-                    print("   {:<3d} {:<3d}   1       {:4.2f}".format(
+                    print('   {:<3d} {:<3d}   1       {:4.2f}'.format(
                         c[0] + 1, c[1] + 1, c[2]))
-                print("")
+                print('')
             # Make sure there's at least a bond to every atom
             for i in range(len(cgbeads)):
                 bond_to_i = False
@@ -1046,12 +1041,12 @@ def print_angles(cgbeads, molecule, partitioning, cgbead_coords, bondlist, const
                         if new_angle:
                             angle_list.append([i, j, k, angle, forc_const])
         if len(angle_list) > 0:
-            print("[angles]")
-            print("; i j k         funct   angle   force.c.")
+            print('[angles]')
+            print('; i j k         funct   angle   force.c.')
             for a in angle_list:
-                print("  {:d} {:d} {:d}         2       {:<5.1f}  {:5.1f}".format(
+                print('  {:d} {:d} {:d}         2       {:<5.1f}  {:5.1f}'.format(
                     a[0] + 1, a[1] + 1, a[2] + 1, a[3], a[4]))
-            print("")
+            print('')
     return
 
 
@@ -1110,12 +1105,12 @@ def print_dihedrals(cgbeads, constlist, ringatoms, cgbead_coords):
                                 forc_const = 10.0
                                 dihed_list.append([i, j, k, l, angle, forc_const])
         if len(dihed_list) > 0:
-            print("[dihedrals]")
-            print(";  i     j    k    l   funct   angle  force.c.")
+            print('[dihedrals]')
+            print(';  i     j    k    l   funct   angle  force.c.')
             for d in dihed_list:
-                print("   {:d}     {:d}    {:d}    {:d}       2     {:<5.1f}  {:5.1f}".format(
+                print('   {:d}     {:d}    {:d}    {:d}       2     {:<5.1f}  {:5.1f}'.format(
                     d[0] + 1, d[1] + 1, d[2] + 1, d[3] + 1, d[4], d[5]))
-            print("")
+            print('')
     return
 
 
