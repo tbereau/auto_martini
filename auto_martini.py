@@ -81,10 +81,7 @@ def gen_molecule_smi(smi):
     if '.' in smi:
         logger.warning('Error. Only one molecule may be provided.')
         exit(1)
-    molecule = Chem.MolFromSmiles(smi,sanitize=False)
-    molecule.UpdatePropertyCache()
-    Chem.SetHybridization(molecule)
-    Chem.FastFindRings(molecule)
+    molecule = Chem.MolFromSmiles(smi)
     molecule = Chem.AddHs(molecule)
     AllChem.EmbedMolecule(molecule, useRandomCoords=True)
     try:
