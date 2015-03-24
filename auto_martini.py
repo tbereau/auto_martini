@@ -75,13 +75,125 @@ bdBdOverlapCoeff = 9.0
 atInBdCoeff = 0.9
 
 
+
+def _FragIndicesToMol(oMol,indices):
+    """ From sanifix4.py by James Davidson"""
+    em = Chem.EditableMol(Chem.Mol())
+    newIndices={}
+    for i,idx in enumerate(indices):
+        em.AddAtom(oMol.GetAtomWithIdx(idx))
+        newIndices[idx]=i
+    for i,idx in enumerate(indices):
+        at = oMol.GetAtomWithIdx(idx)
+        for bond in at.GetBonds():
+            if bond.GetBeginAtomIdx()==idx:
+                oidx = bond.GetEndAtomIdx()
+            else:
+                oidx = bond.GetBeginAtomIdx()
+            # make sure every bond only gets added once:
+            if oidx<idx:
+                continue
+            em.AddBond(newIndices[idx],newIndices[oidx],bond.GetBondType())
+    res = em.GetMol()
+    res.ClearComputedProps()
+    Chem.GetSymmSSSR(res)
+    res.UpdatePropertyCache(False)
+    res._idxMap=newIndices
+    return res
+
+def _recursivelyModifyNs(mol,matches,indices=None):
+    """ From sanifix4.py by James Davidson"""
+    if indices is None:
+        indices=[]
+    res=None
+    while len(matches) and res is None:
+        tIndices=indices[:]
+        nextIdx = matches.pop(0)
+        tIndices.append(nextIdx)
+        nm = Chem.Mol(mol)
+        nm.GetAtomWithIdx(nextIdx).SetNoImplicit(True)
+        nm.GetAtomWithIdx(nextIdx).SetNumExplicitHs(1)
+        cp = Chem.Mol(nm)
+        try:
+            Chem.SanitizeMol(cp)
+        except ValueError:
+            res,indices = _recursivelyModifyNs(nm,matches,indices=tIndices)
+        else:
+            indices=tIndices
+            res=cp
+    return res,indices
+
+def AdjustAromaticNs(m,nitrogenPattern='[n&D2&H0;r5,r6]'):
+    """ From sanifix4.py by James Davidson
+    Default nitrogen pattern matches Ns in
+    5 rings and 6 rings to fix: O=c1ccncc1"""
+    Chem.GetSymmSSSR(m)
+    m.UpdatePropertyCache(False)
+    # Break non-ring bonds linking rings:
+    em = Chem.EditableMol(m)
+    linkers = m.GetSubstructMatches(Chem.MolFromSmarts('[r]!@[r]'))
+    plsFix=set()
+    for a,b in linkers:
+        em.RemoveBond(a,b)
+        plsFix.add(a)
+        plsFix.add(b)
+    nm = em.GetMol()
+    for at in plsFix:
+        at=nm.GetAtomWithIdx(at)
+        if at.GetIsAromatic() and at.GetAtomicNum()==7:
+            at.SetNumExplicitHs(1)
+            at.SetNoImplicit(True)
+    # Build molecules from the fragments:
+    fragLists = Chem.GetMolFrags(nm)
+    frags = [_FragIndicesToMol(nm,x) for x in fragLists]
+    # Loop through the fragments in turn and try to aromatize them:
+    ok=True
+    for i,frag in enumerate(frags):
+        cp = Chem.Mol(frag)
+        try:
+            Chem.SanitizeMol(cp)
+        except ValueError:
+            matches = [x[0] for x in frag.GetSubstructMatches(Chem.MolFromSmarts(nitrogenPattern))]
+            lres,indices=_recursivelyModifyNs(frag,matches)
+            if not lres:
+                ok=False
+                break
+            else:
+                revMap={}
+                for k,v in frag._idxMap.iteritems():
+                    revMap[v]=k
+                for idx in indices:
+                    oatom = m.GetAtomWithIdx(revMap[idx])
+                    oatom.SetNoImplicit(True)
+                    oatom.SetNumExplicitHs(1)
+    if not ok:
+        return None
+    return m
+
+
 def gen_molecule_smi(smi):
     """Generate mol object from smiles string"""
     logger.debug('Entering gen_molecule_smi()')
     if '.' in smi:
         logger.warning('Error. Only one molecule may be provided.')
         exit(1)
-    molecule = Chem.MolFromSmiles(smi)
+    # If necessary, adjust smiles for Aromatic Ns
+    molecule = Chem.MolFromSmiles(smi, False)
+    try:
+        cp = Chem.Mol(molecule)
+        Chem.SanitizeMol(cp)
+        molecule = cp
+    except ValueError:
+        logger.warning('Bad smiles format %s' % smi)
+        nm = AdjustAromaticNs(molecule)
+        if nm is not None:
+            Chem.SanitizeMol(nm)
+            molecule = nm
+            smi = Chem.MolToSmiles(nm)
+            logger.info('Fixed smiles format %s' % smi)
+        else:
+            logger.warning('Smiles cannot be adjusted %s' % smi)
+    # Continue
     molecule = Chem.AddHs(molecule)
     AllChem.EmbedMolecule(molecule, useRandomCoords=True)
     try:
