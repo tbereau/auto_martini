@@ -617,8 +617,7 @@ def substruct2smi(mol, atomPartitioning, cgBead, cgBeads, ringAtoms):
       break
   # Add atoms off the ring that belong to the fragment.
   for atom in atomsInRing:
-    # if atom in cgBeads:
-    if atom == cgBeads:
+    if atom == cgBeads[cgBead]:
       for atp in atomPartitioning.keys():
         if atomPartitioning[atp] == atomPartitioning[atom] and atp not in atomsInRing:
           atomsInRing.append(atp)
