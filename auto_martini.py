@@ -32,6 +32,7 @@ from collections import defaultdict
 from operator import itemgetter
 from sanifix4 import AdjustAromaticNs
 
+
 # Set logger
 logger = logging.getLogger(__name__)
 
@@ -83,17 +84,28 @@ def gen_molecule_smi(smi):
         logger.warning('Error. Only one molecule may be provided.')
         exit(1)
     # If necessary, adjust smiles for Aromatic Ns
+    # Redirect current stderr in log file
+    stderr_fileno = sys.stderr.fileno()
+    stderr_save = os.dup(stderr_fileno)
+    stderr_fd = open('error.log', 'w')
+    os.dup2(stderr_fd.fileno(), stderr_fileno)
+    # Get smiles without sanitization
+    molecule = Chem.MolFromSmiles(smi, False)
     try:
-        molecule = Chem.MolFromSmiles(smi)
+        cp = Chem.Mol(molecule)
+        Chem.SanitizeMol(cp)
+        # Close log file and restore old sys err
+        stderr_fd.close()
+        os.dup2(stderr_save, stderr_fileno)
+        molecule = cp
     except ValueError:
-        logger.warning('Bad smiles format %s' % smi)
-        molecule = Chem.MolFromSmiles(smi, False)
+        logger.warning('Bad smiles format %s found' % smi)
         nm = AdjustAromaticNs(molecule)
         if nm is not None:
             Chem.SanitizeMol(nm)
             molecule = nm
             smi = Chem.MolToSmiles(nm)
-            logger.info('Fixed smiles format %s' % smi)
+            logger.warning('Fixed smiles format to %s' % smi)
         else:
             logger.warning('Smiles cannot be adjusted %s' % smi)
     # Continue
@@ -193,7 +205,7 @@ def output_gro(output_file, sites, site_names, molname):
     logger.debug('Entering output_gro()')
     num_beads = len(sites)
     if len(sites) != len(site_names):
-        logging.warning('Error. Incompatible number of beads and bead names.')
+        logger.warning('Error. Incompatible number of beads and bead names.')
         exit(1)
     if output_file[-4:] != ".gro":
         output_file += ".gro"
@@ -596,7 +608,7 @@ def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
     # Add atoms off the ring that belong to the fragment.
     for atom in atoms_in_ring:
         # if atom in cg_beads:
-        if atom in cgbeads:
+        if atom == cgbeads:
             for atp in partitioning.keys():
                 if partitioning[atp] == partitioning[atom] and atp not in atoms_in_ring:
                     atoms_in_ring.append(atp)
