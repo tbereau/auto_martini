@@ -690,14 +690,9 @@ def convertLogK(logK):
   '''Convert log_{10}K to free energy (in kJ/mol)'''
   return 0.008314*300.0*logK/math.log10(math.exp(1))
 
-def mad(Type,deltaF,inRing=False):
+def mad(Type,deltaF):
   '''Mean absolute difference between type Type and deltaF'''
-  if inRing:
-    # 3 beads in ring have the same atom type. Their
-    # sum needs to reproduce the free energy.
-    return math.fabs(3*deltaFTypes[Type]-3*deltaF)
-  else:
-    return math.fabs(deltaFTypes[Type]-deltaF)
+  return math.fabs(deltaFTypes[Type]-deltaF)
 
 def determineBeadType(deltaF,charge,hbondA,hbondD,inRing):
   '''Determine CG bead type from deltaF value, charge, 
@@ -729,8 +724,8 @@ def determineBeadType(deltaF,charge,hbondA,hbondD,inRing):
   else:
     # Neutral group
     # Use Hbond information only if we're close to Nda, Na, Nd types
-    error = mad('Nda',deltaF,inRing)
-    if error < 2.0 and (hbondA > 0 or hbondD > 0):
+    error = mad('Nda',deltaF)
+    if error < 4.0 and (hbondA > 0 or hbondD > 0):
       if hbondA > 0 and hbondD > 0:
         beadType = "Nda"
       elif hbondA > 0 and hbondD == 0:
@@ -743,7 +738,7 @@ def determineBeadType(deltaF,charge,hbondA,hbondD,inRing):
       otherTypes = ['P5','P4','P3','P2','P1','N0','C5','C4','C3','C2','C1']
       minError = 1000.0
       for cgType in otherTypes:
-        tmpError = mad(cgType,deltaF,inRing)
+        tmpError = mad(cgType,deltaF)
         if tmpError < minError:
           minError = tmpError
           beadType = cgType
