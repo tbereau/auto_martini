@@ -63,18 +63,18 @@ delta_f_types = {
     'C1': 14.20,
 }
 
-
 # Parameters
 # CG Bead vdw radius (in Angstroem)
-rvdw = 4.7 / 2.
-rvdwAromatic = 4.3 / 2.
-rvdwCross = 0.5 * (rvdw + rvdwAromatic)
-# Optimized parameters
-offsetBeadWeight = 50
-offsetBeadAromaticWeight = 20.
-lonelyAtomPenalize = 0.20
-bdBdOverlapCoeff = 9.0
-atInBdCoeff = 0.9
+bead_params = {
+    'rvdw': 4.7 / 2.,
+    'rvdw_aromatic': 4.3 / 2.,
+    'rvdw_cross': 0.5*((4.7 / 2) + (4.3 / 2.)),
+    'offset_bd_weight': 50.,
+    'offset_bd_aromatic_weight': 20.,
+    'lonely_atom_penalize': 0.20,
+    'bd_bd_overlap_coeff': 9.0,
+    'at_in_bd_coeff': 0.9,
+}
 
 
 def gen_molecule_smi(smi):
@@ -82,7 +82,8 @@ def gen_molecule_smi(smi):
     logger.debug('Entering gen_molecule_smi()')
     if '.' in smi:
         logger.warning('Error. Only one molecule may be provided.')
-        exit(1)
+        logger.warning(smi)
+        #exit(1)
     # If necessary, adjust smiles for Aromatic Ns
     # Redirect current stderr in log file
     stderr_fileno = sys.stderr.fileno()
@@ -244,29 +245,29 @@ def gaussian_overlap(conformer, bead1, bead2, ringatoms):
     given distance dist"""
     logger.debug('Entering gaussian_overlap()')
     dist = Chem.rdMolTransforms.GetBondLength(conformer, bead1, bead2)
-    sigma = rvdw
+    sigma = bead_params['rvdw']
     if bead1 in ringatoms and bead2 in ringatoms:
-        sigma = rvdwAromatic
+        sigma = bead_params['rvdw_aromatic']
     if bead1 in ringatoms and bead2 not in ringatoms or \
        bead1 not in ringatoms and bead2 in ringatoms:
-        sigma = rvdwCross
-    return bdBdOverlapCoeff * math.exp(-dist ** 2 / 4. / sigma ** 2)
+        sigma = bead_params['rvdw_cross']
+    return bead_params['bd_bd_overlap_coeff'] * math.exp(-dist ** 2 / 4. / sigma ** 2)
 
 
 def atoms_in_gaussian(molecule, conformer, bead_id, ringatoms):
     """Returns weighted sum of atoms contained in bead bead_id"""
     logger.debug('Entering atoms_in_gaussian()')
     weight_sum = 0.0
-    sigma = rvdw
+    sigma = bead_params['rvdw']
     lumped_atoms = []
     if bead_id in ringatoms:
-        sigma = rvdwAromatic
+        sigma = bead_params['rvdw_aromatic']
     for i in range(conformer.GetNumAtoms()):
         dist_bd_at = Chem.rdMolTransforms.GetBondLength(conformer, i, bead_id)
         if dist_bd_at < sigma:
             lumped_atoms.append(i)
         weight_sum -= molecule.GetAtomWithIdx(i).GetMass() * math.exp(-dist_bd_at ** 2 / 2 / sigma ** 2)
-    return atInBdCoeff * weight_sum, lumped_atoms
+    return bead_params['at_in_bd_coeff'] * weight_sum, lumped_atoms
 
 
 def penalize_lonely_atoms(molecule, conformer, lumped_atoms):
@@ -277,7 +278,7 @@ def penalize_lonely_atoms(molecule, conformer, lumped_atoms):
     for i in range(conformer.GetNumAtoms()):
         if i not in lumped_atoms:
             weight_sum += molecule.GetAtomWithIdx(i).GetMass()
-    return lonelyAtomPenalize * weight_sum
+    return bead_params['lonely_atom_penalize'] * weight_sum
 
 
 def eval_gaussian_interac(molecule, conformer, list_beads, ringatoms):
@@ -292,8 +293,8 @@ def eval_gaussian_interac(molecule, conformer, list_beads, ringatoms):
     for i in list_beads:
         if i in ringatoms:
             num_aromatics += 1
-    weight_sum += offsetBeadWeight * (len(list_beads) - num_aromatics) + \
-        offsetBeadAromaticWeight * num_aromatics
+    weight_sum += bead_params['offset_bd_weight'] * (len(list_beads) - num_aromatics) + \
+        bead_params['offset_bd_aromatic_weight'] * num_aromatics
     # Repulsive overlap between CG beads
     for i in range(len(list_beads)):
         for j in range(i + 1, len(list_beads)):
@@ -391,12 +392,6 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, ring_atoms, listb
                         if partneri == partnerj:
                             acceptable_trial = False
                             logger.debug('Error. Two terminal beads linked to the same atom for %s' % trial_comb)
-                            break
-        if acceptable_trial:
-            # Make sure all atoms within one bead would be connected
-            if not all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, listbonds):
-                acceptable_trial = False
-                logger.debug('Error. Not all atoms within bead connected for %s' % trial_comb)
     return acceptable_trial
 
 
@@ -526,6 +521,7 @@ def all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, 
                 sub_bond_list.append(bondlist[j])
         num_bonds = len(sub_bond_list)
         if num_bonds < num_atoms - 1 or num_atoms == 1:
+            logger.debug('Error: Not all atoms in beads connected in %s' % trial_comb)
             return False
     return True
 
@@ -687,12 +683,7 @@ def convert_log_k(log_k):
 def mad(bead_type, delta_f, in_ring=False):
     """Mean absolute difference between type type and delta_f"""
     logger.debug('Entering mad()')
-    if in_ring:
-        # 3 beads in ring have the same atom type. Their
-        # sum needs to reproduce the free energy.
-        return math.fabs(3 * delta_f_types[bead_type] - 3 * delta_f)
-    else:
-        return math.fabs(delta_f_types[bead_type] - delta_f)
+    return math.fabs(delta_f_types[bead_type] - delta_f)
 
 
 def determine_bead_type(delta_f, charge, hbonda, hbondd, in_ring):
@@ -722,7 +713,7 @@ def determine_bead_type(delta_f, charge, hbonda, hbondd, in_ring):
         # Neutral group
         # Use Hbond information only if we're close to Nda, Na, Nd types
         error = mad('Nda', delta_f, in_ring)
-        if error < 2.0 and (hbonda > 0 or hbondd > 0):
+        if error < 3.0 and (hbonda > 0 or hbondd > 0):
             if hbonda > 0 and hbondd > 0:
                 bead_type = "Nda"
             elif hbonda > 0 and hbondd == 0:
@@ -1190,7 +1181,7 @@ if __name__ == '__main__':
 
     # Optimize coarse-grained bead positions -- keep all possibilities in case something goes
     # wrong later in the code.
-    list_cg_beads, listBeadPos = find_bead_pos(mol, conf, list_heavy_atoms, heavy_atom_coords, ring_atoms_flat)
+    list_cg_beads, list_bead_pos = find_bead_pos(mol, conf, list_heavy_atoms, heavy_atom_coords, ring_atoms_flat)
 
     # Loop through best 1% cg_beads and avg_pos
     cg_bead_names = []
@@ -1200,7 +1191,7 @@ if __name__ == '__main__':
     attempt = 0
     while attempt < max_attempts:
         cg_beads = list_cg_beads[attempt]
-        bead_pos = listBeadPos[attempt]
+        bead_pos = list_bead_pos[attempt]
         success = True
 
         # Extract position of coarse-grained beads
