@@ -40,41 +40,45 @@ logger = logging.getLogger(__name__)
 fdefName = os.path.join(RDConfig.RDDataDir, 'BaseFeatures.fdef')
 factory = ChemicalFeatures.BuildFeatureFactory(fdefName)
 
-# Measured octanol/water free energies from MARTINI.
-# Data used TI, not partitioning of Marrink et al. JPCB 2007.
-delta_f_types = {
-    'Qda': -15.04,
-    'Qa': -15.04,
-    'Qd': -15.04,
-    'Q0': -22.35,
-    'P5': -8.88,
-    'P4': -9.30,
-    'P3': -8.81,
-    'P2': -3.85,
-    'P1': -2.26,
-    'Nda': 2.49,
-    'Na': 2.49,
-    'Nd': 2.49,
-    'N0': 4.22,
-    'C5': 6.93,
-    'C4': 10.14,
-    'C3': 12.26,
-    'C2': 13.74,
-    'C1': 14.20,
-}
+def read_delta_f_types():
+    """Returns delta_f types dictionary
+    Measured octanol/water free energies from MARTINI
+    Data used TI, not partitioning of Marrink et al. JPCB 2007"""
+    delta_f_types = dict()
+    delta_f_types['Qda'] = -15.04
+    delta_f_types['Qa'] = -15.04
+    delta_f_types['Qd'] = -15.04
+    delta_f_types['Q0'] = -22.35
+    delta_f_types['P5'] = -8.88
+    delta_f_types['P4'] = -9.30
+    delta_f_types['P3'] = -8.81
+    delta_f_types['P2'] = -3.85
+    delta_f_types['P1'] = -2.26
+    delta_f_types['Nda'] = 2.49
+    delta_f_types['Na'] = 2.49
+    delta_f_types['Nd'] = 2.49
+    delta_f_types['N0'] = 4.22
+    delta_f_types['C5'] = 6.93
+    delta_f_types['C4'] = 10.14
+    delta_f_types['C3'] = 12.26
+    delta_f_types['C2'] = 13.74
+    delta_f_types['C1'] = 14.20
+    return delta_f_types
 
-# Parameters
-# CG Bead vdw radius (in Angstroem)
-bead_params = {
-    'rvdw': 4.7 / 2.,
-    'rvdw_aromatic': 4.3 / 2.,
-    'rvdw_cross': 0.5*((4.7 / 2) + (4.3 / 2.)),
-    'offset_bd_weight': 50.,
-    'offset_bd_aromatic_weight': 20.,
-    'lonely_atom_penalize': 0.20,
-    'bd_bd_overlap_coeff': 9.0,
-    'at_in_bd_coeff': 0.9,
-}
+
+def read_bead_params():
+    """Returns bead parameter dictionary
+    CG Bead vdw radius (in Angstroem)"""
+    bead_params = dict()
+    bead_params['rvdw'] = 4.7 / 2.
+    bead_params['rvdw_aromatic'] = 4.3 / 2.
+    bead_params['rvdw_cross'] = 0.5*((4.7 / 2.) + (4.3 / 2.))
+    bead_params['offset_bd_weight'] =  50.
+    bead_params['offset_bd_aromatic_weight'] = 20.
+    bead_params['lonely_atom_penalize'] = 0.20
+    bead_params['bd_bd_overlap_coeff'] = 9.0
+    bead_params['at_in_bd_coeff'] = 0.9
+    return bead_params
 
 
 def gen_molecule_smi(smi):
@@ -245,6 +249,7 @@ def gaussian_overlap(conformer, bead1, bead2, ringatoms):
     given distance dist"""
     logger.debug('Entering gaussian_overlap()')
     dist = Chem.rdMolTransforms.GetBondLength(conformer, bead1, bead2)
+    bead_params = read_bead_params()
     sigma = bead_params['rvdw']
     if bead1 in ringatoms and bead2 in ringatoms:
         sigma = bead_params['rvdw_aromatic']
@@ -258,6 +263,7 @@ def atoms_in_gaussian(molecule, conformer, bead_id, ringatoms):
     """Returns weighted sum of atoms contained in bead bead_id"""
     logger.debug('Entering atoms_in_gaussian()')
     weight_sum = 0.0
+    bead_params = read_bead_params()
     sigma = bead_params['rvdw']
     lumped_atoms = []
     if bead_id in ringatoms:
@@ -275,9 +281,12 @@ def penalize_lonely_atoms(molecule, conformer, lumped_atoms):
     in any CG bead"""
     logger.debug('Entering penalize_lonely_atoms()')
     weight_sum = 0.0
-    for i in range(conformer.GetNumAtoms()):
-        if i not in lumped_atoms:
-            weight_sum += molecule.GetAtomWithIdx(i).GetMass()
+    bead_params = read_bead_params()
+    num_atoms = conformer.GetNumAtoms()
+    atoms_array = np.arange(num_atoms)
+    for i in np.nditer(np.arange(atoms_array.size)):
+        if atoms_array[i] not in lumped_atoms:
+            weight_sum += molecule.GetAtomWithIdx(atoms_array[i]).GetMass()
     return bead_params['lonely_atom_penalize'] * weight_sum
 
 
@@ -286,28 +295,40 @@ def eval_gaussian_interac(molecule, conformer, list_beads, ringatoms):
     objective function of interacting beads"""
     logger.debug('Entering eval_gaussian_interac()')
     weight_sum = 0.0
+    weight_overlap = 0.0
+    weight_at_in_bd = 0.0
+    bead_params = read_bead_params()
     # Offset energy for every new CG bead.
     # Distinguish between aromatics and others.
     num_aromatics = 0
     lumped_atoms = []
-    for i in list_beads:
-        if i in ringatoms:
+    # Creat list_beads array and loop over indeces
+    list_beads_array = np.asarray(list_beads)
+    for i in np.nditer(np.arange(list_beads_array.size)):
+        if list_beads_array[i] in ringatoms:
             num_aromatics += 1
-    weight_sum += bead_params['offset_bd_weight'] * (len(list_beads) - num_aromatics) + \
+    weight_offset_bd_weights = bead_params['offset_bd_weight'] * (list_beads_array.size - num_aromatics) + \
         bead_params['offset_bd_aromatic_weight'] * num_aromatics
+    weight_sum += weight_offset_bd_weights
     # Repulsive overlap between CG beads
-    for i in range(len(list_beads)):
-        for j in range(i + 1, len(list_beads)):
-            weight_sum += gaussian_overlap(conformer, list_beads[i], list_beads[j], ringatoms)
+    for i in np.nditer(np.arange(list_beads_array.size)):
+        if i < list_beads_array.size-1:
+            for j in np.nditer(np.arange(i+1, list_beads_array.size)):
+                weight_overlap += gaussian_overlap(conformer, list_beads_array[i], list_beads_array[j], ringatoms)
+    weight_sum += weight_overlap
     # Attraction between atoms nearby to CG bead
-    for i in range(len(list_beads)):
-        weight, lumped = atoms_in_gaussian(molecule, conformer, list_beads[i], ringatoms)
-        weight_sum += weight
-        for j in lumped:
-            if j not in lumped_atoms:
-                lumped_atoms.append(j)
+    for i in np.nditer(np.arange(list_beads_array.size)):
+        weight, lumped = atoms_in_gaussian(molecule, conformer, list_beads_array[i], ringatoms)
+        weight_at_in_bd += weight
+        lumped_array = np.asarray(lumped)
+        for j in np.nditer(np.arange(lumped_array.size)):
+            if lumped_array[j] not in lumped_atoms:
+                lumped_atoms.append(lumped_array[j])
+    weight_sum += weight_at_in_bd
     # Penalty for excluding atoms
-    weight_sum += penalize_lonely_atoms(molecule, conformer, lumped_atoms)
+    weight_lonely_atoms = penalize_lonely_atoms(molecule, conformer, lumped_atoms)
+    weight_sum += weight_lonely_atoms
+    logger.debug(weight_sum, weight_offset_bd_weights, weight_overlap, weight_at_in_bd, weight_lonely_atoms)
     return weight_sum
 
 
@@ -320,10 +341,11 @@ def get_atoms(molecule):
     list_heavyatomnames = []
     logger.info('------------------------------------------------------')
     logger.info('; Heavy atoms:')
-    for i in range(num_atoms):
-        atom_name = molecule.GetAtomWithIdx(i).GetSymbol()
+    atoms = np.arange(num_atoms)
+    for i in np.nditer(atoms):
+        atom_name = molecule.GetAtomWithIdx(atoms[i]).GetSymbol()
         if atom_name != "H":
-            list_heavyatoms.append(i)
+            list_heavyatoms.append(atoms[i])
             list_heavyatomnames.append(atom_name)
     logger.info('; %s' % list_heavyatomnames)
     if len(list_heavyatoms) == 0:
@@ -683,6 +705,7 @@ def convert_log_k(log_k):
 def mad(bead_type, delta_f, in_ring=False):
     """Mean absolute difference between type type and delta_f"""
     logger.debug('Entering mad()')
+    delta_f_types = read_delta_f_types()
     return math.fabs(delta_f_types[bead_type] - delta_f)
 
 
@@ -748,6 +771,7 @@ def check_additivity(arguments, beadtypes, molecule):
         if bead[0] == "S":
             bead = bead[1:]
             rings = True
+        delta_f_types = read_delta_f_types()
         sum_frag += delta_f_types[bead]
     # Wildman-Crippen log_p
     wc_log_p = rdMolDescriptors.CalcCrippenDescriptors(molecule)[0]
