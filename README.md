@@ -6,6 +6,13 @@ Auto_MARTINI
 ***
 Automated MARTINI mapping and parametrization of small organic molecules.
 
+## Publication
+For a detailed account of the software, see:
+
+Bereau and Kremer, *J Chem Theory Comput*, DOI:10.1021/acs.jctc.5b00056 (2015) [link](http://dx.doi.org/10.1021/acs.jctc.5b00056)
+
+Please consider citing the paper if you find `auto_martini` useful in your research.
+
 ##Installation
 `auto-martini` is a python script that requires a number of dependencies:
 * `numpy`: see http://docs.scipy.org/doc/numpy/user/install.html
