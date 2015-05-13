@@ -453,6 +453,15 @@ def findBeadPos(mol, feats, ringAtoms):
                   acceptableTrial = False
                   break
         if acceptableTrial:
+          # Don't accept single atom off a ring
+          for bi in xrange(len(trialComb)):
+            for r in ringAtomsFlat:
+              bond = mol.GetBondBetweenAtoms(trialComb[bi], r)
+              if bond is not None and \
+                len(mol.GetAtomWithIdx(trialComb[bi]).GetBonds()) == 1:
+                acceptableTrial = False
+                break
+        if acceptableTrial:
           # Do the energy evaluation
           trialEne  = evalGaussianInterac(mol, trialComb, ringAtomsFlat)
           combs.append(trialComb)
@@ -973,6 +982,12 @@ def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
         if not constExists:
           dist = np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1
           if dist < 0.35:
+            # Are atoms part of the same ring
+            inRing = False
+            for ring in ringAtoms:
+              if cgBeads[i] in ring and cgBeads[j] in ring:
+                inRing = True
+                break
             # Check that it's not in the bond list
             inBondList = False
             for b in bondList:
@@ -980,7 +995,7 @@ def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
                 (b[0] == j and b[0] == i):
                 inBondList = True
                 break
-            if not inBondList:
+            if not inBondList and inRing:
               constList.append([i,j,dist])
 
     if trial == False:
