@@ -432,7 +432,7 @@ def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringat
         best_trial_comb = np.array(list(itertools.combinations(range(len(list_heavy_atoms)), 1)))
         avg_pos = [[conformer.GetAtomPosition(best_trial_comb[0])[j] for j in range(3)]]
         return best_trial_comb, avg_pos
-    if len(list_heavyatoms) > 30:
+    if len(list_heavyatoms) > 50:
         logger.warning('Error. Exhaustive enumeration can\'t handle large molecules.')
         logger.warning('Number of heavy atoms: %d' % len(list_heavyatoms))
         exit(1)
@@ -544,6 +544,7 @@ def all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, 
         num_bonds = len(sub_bond_list)
         if num_bonds < num_atoms - 1 or num_atoms == 1:
             logger.debug('Error: Not all atoms in beads connected in %s' % trial_comb)
+            logger.debug('Error: %s < %s, %s' % (num_bonds, num_atoms-1, sub_bond_list))
             return False
     return True
 
@@ -965,10 +966,13 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
         # possible constraint between beads that have constraints,
         # add it.
         beads_with_const = []
+        print("conslist %s" % constlist)
         for c in constlist:
             if c[0] not in beads_with_const:
+                logger.info("c0 %s" % c[0])
                 beads_with_const.append(c[0])
             if c[1] not in beads_with_const:
+                logger.info("c1 %s" % c[1])
                 beads_with_const.append(c[1])
         beads_with_const = sorted(beads_with_const)
         for i in range(len(beads_with_const)):
@@ -989,7 +993,15 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                                     (b[0] == j and b[0] == i):
                                 in_bond_list = True
                                 break
-                        if not in_bond_list:
+                        # Are atoms part of the same ring
+                        in_ring = False
+                        for ring in ringatoms:
+                            if cgbeads[i] in ring and cgbeads[j] in ring:
+                                in_ring = True
+                                break
+                        # If not in bondlist and in the same ring, add the contraint
+                        if not in_bond_list and in_ring:
+                            logger.info("add %s %s %s" % (i, j, dist))
                             constlist.append([i, j, dist])
 
         if not trial:
