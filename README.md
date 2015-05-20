@@ -40,31 +40,22 @@ auto-martini --smi "N1=C(N)NN=C1N" --mol GUA
 ```
 In case no problem arises, it will output the gromacs .itp file:
 ```
-;;;; GENERATED WITH map-aa-to-cg
+;;;; GENERATED WITH auto-martini
 ; INPUT SMILES: N1=C(N)NN=C1N
 ; Tristan Bereau (2014)
 
 [moleculetype]
 ; molname       nrexcl
-  MOL           2
+  GUA           2
 
 [atoms]
 ; id    type    resnr   residu  atom    cgnr    charge  smiles
-  1     P2      1       MOL     P01     1       0     ; [c][N]
-  2     SP1     1       MOL     S01     2       0     ; [N]c1n[c]nn1
-  3     SP1     1       MOL     S02     3       0     ; [N]c1n[c]nn1
-
-[bonds]
-; i j   funct   length  force.c.
-  1 2   1       0.24    1250
+  1     SP2     1       GUA     S01     1       0     ; Nc1ncnn1
+  2     SP2     1       GUA     S02     2       0     ; Nc1ncnn1
 
 [constraints]
 ;  i   j     funct   length
-   2   3     1       0.21
-
-[angles]
-; i j k         funct   angle   force.c.
-  1 2 3         2       98.8    25.0
+   1   2     1       0.21
 ```
 Optionally, the code can also output a corresponding `.gro` file for the coarse-grained coordinates
 ```
