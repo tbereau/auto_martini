@@ -966,13 +966,10 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
         # possible constraint between beads that have constraints,
         # add it.
         beads_with_const = []
-        print("conslist %s" % constlist)
         for c in constlist:
             if c[0] not in beads_with_const:
-                logger.info("c0 %s" % c[0])
                 beads_with_const.append(c[0])
             if c[1] not in beads_with_const:
-                logger.info("c1 %s" % c[1])
                 beads_with_const.append(c[1])
         beads_with_const = sorted(beads_with_const)
         for i in range(len(beads_with_const)):
@@ -1001,7 +998,6 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                                 break
                         # If not in bondlist and in the same ring, add the contraint
                         if not in_bond_list and in_ring:
-                            logger.info("add %s %s %s" % (i, j, dist))
                             constlist.append([i, j, dist])
 
         if not trial:
