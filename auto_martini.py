@@ -532,6 +532,7 @@ def all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, 
     for i in range(len(trial_comb)):
         cgbead_coords.append(heavyatom_coords[list_heavyatoms.index(trial_comb[i])])
     voronoi = voronoi_atoms(cgbead_coords, heavyatom_coords)
+    logger.debug('voronoi %s' % voronoi)
     for i in range(len(trial_comb)):
         cg_bead = trial_comb[i]
         num_atoms = voronoi.values().count(voronoi[list_heavyatoms.index(cg_bead)])
