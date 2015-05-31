@@ -433,7 +433,7 @@ def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_
         best_trial_comb = np.array(list(itertools.combinations(range(len(list_heavy_atoms)), 1)))
         avg_pos = [[conformer.GetAtomPosition(best_trial_comb[0])[j] for j in range(3)]]
         return best_trial_comb, avg_pos
-    if len(list_heavyatoms) > 50:
+    if len(list_heavy_atoms) > 50:
         logger.warning('Error. Exhaustive enumeration can\'t handle large molecules.')
         logger.warning('Number of heavy atoms: %d' % len(list_heavy_atoms))
         exit(1)
