@@ -1,0 +1,45 @@
+; GENERATED WITH auto_martini.py
+; None
+; Tristan Bereau (2014)
+
+[moleculetype]
+; molname       nrexcl
+  ASP           2
+
+[atoms]
+; id    type    resnr   residue  atom    cgnr    charge  smiles
+    1     Na      1     ASP       N01     1         0   ; CC=O
+    2     SNa     1     ASP       S01     2         0   ; Oc1ccccc1
+    3     SC5     1     ASP       S02     3         0   ; c1ccccc1
+    4     SC5     1     ASP       S03     4         0   ; c1ccccc1
+    5     P1      1     ASP       P01     5         0   ; OC=O
+
+[bonds]
+; i j     funct     length    force.c.
+  1 2       1         0.25     1250
+  4 5       1         0.25     1250
+
+[constraints]
+;  i   j     funct   length
+   2   3     1       0.24
+   2   4     1       0.24
+   3   4     1       0.24
+
+[angles]
+; i j k         funct   angle   force.c.
+  1 2 3         2       125.7   25.0
+  1 2 4         2       165.5   25.0
+  2 4 5         2       62.0    25.0
+  3 4 5         2       122.3   25.0
+
+[dihedrals]
+;  i     j    k    l   funct   angle  force.c.
+   1     2    3    4       2     163.8   10.0
+   1     2    4    3       2     -115.2   10.0
+   2     3    4    5       2     0.6     10.0
+   2     5    4    3       2     -0.6    10.0
+   3     2    4    5       2     -179.4   10.0
+   3     2    5    4       2     0.6     10.0
+   3     4    2    5       2     179.4   10.0
+   4     3    2    5       2     -0.6    10.0
+
