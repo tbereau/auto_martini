@@ -91,18 +91,22 @@ def gen_molecule_smi(smi):
         #exit(1)
     # If necessary, adjust smiles for Aromatic Ns
     # Redirect current stderr in log file
-    stderr_fileno = sys.stderr.fileno()
-    stderr_save = os.dup(stderr_fileno)
-    stderr_fd = open('sanitize.log', 'w')
-    os.dup2(stderr_fd.fileno(), stderr_fileno)
+    try:
+        stderr_fileno = sys.stderr.fileno()
+        stderr_save = os.dup(stderr_fileno)
+        stderr_fd = open('sanitize.log', 'w')
+        os.dup2(stderr_fd.fileno(), stderr_fileno)
+    except:
+        stderr_fileno = None
     # Get smiles without sanitization
     molecule = Chem.MolFromSmiles(smi, False)
     try:
         cp = Chem.Mol(molecule)
         Chem.SanitizeMol(cp)
         # Close log file and restore old sys err
-        stderr_fd.close()
-        os.dup2(stderr_save, stderr_fileno)
+        if stderr_fileno != None:
+            stderr_fd.close()
+            os.dup2(stderr_save, stderr_fileno)
         molecule = cp
     except ValueError:
         logger.warning('Bad smiles format %s found' % smi)
