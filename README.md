@@ -64,6 +64,9 @@ auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --gro gua.gro
 Atomistic coordinates can be output in XYZ format using the `--xyz output.xyz` option.
 
 ##Caveats
+
+###Prediction algorithm
+
 Since ALOGPS, the prediction algorithm for octanol/water partitioning, relies on whole fragments rather than individual atoms, the prediction of certain fragments can pose problem, e.g., small inorganic groups. In this case, `auto-martini` tries to parametrize alternative mappings. If none of them shows successful, the code will return an error.
 ```
 ; ERROR: no successful mapping found.
@@ -71,6 +74,12 @@ Since ALOGPS, the prediction algorithm for octanol/water partitioning, relies on
 ```
 As mentioned in the error message, an alternative solution consists of relying on an atom-based partitioning coefficient prediction algorithm (Wildman-Crippen), which is less accurate but can predict any fragment.  In case the `--fpred` option is selected, only fragments for which ALOGPS fail will be predicted using Wildman-Crippen.
 
+###Boost error
 
-
+Some versions of Boost will fail to correctly exit at the end of the program, generating such output messages:
+```
+python: /usr/include/boost/thread/pthread/mutex.hpp:108: boost::mutex::~mutex(): Assertion `!posix::pthread_mutex_destroy(&m)' failed.
+[1]    31433 abort (core dumped)  ./auto_martini --smi "N1=C(N)NN=C1N" --mol GUA
+```
+the results provided by the code are unaffected by this error message. Simply ignore it.
 
