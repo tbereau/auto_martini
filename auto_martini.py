@@ -41,6 +41,7 @@ logger = logging.getLogger(__name__)
 fdefName = os.path.join(RDConfig.RDDataDir, 'BaseFeatures.fdef')
 factory = ChemicalFeatures.BuildFeatureFactory(fdefName)
 
+
 def read_delta_f_types():
     """Returns delta_f types dictionary
     Measured octanol/water free energies from MARTINI
@@ -74,7 +75,7 @@ def read_bead_params():
     bead_params['rvdw'] = 4.7 / 2.
     bead_params['rvdw_aromatic'] = 4.3 / 2.
     bead_params['rvdw_cross'] = 0.5*((4.7 / 2.) + (4.3 / 2.))
-    bead_params['offset_bd_weight'] =  50.
+    bead_params['offset_bd_weight'] = 50.
     bead_params['offset_bd_aromatic_weight'] = 20.
     bead_params['lonely_atom_penalize'] = 0.20
     bead_params['bd_bd_overlap_coeff'] = 9.0
@@ -88,9 +89,11 @@ def gen_molecule_smi(smi):
     if '.' in smi:
         logger.warning('Error. Only one molecule may be provided.')
         logger.warning(smi)
-        #exit(1)
+        exit(1)
     # If necessary, adjust smiles for Aromatic Ns
     # Redirect current stderr in log file
+    stderr_fd = None
+    stderr_save = None
     try:
         stderr_fileno = sys.stderr.fileno()
         stderr_save = os.dup(stderr_fileno)
@@ -104,7 +107,7 @@ def gen_molecule_smi(smi):
         cp = Chem.Mol(molecule)
         Chem.SanitizeMol(cp)
         # Close log file and restore old sys err
-        if stderr_fileno != None:
+        if stderr_fileno is not None:
             stderr_fd.close()
             os.dup2(stderr_save, stderr_fileno)
         molecule = cp
@@ -149,7 +152,7 @@ def print_header(molname, smi=None, sdf=None):
     logger.debug('Entering print_header()')
     print('; GENERATED WITH auto_martini.py')
     if smi:
-        print('; INPUT SMILES:', arguments.smi)
+        print('; INPUT SMILES:', smi)
     else:
         print(';', sdf)
     print('; Tristan Bereau (2014)')
@@ -808,7 +811,8 @@ def check_additivity(forcepred, beadtypes, molecule):
         return False
 
 
-def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partitioning, ringatoms, ringatoms_flat, trial=False):
+def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partitioning, ringatoms, ringatoms_flat,
+                trial=False):
     """Print CG Atoms in itp format"""
     logger.debug('Entering print_atoms()')
     atomnames = []
@@ -972,13 +976,10 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
         # possible constraint between beads that have constraints,
         # add it.
         beads_with_const = []
-        print("conslist %s" % constlist)
         for c in constlist:
             if c[0] not in beads_with_const:
-                logger.info("c0 %s" % c[0])
                 beads_with_const.append(c[0])
             if c[1] not in beads_with_const:
-                logger.info("c1 %s" % c[1])
                 beads_with_const.append(c[1])
         beads_with_const = sorted(beads_with_const)
         for i in range(len(beads_with_const)):
@@ -1173,17 +1174,17 @@ def print_dihedrals(cgbeads, constlist, ringatoms, cgbead_coords):
     return
 
 
-def cg_molecule(mol, molname, aa_output=None, cg_output=None, forcepred=False):
-    '''Main routine to coarse-grain molecule'''
+def cg_molecule(molecule, molname, aa_output=None, cg_output=None, forcepred=False):
+    """Main routine to coarse-grain molecule"""
     # Get molecule's features
-    feats = extract_features(mol)
+    feats = extract_features(molecule)
 
     # Get list of heavy atoms and their coordinates
-    list_heavy_atoms, list_heavyatom_names = get_atoms(mol)
-    conf, heavy_atom_coords = get_heavy_atom_coords(mol)
+    list_heavy_atoms, list_heavyatom_names = get_atoms(molecule)
+    conf, heavy_atom_coords = get_heavy_atom_coords(molecule)
 
     # Identify ring-type atoms
-    ring_atoms = get_ring_atoms(mol)
+    ring_atoms = get_ring_atoms(molecule)
 
     # Get Hbond information
     hbond_a = get_hbond_a(feats)
@@ -1194,7 +1195,8 @@ def cg_molecule(mol, molname, aa_output=None, cg_output=None, forcepred=False):
 
     # Optimize coarse-grained bead positions -- keep all possibilities in case something goes
     # wrong later in the code.
-    list_cg_beads, list_bead_pos = find_bead_pos(mol, conf, list_heavy_atoms, heavy_atom_coords, ring_atoms, ring_atoms_flat)
+    list_cg_beads, list_bead_pos = find_bead_pos(molecule, conf, list_heavy_atoms, heavy_atom_coords, ring_atoms,
+                                                 ring_atoms_flat)
 
     # Loop through best 1% cg_beads and avg_pos
     cg_bead_names = []
@@ -1215,25 +1217,26 @@ def cg_molecule(mol, molname, aa_output=None, cg_output=None, forcepred=False):
         logger.info('; Atom partitioning: %s' % atom_partitioning)
         logger.info('------------------------------------------------------')
 
-        cg_bead_names, bead_types = print_atoms(molname, forcepred, cg_beads, mol, hbond_a, hbond_d, atom_partitioning,
-                                                ring_atoms, ring_atoms_flat, True)
+        cg_bead_names, bead_types = print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d,
+                                                atom_partitioning, ring_atoms, ring_atoms_flat, True)
         if not cg_bead_names:
             success = False
         # Check additivity between fragments and entire molecule
-        if not check_additivity(forcepred, bead_types, mol):
+        if not check_additivity(forcepred, bead_types, molecule):
             success = False
         # Bond list
         try:
-            bond_list, const_list = print_bonds(cg_beads, mol, atom_partitioning, cg_bead_coords, ring_atoms, True)
+            bond_list, const_list = print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms, True)
         except (NameError, ValueError):
             success = False
 
         if success:
             print_header(molname)
-            cg_bead_names, bead_types = print_atoms(molname, forcepred, cg_beads, mol, hbond_a, hbond_d, atom_partitioning,
-                                                    ring_atoms, ring_atoms_flat, False)
-            bond_list, const_list = print_bonds(cg_beads, mol, atom_partitioning, cg_bead_coords, ring_atoms, False)
-            print_angles(cg_beads, mol, atom_partitioning, cg_bead_coords, bond_list, const_list, ring_atoms)
+            cg_bead_names, bead_types = print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d,
+                                                    atom_partitioning, ring_atoms, ring_atoms_flat, False)
+            bond_list, const_list = print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms,
+                                                False)
+            print_angles(cg_beads, molecule, atom_partitioning, cg_bead_coords, bond_list, const_list, ring_atoms)
             print_dihedrals(cg_beads, const_list, ring_atoms, cg_bead_coords)
             # We've reached all the way here, exit the while loop
             attempt = max_attempts + 1
@@ -1252,8 +1255,6 @@ def cg_molecule(mol, molname, aa_output=None, cg_output=None, forcepred=False):
     # Optional coarse-grained output to GRO file
     if cg_output:
         output_gro(cg_output, cg_bead_coords, cg_bead_names, molname)
-
-
 
 if __name__ == '__main__':
 
