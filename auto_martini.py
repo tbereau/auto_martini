@@ -4,6 +4,7 @@
 #
 # Tristan BEREAU (2014)
 
+
 from __future__ import print_function
 
 import sys
@@ -90,18 +91,22 @@ def gen_molecule_smi(smi):
         #exit(1)
     # If necessary, adjust smiles for Aromatic Ns
     # Redirect current stderr in log file
-    stderr_fileno = sys.stderr.fileno()
-    stderr_save = os.dup(stderr_fileno)
-    stderr_fd = open('sanitize.log', 'w')
-    os.dup2(stderr_fd.fileno(), stderr_fileno)
+    try:
+        stderr_fileno = sys.stderr.fileno()
+        stderr_save = os.dup(stderr_fileno)
+        stderr_fd = open('sanitize.log', 'w')
+        os.dup2(stderr_fd.fileno(), stderr_fileno)
+    except:
+        stderr_fileno = None
     # Get smiles without sanitization
     molecule = Chem.MolFromSmiles(smi, False)
     try:
         cp = Chem.Mol(molecule)
         Chem.SanitizeMol(cp)
         # Close log file and restore old sys err
-        stderr_fd.close()
-        os.dup2(stderr_save, stderr_fileno)
+        if stderr_fileno != None:
+            stderr_fd.close()
+            os.dup2(stderr_save, stderr_fileno)
         molecule = cp
     except ValueError:
         logger.warning('Bad smiles format %s found' % smi)
@@ -139,19 +144,19 @@ def gen_molecule_sdf(sdf):
     return molecule
 
 
-def print_header(arguments):
+def print_header(molname, smi=None, sdf=None):
     """Print topology header"""
     logger.debug('Entering print_header()')
     print('; GENERATED WITH auto_martini.py')
-    if arguments.smi:
+    if smi:
         print('; INPUT SMILES:', arguments.smi)
     else:
-        print(';', arguments.sdf)
+        print(';', sdf)
     print('; Tristan Bereau (2014)')
     print('')
     print('[moleculetype]')
     print('; molname       nrexcl')
-    print('  {:5s}         2'.format(arguments.molname))
+    print('  {:5s}         2'.format(molname))
     print('')
     print('[atoms]')
     print('; id    type    resnr   residue  atom    cgnr    charge  smiles')
@@ -248,7 +253,7 @@ def gaussian_overlap(conformer, bead1, bead2, ringatoms):
     """"Returns overlap coefficient between two gaussians
     given distance dist"""
     logger.debug('Entering gaussian_overlap()')
-    dist = Chem.rdMolTransforms.GetBondLength(conformer, bead1, bead2)
+    dist = Chem.rdMolTransforms.GetBondLength(conformer, int(bead1), int(bead2))
     bead_params = read_bead_params()
     sigma = bead_params['rvdw']
     if bead1 in ringatoms and bead2 in ringatoms:
@@ -269,7 +274,7 @@ def atoms_in_gaussian(molecule, conformer, bead_id, ringatoms):
     if bead_id in ringatoms:
         sigma = bead_params['rvdw_aromatic']
     for i in range(conformer.GetNumAtoms()):
-        dist_bd_at = Chem.rdMolTransforms.GetBondLength(conformer, i, bead_id)
+        dist_bd_at = Chem.rdMolTransforms.GetBondLength(conformer, i, int(bead_id))
         if dist_bd_at < sigma:
             lumped_atoms.append(i)
         weight_sum -= molecule.GetAtomWithIdx(i).GetMass() * math.exp(-dist_bd_at ** 2 / 2 / sigma ** 2)
@@ -286,7 +291,7 @@ def penalize_lonely_atoms(molecule, conformer, lumped_atoms):
     atoms_array = np.arange(num_atoms)
     for i in np.nditer(np.arange(atoms_array.size)):
         if atoms_array[i] not in lumped_atoms:
-            weight_sum += molecule.GetAtomWithIdx(atoms_array[i]).GetMass()
+            weight_sum += molecule.GetAtomWithIdx(int(atoms_array[i])).GetMass()
     return bead_params['lonely_atom_penalize'] * weight_sum
 
 
@@ -343,7 +348,7 @@ def get_atoms(molecule):
     logger.info('; Heavy atoms:')
     atoms = np.arange(num_atoms)
     for i in np.nditer(atoms):
-        atom_name = molecule.GetAtomWithIdx(atoms[i]).GetSymbol()
+        atom_name = molecule.GetAtomWithIdx(int(atoms[i])).GetSymbol()
         if atom_name != "H":
             list_heavyatoms.append(atoms[i])
             list_heavyatomnames.append(atom_name)
@@ -399,7 +404,7 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, ring_atoms, listb
                                                                     in listbonds for item in sublist].count(
                             trial_comb[bj]) == 1):
                         # Both beads are on terminal atoms. Block contribution
-                        # if the two terminal atoms are linked to the same atom. 
+                        # if the two terminal atoms are linked to the same atom.
                         partneri = ''
                         partnerj = ''
                         for bond in listbonds:
@@ -417,33 +422,33 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, ring_atoms, listb
     return acceptable_trial
 
 
-def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringatoms_flat):
+def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_atoms, ringatoms_flat):
     """Try out all possible combinations of CG beads
     up to threshold number of beads per atom. find
     arrangement with best energy score. Return all
     possible arrangements sorted by energy score."""
     logger.debug('Entering find_bead_pos()')
     # Check number of heavy atoms
-    if len(list_heavyatoms) == 0:
+    if len(list_heavy_atoms) == 0:
         logger.warning('Error. No heavy atom found.')
         exit(1)
-    if len(list_heavyatoms) == 1:
+    if len(list_heavy_atoms) == 1:
         # Put one CG bead on the one heavy atom.
         best_trial_comb = np.array(list(itertools.combinations(range(len(list_heavy_atoms)), 1)))
         avg_pos = [[conformer.GetAtomPosition(best_trial_comb[0])[j] for j in range(3)]]
         return best_trial_comb, avg_pos
-    if len(list_heavyatoms) > 50:
+    if len(list_heavy_atoms) > 50:
         logger.warning('Error. Exhaustive enumeration can\'t handle large molecules.')
-        logger.warning('Number of heavy atoms: %d' % len(list_heavyatoms))
+        logger.warning('Number of heavy atoms: %d' % len(list_heavy_atoms))
         exit(1)
     # List of bonds between heavy atoms
     list_bonds = []
-    for i in range(len(list_heavyatoms)):
-        for j in range(i + 1, len(list_heavyatoms)):
-            if molecule.GetBondBetweenAtoms(list_heavyatoms[i], list_heavyatoms[j]) is not None:
-                list_bonds.append([list_heavyatoms[i], list_heavyatoms[j]])
+    for i in range(len(list_heavy_atoms)):
+        for j in range(i + 1, len(list_heavy_atoms)):
+            if molecule.GetBondBetweenAtoms(int(list_heavy_atoms[i]), int(list_heavy_atoms[j])) is not None:
+                list_bonds.append([list_heavy_atoms[i], list_heavy_atoms[j]])
     # Max number of beads. At most 2.5 heavy atoms per bead.
-    max_beads = int(len(list_heavyatoms) / 2.)
+    max_beads = int(len(list_heavy_atoms) / 2.)
     # Collect all possible combinations of bead positions
     best_trial_comb = []
     list_trial_comb = []
@@ -470,7 +475,7 @@ def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringat
                 logger.info('; %s %s', trial_comb, trial_ene)
                 # Make sure all atoms within one bead would be connected
                 if all_atoms_in_beads_connected(trial_comb,
-                   heavyatom_coords, list_heavyatoms, list_bonds):
+                   heavyatom_coords, list_heavy_atoms, list_bonds):
                     # Accept the move
                     if trial_ene < ene_best_trial:
                         ene_best_trial = trial_ene
@@ -478,7 +483,7 @@ def find_bead_pos(molecule, conformer, list_heavyatoms, heavyatom_coords, ringat
                     # Get bead positions
                     beadpos = [[0]*3 for l in range(len(trial_comb))]
                     for l in range(len(trial_comb)):
-                        beadpos[l] = [conformer.GetAtomPosition(sorted(trial_comb)[l])[m] for m in range(3)]
+                        beadpos[l] = [conformer.GetAtomPosition(int(sorted(trial_comb)[l]))[m] for m in range(3)]
                     # Store configuration
                     list_trial_comb.append([trial_comb, beadpos, trial_ene])
         if last_best_trial_comb == best_trial_comb:
@@ -516,7 +521,7 @@ def get_coords(conformer, sites, avg_pos, ringatoms_flat):
     site_coords = []
     for i in range(len(sites)):
         if sites[i] in ringatoms_flat:
-            site_coords.append(np.array([conformer.GetAtomPosition(sites[i])[j] for j in range(3)]))
+            site_coords.append(np.array([conformer.GetAtomPosition(int(sites[i]))[j] for j in range(3)]))
         else:
             # Use average
             site_coords.append(np.array(avg_pos[i]))
@@ -532,6 +537,7 @@ def all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, 
     for i in range(len(trial_comb)):
         cgbead_coords.append(heavyatom_coords[list_heavyatoms.index(trial_comb[i])])
     voronoi = voronoi_atoms(cgbead_coords, heavyatom_coords)
+    logger.debug('voronoi %s' % voronoi)
     for i in range(len(trial_comb)):
         cg_bead = trial_comb[i]
         num_atoms = voronoi.values().count(voronoi[list_heavyatoms.index(cg_bead)])
@@ -667,7 +673,7 @@ def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
     return s[1].split()[0], wc_log_p, chg
 
 
-def smi2alogps(arguments, smi, wc_log_p, bead, trial=False):
+def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
     """Returns water/octanol partitioning free energy
     according to ALOGPS"""
     logger.debug('Entering smi2alogps()')
@@ -685,7 +691,7 @@ def smi2alogps(arguments, smi, wc_log_p, bead, trial=False):
             break
     if not found_mol_1:
         # If we're forcing a prediction, use Wildman-Crippen
-        if arguments.forcepred:
+        if forcepred:
             if trial:
                 wrn = "; Warning: bead ID " + str(bead) + \
                       " predicted from Wildman-Crippen. Fragment " + str(smi) + "\n"
@@ -759,7 +765,7 @@ def determine_bead_type(delta_f, charge, hbonda, hbondd, in_ring):
     return bead_type
 
 
-def check_additivity(arguments, beadtypes, molecule):
+def check_additivity(forcepred, beadtypes, molecule):
     """Check additivity assumption between sum of free energies of CG beads
     and free energy of whole molecule"""
     logger.debug('Entering check_additivity()')
@@ -792,7 +798,7 @@ def check_additivity(arguments, beadtypes, molecule):
         logger.warning(e)
         exit(1)
     os.remove(tmpfile)
-    whole_mol_dg = smi2alogps(arguments, s[1].split()[0], wc_log_p, "MOL", True)
+    whole_mol_dg = smi2alogps(forcepred, s[1].split()[0], wc_log_p, "MOL", True)
     m_ad = math.fabs((whole_mol_dg - sum_frag) / whole_mol_dg)
     logger.info('; Mapping additivity assumption ratio: {0:%7.4f} ({1:%7.4f} vs. {2:%7.4f})'
                 % (m_ad, whole_mol_dg, sum_frag))
@@ -802,7 +808,7 @@ def check_additivity(arguments, beadtypes, molecule):
         return False
 
 
-def print_atoms(arguments, cgbeads, molecule, hbonda, hbondd, partitioning, ringatoms, ringatoms_flat, trial=False):
+def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partitioning, ringatoms, ringatoms_flat, trial=False):
     """Print CG Atoms in itp format"""
     logger.debug('Entering print_atoms()')
     atomnames = []
@@ -829,7 +835,7 @@ def print_atoms(arguments, cgbeads, molecule, hbonda, hbondd, partitioning, ring
         # Extract ALOGPS free energy
         try:
             if charge_frag == 0:
-                alogps = smi2alogps(arguments, smi_frag, wc_log_p, bead + 1, trial)
+                alogps = smi2alogps(forcepred, smi_frag, wc_log_p, bead + 1, trial)
             else:
                 alogps = 0.0
         except (NameError, TypeError, ValueError):
@@ -854,7 +860,7 @@ def print_atoms(arguments, cgbeads, molecule, hbonda, hbondd, partitioning, ring
         atomnames.append(atom_name)
         if not trial:
             print('    {:<5d} {:5s}   1     {:5s}     {:7s} {:<5d}    {:2d}   ; {:s}'.format(
-                bead + 1, bead_type, arguments.molname, atom_name, bead + 1, charge, smi_frag))
+                bead + 1, bead_type, molname, atom_name, bead + 1, charge, smi_frag))
         beadtypes.append(bead_type)
     return atomnames, beadtypes
 
@@ -1001,7 +1007,6 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                                 break
                         # If not in bondlist and in the same ring, add the contraint
                         if not in_bond_list and in_ring:
-                            logger.info("add %s %s %s" % (i, j, dist))
                             constlist.append([i, j, dist])
 
         if not trial:
@@ -1168,6 +1173,88 @@ def print_dihedrals(cgbeads, constlist, ringatoms, cgbead_coords):
     return
 
 
+def cg_molecule(mol, molname, aa_output=None, cg_output=None, forcepred=False):
+    '''Main routine to coarse-grain molecule'''
+    # Get molecule's features
+    feats = extract_features(mol)
+
+    # Get list of heavy atoms and their coordinates
+    list_heavy_atoms, list_heavyatom_names = get_atoms(mol)
+    conf, heavy_atom_coords = get_heavy_atom_coords(mol)
+
+    # Identify ring-type atoms
+    ring_atoms = get_ring_atoms(mol)
+
+    # Get Hbond information
+    hbond_a = get_hbond_a(feats)
+    hbond_d = get_hbond_d(feats)
+
+    # Flatten list of ring atoms
+    ring_atoms_flat = list(chain.from_iterable(ring_atoms))
+
+    # Optimize coarse-grained bead positions -- keep all possibilities in case something goes
+    # wrong later in the code.
+    list_cg_beads, list_bead_pos = find_bead_pos(mol, conf, list_heavy_atoms, heavy_atom_coords, ring_atoms, ring_atoms_flat)
+
+    # Loop through best 1% cg_beads and avg_pos
+    cg_bead_names = []
+    cg_bead_coords = []
+    max_attempts = int(math.ceil(0.5 * len(list_cg_beads)))
+    logger.info('; Max. number of attempts: %s' % max_attempts)
+    attempt = 0
+    while attempt < max_attempts:
+        cg_beads = list_cg_beads[attempt]
+        bead_pos = list_bead_pos[attempt]
+        success = True
+
+        # Extract position of coarse-grained beads
+        cg_bead_coords = get_coords(conf, cg_beads, bead_pos, ring_atoms_flat)
+
+        # Partition atoms into coarse-grained beads
+        atom_partitioning = voronoi_atoms(cg_bead_coords, heavy_atom_coords)
+        logger.info('; Atom partitioning: %s' % atom_partitioning)
+        logger.info('------------------------------------------------------')
+
+        cg_bead_names, bead_types = print_atoms(molname, forcepred, cg_beads, mol, hbond_a, hbond_d, atom_partitioning,
+                                                ring_atoms, ring_atoms_flat, True)
+        if not cg_bead_names:
+            success = False
+        # Check additivity between fragments and entire molecule
+        if not check_additivity(forcepred, bead_types, mol):
+            success = False
+        # Bond list
+        try:
+            bond_list, const_list = print_bonds(cg_beads, mol, atom_partitioning, cg_bead_coords, ring_atoms, True)
+        except (NameError, ValueError):
+            success = False
+
+        if success:
+            print_header(molname)
+            cg_bead_names, bead_types = print_atoms(molname, forcepred, cg_beads, mol, hbond_a, hbond_d, atom_partitioning,
+                                                    ring_atoms, ring_atoms_flat, False)
+            bond_list, const_list = print_bonds(cg_beads, mol, atom_partitioning, cg_bead_coords, ring_atoms, False)
+            print_angles(cg_beads, mol, atom_partitioning, cg_bead_coords, bond_list, const_list, ring_atoms)
+            print_dihedrals(cg_beads, const_list, ring_atoms, cg_bead_coords)
+            # We've reached all the way here, exit the while loop
+            attempt = max_attempts + 1
+        else:
+            attempt += 1
+    if attempt == max_attempts:
+        err = "; ERROR: no successful mapping found.\n" + \
+              "; Try running with the '--fpred' and/or '--verbose' options.\n"
+        sys.stderr.write(err)
+        exit(1)
+
+    # Optional all-atom output to GRO file
+    if aa_output:
+        output_gro(aa_output, heavy_atom_coords, list_heavyatom_names, "MOL")
+
+    # Optional coarse-grained output to GRO file
+    if cg_output:
+        output_gro(cg_output, cg_bead_coords, cg_bead_names, molname)
+
+
+
 if __name__ == '__main__':
 
     # Parse command-line options
@@ -1198,80 +1285,4 @@ if __name__ == '__main__':
     else:
         mol = gen_molecule_smi(args.smi)
 
-    # Get molecule's features
-    feats = extract_features(mol)
-
-    # Get list of heavy atoms and their coordinates
-    list_heavy_atoms, list_heavyatom_names = get_atoms(mol)
-    conf, heavy_atom_coords = get_heavy_atom_coords(mol)
-
-    # Identify ring-type atoms
-    ring_atoms = get_ring_atoms(mol)
-
-    # Get Hbond information
-    hbond_a = get_hbond_a(feats)
-    hbond_d = get_hbond_d(feats)
-
-    # Flatten list of ring atoms
-    ring_atoms_flat = list(chain.from_iterable(ring_atoms))
-
-    # Optimize coarse-grained bead positions -- keep all possibilities in case something goes
-    # wrong later in the code.
-    list_cg_beads, list_bead_pos = find_bead_pos(mol, conf, list_heavy_atoms, heavy_atom_coords, ring_atoms_flat)
-
-    # Loop through best 1% cg_beads and avg_pos
-    cg_bead_names = []
-    cg_bead_coords = []
-    max_attempts = int(math.ceil(0.5 * len(list_cg_beads)))
-    logger.info('; Max. number of attempts: %s' % max_attempts)
-    attempt = 0
-    while attempt < max_attempts:
-        cg_beads = list_cg_beads[attempt]
-        bead_pos = list_bead_pos[attempt]
-        success = True
-
-        # Extract position of coarse-grained beads
-        cg_bead_coords = get_coords(conf, cg_beads, bead_pos, ring_atoms_flat)
-
-        # Partition atoms into coarse-grained beads
-        atom_partitioning = voronoi_atoms(cg_bead_coords, heavy_atom_coords)
-        logger.info('; Atom partitioning: %s' % atom_partitioning)
-        logger.info('------------------------------------------------------')
-
-        cg_bead_names, bead_types = print_atoms(args, cg_beads, mol, hbond_a, hbond_d, atom_partitioning,
-                                                ring_atoms, ring_atoms_flat, True)
-        if not cg_bead_names:
-            success = False
-        # Check additivity between fragments and entire molecule
-        if not check_additivity(args, bead_types, mol):
-            success = False
-        # Bond list
-        try:
-            bond_list, const_list = print_bonds(cg_beads, mol, atom_partitioning, cg_bead_coords, ring_atoms, True)
-        except (NameError, ValueError):
-            success = False
-
-        if success:
-            print_header(args)
-            cg_bead_names, bead_types = print_atoms(args, cg_beads, mol, hbond_a, hbond_d, atom_partitioning,
-                                                    ring_atoms, ring_atoms_flat, False)
-            bond_list, const_list = print_bonds(cg_beads, mol, atom_partitioning, cg_bead_coords, ring_atoms, False)
-            print_angles(cg_beads, mol, atom_partitioning, cg_bead_coords, bond_list, const_list, ring_atoms)
-            print_dihedrals(cg_beads, const_list, ring_atoms, cg_bead_coords)
-            # We've reached all the way here, exit the while loop
-            attempt = max_attempts + 1
-        else:
-            attempt += 1
-    if attempt == max_attempts:
-        err = "; ERROR: no successful mapping found.\n" + \
-              "; Try running with the '--fpred' and/or '--verbose' options.\n"
-        sys.stderr.write(err)
-        exit(1)
-
-    # Optional all-atom output to GRO file
-    if args.aa:
-        output_gro(args.aa, heavy_atom_coords, list_heavyatom_names, "MOL")
-
-    # Optional coarse-grained output to GRO file
-    if args.cg:
-        output_gro(args.cg, cg_bead_coords, cg_bead_names, args.molname)
+    cg_molecule(mol, args.molname, args.aa, args.cg, args.forcepred)
