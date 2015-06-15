@@ -83,3 +83,12 @@ python: /usr/include/boost/thread/pthread/mutex.hpp:108: boost::mutex::~mutex():
 ```
 the results provided by the code are unaffected by this error message. Simply ignore it.
 
+###RDKit outdated
+
+Older RDKit versions will report the following error:
+```
+[...]
+distBdAt = Chem.rdMolTransforms.GetBondLength(conf,i,beadId)
+AttributeError: 'module' object has no attribute 'GetBondLength'
+```
+Simply update your version of RDKit. Most package managers will allow you to do this, unless you've installed RDKit from source.
