@@ -913,9 +913,9 @@ def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
               bondsToRing.append(b)
           # keep closest
           closestBond = [-1,-1,1000.0]
-          for i in xrange(len(bondsToRing)):
-            if bondsToRing[i][2] < closestBond[2]:
-              closestBond = bondsToRing[i]
+          for r in xrange(len(bondsToRing)):
+            if bondsToRing[r][2] < closestBond[2]:
+              closestBond = bondsToRing[r]
           # Delete the other bonds
           for b in bondsToRing:
             if b != closestBond:
