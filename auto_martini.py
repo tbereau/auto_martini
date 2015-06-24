@@ -633,13 +633,6 @@ def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
         if cgbeads[cg_bead] in ring:
             atoms_in_ring = ring[:]  # CHANGED
             break
-    # Add atoms off the ring that belong to the fragment.
-    for atom in atoms_in_ring:
-        # if atom in cg_beads:
-        if atom == cgbeads:
-            for atp in partitioning.keys():
-                if partitioning[atp] == partitioning[atom] and atp not in atoms_in_ring:
-                    atoms_in_ring.append(atp)
     # Then heavy atoms that aren't part of the CG bead (except those
     # involved in the same ring).
     for i in partitioning.keys():
@@ -913,6 +906,7 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                                 found_connection = True
                         if found_connection:
                             bondlist.append([i, j, dist])
+
         for ring in ringatoms:
             # Only keep one bond between a ring and a given external bead
             for i in range(len(cgbeads)):
@@ -920,8 +914,9 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                 if at not in ring:
                     bonds_to_ring = []
                     for b in bondlist:
-                        if (b[0] in ring and b[1] == at) or \
-                                (b[0] == at and b[1] in ring):
+                        bead = i
+                        if (b[0] in ring and b[1] == bead) or \
+                                (b[0] == bead and b[1] in ring):
                             bonds_to_ring.append(b)
                     # keep closest
                     closest_bond = [-1, -1, 1000.0]
@@ -954,6 +949,7 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                                 bondlist.remove(b)
         # Replace bond by constraint if both atoms have constraints
         # to the same third atom
+
         bond_list_idx = 0
         while bond_list_idx < len(bondlist):
             b = bondlist[bond_list_idx]
@@ -970,6 +966,8 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                 if const_i and const_j:
                     constlist.append(b)
                     bondlist.remove(b)
+                    # Start over
+                    bond_list_idx = -1
             bond_list_idx += 1
 
         # Go through list of constraints. If we find an extra
