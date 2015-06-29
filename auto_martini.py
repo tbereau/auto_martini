@@ -463,7 +463,7 @@ def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_
     for num_beads in range(1, max_beads + 1):
         # Use recursive function to loop through all possible
         # combinations of CG bead positions.
-        seq_one_beads = np.array(list(itertools.combinations(range(len(list_heavy_atoms)), num_beads)))
+        seq_one_beads = np.array(list(itertools.combinations(list_heavy_atoms, num_beads)))
         combs = []
         energies = []
         # Trial positions: any heavy atom
@@ -839,11 +839,13 @@ def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partition
             return []
         hbond_a_flag = 0
         for at in hbonda:
+            # why len(hbonda) condition?
             if partitioning[at] == bead and len(hbonda) > 1:
                 hbond_a_flag = 1
                 break
         hbond_d_flag = 0
         for at in hbondd:
+            # why len(hbondd) condition?
             if partitioning[at] == bead and len(hbondd) > 1:
                 hbond_d_flag = 1
                 break
