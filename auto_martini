@@ -908,8 +908,8 @@ def printBonds(cgBeads, mol, cgBeadCoords,ringAtoms, trial=False):
         if at not in ring:
           bondsToRing = []
           for b in bondList:
-            if (b[0] in ring and b[1] == at) or \
-              (b[0] == at and b[1] in ring):
+            if (cgBeads[b[0]] in ring and b[1] == at) or \
+              (b[0] == at and cgBeads[b[1]] in ring):
               bondsToRing.append(b)
           # keep closest
           closestBond = [-1,-1,1000.0]
