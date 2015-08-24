@@ -18,7 +18,8 @@ Please consider citing the paper if you find `auto_martini` useful in your resea
 ```
 @article{bereau2015automated,
 author = {Bereau, Tristan and Kremer, Kurt},
-title = {Automated parametrization of the coarse-grained MARTINI force field for small organic molecules},
+title = {Automated parametrization of the coarse-grained MARTINI force field 
+    for small organic molecules},
 journal = {J Chem Theory Comput},
 year = {2015},
 volume = {11},
