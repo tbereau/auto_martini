@@ -16,7 +16,7 @@ Bereau and Kremer, *J Chem Theory Comput*, DOI:10.1021/acs.jctc.5b00056 (2015) [
 Please consider citing the paper if you find `auto_martini` useful in your research.
 
 ```
-@article{bereau2015automated,
+@article{bereau2015automartini,
 author = {Bereau, Tristan and Kremer, Kurt},
 title = {Automated parametrization of the coarse-grained MARTINI force field 
     for small organic molecules},
