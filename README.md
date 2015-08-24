@@ -11,6 +11,8 @@ For a detailed account of the software, see:
 
 Bereau and Kremer, *J Chem Theory Comput*, DOI:10.1021/acs.jctc.5b00056 (2015) [link](http://dx.doi.org/10.1021/acs.jctc.5b00056)
 
+[![DOI for Citing auto_martini](https://img.shields.io/badge/DOI-10.1021%2Facs.jctc.5b00056-blue.svg)](http://dx.doi.org/10.1021/acs.jctc.5b00056)
+
 Please consider citing the paper if you find `auto_martini` useful in your research.
 
 ##Installation
