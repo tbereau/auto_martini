@@ -673,10 +673,20 @@ def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
     """Returns water/octanol partitioning free energy
     according to ALOGPS"""
     logger.debug('Entering smi2alogps()')
-    session = requests.session()
-    req = session.get('http://vcclab.org/web/alogps/calc?SMILES=' + str(smi))
-    doc = BeautifulSoup.BeautifulSoup(req.content)
-    soup = doc.prettify()
+    req = ""
+    soup = ""
+    try:
+        session = requests.session()
+        req = session.get('http://vcclab.org/web/alogps/calc?SMILES=' + str(smi))
+    except:
+        logger.warning("Error. Can't reach vcclab.org to estimate free energy.")
+        exit(1)
+    try:
+        doc = BeautifulSoup.BeautifulSoup(req.content)
+        soup = doc.prettify()
+    except:
+        logger.warning("Error with BeautifulSoup.")
+        exit(1)
     found_mol_1 = False
     log_p = ''
     for line in soup.split("\n"):
@@ -696,6 +706,7 @@ def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
         else:
             logger.warning('ALOGPS can\'t predict fragment: %s' % smi)
             exit(1)
+    logger.debug('logp value: %f' % log_p)
     return convert_log_k(log_p)
 
 
@@ -836,7 +847,7 @@ def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partition
             else:
                 alogps = 0.0
         except (NameError, TypeError, ValueError):
-            return False, False
+            return []
         hbond_a_flag = 0
         for at in hbonda:
             # why len(hbonda) condition?
@@ -1221,10 +1232,9 @@ def cg_molecule(molecule, molname, aa_output=None, cg_output=None, forcepred=Fal
                                                 atom_partitioning, ring_atoms, ring_atoms_flat, True)
         if not cg_bead_names:
             success = False
-        else:
-            # Check additivity between fragments and entire molecule
-            if not check_additivity(forcepred, bead_types, molecule):
-                success = False
+        # Check additivity between fragments and entire molecule
+        if not check_additivity(forcepred, bead_types, molecule):
+            success = False
         # Bond list
         try:
             bond_list, const_list = print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms, True)
