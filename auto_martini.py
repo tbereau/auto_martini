@@ -917,8 +917,8 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                     bonds_to_ring = []
                     for b in bondlist:
                         bead = i
-                        if (b[0] in ring and b[1] == bead) or \
-                                (b[0] == bead and b[1] in ring):
+                        if (cgbeads[b[0]] in ring and b[1] == bead) or \
+                                (b[0] == bead and cgbeads[b[1]] in ring):
                             bonds_to_ring.append(b)
                     # keep closest
                     closest_bond = [-1, -1, 1000.0]
@@ -936,8 +936,8 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                     if val == i:
                         atoms_in_bead.append(key)
                 for b in bondlist:
-                    if (b[0] in ring and b[1] in atoms_in_bead) or \
-                            (b[0] in atoms_in_bead and b[1] in ring):
+                    if (cgbeads[b[0]] in ring and b[1] in atoms_in_bead) or \
+                            (b[0] in atoms_in_bead and cgbeads[b[1]] in ring):
                         bead_bonded_to_ring.append(i)
             # Delete bond between 2 beads if they're both linked
             # to the same ring.
