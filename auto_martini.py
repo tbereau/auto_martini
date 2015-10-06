@@ -1221,9 +1221,10 @@ def cg_molecule(molecule, molname, aa_output=None, cg_output=None, forcepred=Fal
                                                 atom_partitioning, ring_atoms, ring_atoms_flat, True)
         if not cg_bead_names:
             success = False
-        # Check additivity between fragments and entire molecule
-        if not check_additivity(forcepred, bead_types, molecule):
-            success = False
+        else:
+            # Check additivity between fragments and entire molecule
+            if not check_additivity(forcepred, bead_types, molecule):
+                success = False
         # Bond list
         try:
             bond_list, const_list = print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms, True)
