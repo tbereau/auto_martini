@@ -836,7 +836,7 @@ def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partition
             else:
                 alogps = 0.0
         except (NameError, TypeError, ValueError):
-            return []
+            return False, False
         hbond_a_flag = 0
         for at in hbonda:
             # why len(hbonda) condition?
