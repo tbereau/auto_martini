@@ -677,15 +677,20 @@ def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
     soup = ""
     try:
         session = requests.session()
+        logger.debug('Calling http://vcclab.org/web/alogps/calc?SMILES='+str(smi))
         req = session.get('http://vcclab.org/web/alogps/calc?SMILES=' + str(smi))
     except:
         logger.warning("Error. Can't reach vcclab.org to estimate free energy.")
         exit(1)
     try:
         doc = BeautifulSoup.BeautifulSoup(req.content)
+    except:
+        logger.warning("Error with BeautifulSoup constructor")
+        exit(1)
+    try:
         soup = doc.prettify()
     except:
-        logger.warning("Error with BeautifulSoup.")
+        logger.warning("Error with BeautifulSoup prettify")
         exit(1)
     found_mol_1 = False
     log_p = ''
