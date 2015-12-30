@@ -782,10 +782,11 @@ def check_additivity(forcepred, beadtypes, molecule):
     and free energy of whole molecule"""
     logger.debug('Entering check_additivity()')
     # If there's only one bead, don't check.
-    if len(beadtypes) == 1:
-        return True
+    # if len(beadtypes) == 1:
+    #     return True
     sum_frag = 0.0
     rings = False
+    logger.info('; Bead types: %s' % beadtypes)
     for bead in beadtypes:
         if bead[0] == "S":
             bead = bead[1:]
@@ -812,7 +813,7 @@ def check_additivity(forcepred, beadtypes, molecule):
     os.remove(tmpfile)
     whole_mol_dg = smi2alogps(forcepred, s[1].split()[0], wc_log_p, "MOL", True)
     m_ad = math.fabs((whole_mol_dg - sum_frag) / whole_mol_dg)
-    logger.info('; Mapping additivity assumption ratio: {0:%7.4f} ({1:%7.4f} vs. {2:%7.4f})'
+    logger.info('; Mapping additivity assumption ratio: %7.4f (whole vs sum: %7.4f vs. %7.4f)'
                 % (m_ad, whole_mol_dg, sum_frag))
     if (not rings and m_ad < 0.5) or rings:
         return True
@@ -1231,7 +1232,6 @@ def cg_molecule(molecule, molname, aa_output=None, cg_output=None, forcepred=Fal
         # Partition atoms into coarse-grained beads
         atom_partitioning = voronoi_atoms(cg_bead_coords, heavy_atom_coords)
         logger.info('; Atom partitioning: %s' % atom_partitioning)
-        logger.info('------------------------------------------------------')
 
         cg_bead_names, bead_types = print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d,
                                                 atom_partitioning, ring_atoms, ring_atoms_flat, True)
@@ -1258,6 +1258,7 @@ def cg_molecule(molecule, molname, aa_output=None, cg_output=None, forcepred=Fal
             attempt = max_attempts + 1
         else:
             attempt += 1
+            logger.info('------------------------------------------------------')
     if attempt == max_attempts:
         err = "; ERROR: no successful mapping found.\n" + \
               "; Try running with the '--fpred' and/or '--verbose' options.\n"
