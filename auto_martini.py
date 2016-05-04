@@ -678,7 +678,7 @@ def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
     try:
         session = requests.session()
         logger.debug('Calling http://vcclab.org/web/alogps/calc?SMILES='+str(smi))
-        req = session.get('http://vcclab.org/web/alogps/calc?SMILES=' + str(smi))
+        req = session.get('http://vcclab.org/web/alogps/calc?SMILES=' + str(smi.replace('#','%23')))
     except:
         logger.warning("Error. Can't reach vcclab.org to estimate free energy.")
         exit(1)
