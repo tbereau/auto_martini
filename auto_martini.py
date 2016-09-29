@@ -77,7 +77,7 @@ def read_bead_params():
     bead_params['rvdw_cross'] = 0.5*((4.7 / 2.) + (4.3 / 2.))
     bead_params['offset_bd_weight'] = 50.
     bead_params['offset_bd_aromatic_weight'] = 20.
-    bead_params['lonely_atom_penalize'] = 0.20
+    bead_params['lonely_atom_penalize'] = 0.28 #0.20
     bead_params['bd_bd_overlap_coeff'] = 9.0
     bead_params['at_in_bd_coeff'] = 0.9
     return bead_params
@@ -711,19 +711,20 @@ def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
         else:
             logger.warning('ALOGPS can\'t predict fragment: %s' % smi)
             exit(1)
-    logger.debug('logp value: %f' % log_p)
+    logger.debug('logp value: %7.4f' % log_p)
     return convert_log_k(log_p)
 
 
 def convert_log_k(log_k):
     """Convert log_{10}K to free energy (in kJ/mol)"""
-    logger.debug('Entering convert_log_k()')
-    return 0.008314 * 300.0 * log_k / math.log10(math.exp(1))
+    val = 0.008314 * 300.0 * log_k / math.log10(math.exp(1))
+    logger.debug('free energy %7.4f kJ/mol' % val)
+    return val
 
 
 def mad(bead_type, delta_f, in_ring=False):
     """Mean absolute difference between type type and delta_f"""
-    logger.debug('Entering mad()')
+    # logger.debug('Entering mad()')
     delta_f_types = read_delta_f_types()
     return math.fabs(delta_f_types[bead_type] - delta_f)
 
@@ -772,6 +773,7 @@ def determine_bead_type(delta_f, charge, hbonda, hbondd, in_ring):
                 if tmp_error < min_error:
                     min_error = tmp_error
                     bead_type = cgtype
+            logger.debug("closest type: %s; error %7.4f" % (bead_type, min_error))
     if in_ring:
         bead_type = "S" + bead_type
     return bead_type
