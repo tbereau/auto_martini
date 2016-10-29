@@ -17,7 +17,8 @@ from rdkit.Chem import rdchem
 from rdkit.Chem import rdMolDescriptors
 from rdkit import RDConfig
 import requests
-import BeautifulSoup
+#import BeautifulSoup
+from bs4 import BeautifulSoup
 from itertools import chain
 from collections import defaultdict
 from operator import itemgetter
