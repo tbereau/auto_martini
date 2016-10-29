@@ -16,7 +16,8 @@ import logging
 import numpy as np
 import six
 import requests
-import BeautifulSoup
+#import BeautifulSoup
+from bs4 import BeautifulSoup
 from numpy import arctan2
 from collections import Counter
 from rdkit import Chem
