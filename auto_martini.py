@@ -684,7 +684,7 @@ def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
         logger.warning("Error. Can't reach vcclab.org to estimate free energy.")
         exit(1)
     try:
-        doc = BeautifulSoup.BeautifulSoup(req.content)
+        doc = BeautifulSoup(req.content, "lxml")
     except:
         logger.warning("Error with BeautifulSoup constructor")
         exit(1)
