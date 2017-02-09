@@ -22,7 +22,7 @@ from bs4 import BeautifulSoup
 from itertools import chain
 from collections import defaultdict
 from operator import itemgetter
-
+import lxml
 
 # For feature extraction
 fdefName = os.path.join(RDConfig.RDDataDir,'BaseFeatures.fdef')
