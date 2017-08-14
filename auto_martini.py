@@ -124,7 +124,7 @@ def gen_molecule_smi(smi):
             logger.warning('Smiles cannot be adjusted %s' % smi)
     # Continue
     molecule = Chem.AddHs(molecule)
-    AllChem.EmbedMolecule(molecule, useRandomCoords=True)
+    AllChem.EmbedMolecule(molecule, randomSeed = 1, useRandomCoords=True) # Set Seed for random coordinate generation = 1.
     try:
         AllChem.UFFOptimizeMolecule(molecule)
     except ValueError as e:
