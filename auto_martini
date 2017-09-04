@@ -43,6 +43,8 @@ parser.add_argument('--xyz', dest='xyz', type=str,
         help='output atomistic structure to OUT.xyz file')
 parser.add_argument('--gro', dest='gro', type=str,
         help='output CG structure to OUT.gro file')
+parser.add_argument('--map', dest='map', type=str,
+        help='output details of mapping')
 parser.add_argument('--verbose', dest='verbose', action='store_true',
         help='verbose')
 parser.add_argument('--fpred', dest='forcepred', action='store_true',
@@ -87,7 +89,7 @@ atInBdCoeff = 0.9
 
 def genMoleculeSMI(smi):
   '''Generate mol object from smiles string'''
-  mol = Chem.MolFromSmiles(args.smi)
+  mol = Chem.MolFromSmiles(smi)
   mol = Chem.AddHs(mol)
   AllChem.EmbedMolecule(mol,randomSeed = 1, useRandomCoords=True) # Set Seed for random coordinate generation = 1.
   try:
@@ -220,6 +222,26 @@ def outputPDB(mol, cgBeads):
   pw = Chem.rdmolfiles.PDBWriter(args.pdb)
   Chem.rdmolfiles.PDBWriter.write(pw, mol)
   pw.close()
+  return
+
+def outputMap(atomPartitioning):
+  '''Output the all-atom mapping for each bead'''
+  beadMap = {}
+  # Turn around the atomPartitioning so it is CG -> AA, rather than AA -> CG
+  for atom, bead in atomPartitioning.iteritems() :
+    if bead not in beadMap:
+      beadMap[bead] = []
+    beadMap[bead].append(atom)
+  try:
+    with open(args.map, 'w') as f:
+      for bead in sorted(beadMap.keys()):
+        f.write("{:d} : ".format(bead+1))
+        f.write(" ".join(["{:d}".format(a+1) for a in beadMap[bead]]))
+        f.write("\n")
+      f.close()
+  except IOError:
+    print "Can't write to file " + args.map
+    exit(1)
   return
 
 def getRingAtoms(feats):
@@ -1237,3 +1259,6 @@ if __name__ == '__main__':
   # Optional CG output to GRO file
   if args.gro:
     outputGRO(cgBeadCoords, atomNames)
+  # Optional output of mapping
+  if args.map:
+    outputMap(atomPartitioning)
