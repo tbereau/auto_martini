@@ -29,7 +29,7 @@ doi = {10.1021/acs.jctc.5b00056}
 }
 ```
 
-##Installation
+## Installation
 `auto-martini` is a python script that requires a number of dependencies:
 * `numpy`: see http://docs.scipy.org/doc/numpy/user/install.html
 * `rdkit`: see http://www.rdkit.org/docs/Install.html
@@ -45,7 +45,7 @@ usage: auto-martini [-h] (--sdf SDF | --smi SMI) --mol MOLNAME [--xyz XYZ]
 auto-martini: error: argument --mol is required
 ```
 
-##Usage
+## Usage
 To coarse-grain a molecule, simply provide its SMILES code (option `--smi SMI`) or a .SDF file (option `'--sdf file.sdf`). You also need to provide a name for the CG molecule (not longer than 5 characters) using the `--mol` option.  For instance, to coarse grain [guanazole](http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=15078), you can either obtain/generate (e.g., from Open Babel) an SDF file:
 ```
 auto-martini --sdf guanazole.sdf --mol GUA
@@ -79,9 +79,9 @@ auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --gro gua.gro
 ```
 Atomistic coordinates can be output in XYZ format using the `--xyz output.xyz` option.
 
-##Caveats
+## Caveats
 
-###Prediction algorithm
+### Prediction algorithm
 
 Since ALOGPS, the prediction algorithm for octanol/water partitioning, relies on whole fragments rather than individual atoms, the prediction of certain fragments can pose problem, e.g., small inorganic groups. In this case, `auto-martini` tries to parametrize alternative mappings. If none of them shows successful, the code will return an error.
 ```
@@ -90,7 +90,7 @@ Since ALOGPS, the prediction algorithm for octanol/water partitioning, relies on
 ```
 As mentioned in the error message, an alternative solution consists of relying on an atom-based partitioning coefficient prediction algorithm (Wildman-Crippen), which is less accurate but can predict any fragment.  In case the `--fpred` option is selected, only fragments for which ALOGPS fail will be predicted using Wildman-Crippen.
 
-###Boost error
+### Boost error
 
 Some versions of Boost will fail to correctly exit at the end of the program, generating such output messages:
 ```
@@ -99,7 +99,7 @@ python: /usr/include/boost/thread/pthread/mutex.hpp:108: boost::mutex::~mutex():
 ```
 the results provided by the code are unaffected by this error message. Simply ignore it.
 
-###RDKit outdated
+### RDKit outdated
 
 Older RDKit versions will report the following error:
 ```
