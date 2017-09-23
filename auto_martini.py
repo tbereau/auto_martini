@@ -785,8 +785,8 @@ def check_additivity(forcepred, beadtypes, molecule):
     and free energy of whole molecule"""
     logger.debug('Entering check_additivity()')
     # If there's only one bead, don't check.
-    # if len(beadtypes) == 1:
-    #     return True
+    if len(beadtypes) == 1:
+        return True
     sum_frag = 0.0
     rings = False
     logger.info('; Bead types: %s' % beadtypes)
@@ -859,14 +859,12 @@ def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partition
             return []
         hbond_a_flag = 0
         for at in hbonda:
-            # why len(hbonda) condition?
-            if partitioning[at] == bead and len(hbonda) > 1:
+            if partitioning[at] == bead:
                 hbond_a_flag = 1
                 break
         hbond_d_flag = 0
         for at in hbondd:
-            # why len(hbondd) condition?
-            if partitioning[at] == bead and len(hbondd) > 1:
+            if partitioning[at] == bead:
                 hbond_d_flag = 1
                 break
         in_ring = cgbeads[bead] in ringatoms_flat
