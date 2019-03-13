@@ -1,10 +1,12 @@
 Auto_MARTINI
 ============
 ***
-*Author:* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
+*Original author:* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
 *Created:* 2014  
+
+*Modified by:* Andrew Abi-Mansour 
 ***
-Automated MARTINI mapping and parametrization of small organic molecules.
+Automated MARTINI mapping and parametrization of small organic molecules. This is the 2nd version of the code, which has been ported to Python 3, extended to large molecules, and parallelized for shared-memory systems.
 
 ## Publication
 For a detailed account of the software, see:
@@ -48,11 +50,11 @@ auto-martini: error: argument --mol is required
 ## Usage
 To coarse-grain a molecule, simply provide its SMILES code (option `--smi SMI`) or a .SDF file (option `'--sdf file.sdf`). You also need to provide a name for the CG molecule (not longer than 5 characters) using the `--mol` option.  For instance, to coarse grain [guanazole](http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=15078), you can either obtain/generate (e.g., from Open Babel) an SDF file:
 ```
-auto-martini --sdf guanazole.sdf --mol GUA
+python auto-martini.py --sdf guanazole.sdf --mol GUA
 ```
 (the name GUA is arbitrary) or use its SMILES code within double quotes
 ```
-auto-martini --smi "N1=C(N)NN=C1N" --mol GUA
+python auto-martini.py --smi "N1=C(N)NN=C1N" --mol GUA
 ```
 In case no problem arises, it will output the gromacs .itp file:
 ```
@@ -75,7 +77,7 @@ In case no problem arises, it will output the gromacs .itp file:
 ```
 Optionally, the code can also output a corresponding `.gro` file for the coarse-grained coordinates
 ```
-auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --gro gua.gro
+python auto-martini.py --smi "N1=C(N)NN=C1N" --mol GUA --gro gua.gro
 ```
 Atomistic coordinates can be output in XYZ format using the `--xyz output.xyz` option.
 
