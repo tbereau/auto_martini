@@ -27,7 +27,7 @@
 
   Github link to original repo: https://github.com/tbereau/auto_martini
 
-  BUGS found and fixed: 
+  BUGS found and fixed:
 
   - function substruct2smi() returned SMILES string in lower case letters
   - function printAtoms() uses undefined variables "hbondA" and "hbondD"
@@ -488,9 +488,10 @@ def checkAdditivity(beadTypes, mol, args):
     sumFrag += topology.deltaFTypes[bead]
   # Wildman-Crippen logP
   wcLogP = rdMolDescriptors.CalcCrippenDescriptors(mol)[0]
+
   # Write out SMILES string of entire molecule
   tmpfile = 'tmp-auto-martini.smi'
-  sw = Chem.rdmolfiles.SmilesWriter(tmpfile,nameHeader='')
+  sw = Chem.rdmolfiles.SmilesWriter(tmpfile, nameHeader='')
   Chem.rdmolfiles.SmilesWriter.write(sw, mol)
   sw.close()
   # Read file
@@ -561,7 +562,7 @@ if __name__ == '__main__':
   listCGBeads,listBeadPos = findBeadPos(mol, feats, ringAtoms, args)
 
   # Loop through best 1% cgBeads and avgPos
-  maxAttempts = int(math.ceil(0.5*len(listCGBeads))) + 10
+  maxAttempts = int(math.ceil(0.5*len(listCGBeads)))
 
   if args.verbose:
     print("; Max. number of attempts:",maxAttempts)
@@ -591,16 +592,16 @@ if __name__ == '__main__':
     if not checkAdditivity(beadTypes, mol, args):
       success = False
     # Bond list
-    try:
-      bondList, constList = topology.printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, True) # this is so stupid ... how do we know if pringBonds technically fails?!
-    except:
-      success = False
+    #try:
+    bondList, constList = topology.printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, atomPartitioning, True) # this is so stupid ... how do we know if pringBonds technically fails?!
+    #except:
+    #  success = False
 
     if success:
       topology.printHeader(args)
       atomNames, beadTypes = topology.printAtoms(cgBeads, mol, atomPartitioning, ringAtoms,
         ringAtomsFlat, hbondA, hbondD, args, False)
-      bondList, constList = topology.printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, False)
+      bondList, constList = topology.printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, atomPartitioning, False)
       topology.printAngles(cgBeads, mol, atomPartitioning, cgBeadCoords,
         bondList, constList, ringAtoms)
       topology.printDihedrals(cgBeads,bondList,constList,ringAtoms,cgBeadCoords)
@@ -608,7 +609,7 @@ if __name__ == '__main__':
       attempt = maxAttempts+1
     else:
       attempt += 1
-      print("Running Iteration {}/{}".format(attempt, maxAttempts))
+      #print("Running Iteration {}/{}".format(attempt, maxAttempts))
 
   if attempt == maxAttempts:
     err = "; ERROR: no successful mapping found.\n" + \

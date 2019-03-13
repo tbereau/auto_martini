@@ -38,6 +38,7 @@ from collections import defaultdict
 from bs4 import BeautifulSoup
 import requests
 import math
+import numpy as np
 
 # Measured octanol/water free energies from MARTINI.
 # Data used TI, not partitioning of Marrink et al. JPCB 2007.
@@ -64,6 +65,7 @@ deltaFTypes = {
 
 def genMoleculeSMI(smi):
   '''Generate mol object from smiles string'''
+  smi = smi.upper()
   mol = Chem.MolFromSmiles(smi)
   mol = Chem.AddHs(mol)
   AllChem.EmbedMolecule(mol, randomSeed = 1, useRandomCoords=True) # Set Seed for random coordinate generation = 1.
@@ -93,7 +95,6 @@ def smi2alogps(smi, wcLogP, bead, args, trial=False):
   '''Returns water/octanol partitioning free energy
   according to ALOGPS'''
 
-  smi = smi.upper() # andrew: SMILES must be in upper case letters
   session = requests.session()
   req = session.get('http://vcclab.org/web/alogps/calc?SMILES=' + str(smi))
   doc = BeautifulSoup(req.content, "lxml")
@@ -265,7 +266,7 @@ def printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, ringAtomsFlat, hbondA,
   return atomNames, beadTypes
 
 
-def printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, trial=False):
+def printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, atomPartitioning, trial=False):
   '''print CG bonds in itp format'''
   if trial == False:
     print("")
@@ -623,7 +624,7 @@ def substruct2smi(mol, atomPartitioning, cgBead, cgBeads, ringAtoms):
     exit(1)
   os.remove(tmpfile)
 
-  smiFrag, wcLogP, charge = s[1].split()[0].upper(), wcLogP, chg # Andrew: fixed lower-case bug with SMILES frag (smiFrag)
+  smiFrag, wcLogP, charge = s[1].split()[0], wcLogP, chg
 
   return smiFrag, wcLogP, charge 
 
