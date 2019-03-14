@@ -6,7 +6,7 @@ Auto_MARTINI
 
 *Modified by:* Andrew Abi-Mansour 
 ***
-Automated MARTINI mapping and parametrization of small organic molecules. This is the 2nd version of the code, which has been ported to Python 3, extended to large molecules, and parallelized for shared-memory systems.
+Automated MARTINI mapping and parametrization of small organic molecules. This fork restructures the original code to a modular and extensible form with numerous bug fixes and support for Python 3.
 
 ## Publication
 For a detailed account of the software, see:
