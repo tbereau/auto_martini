@@ -4,7 +4,7 @@ Auto_MARTINI
 *Original author:* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
 *Created:* 2014  
 
-*Modified by:* Andrew Abi-Mansour 
+*Modified and extended by:* Andrew Abi-Mansour 
 ***
 Automated MARTINI mapping and parametrization of small organic molecules. This fork restructures the original code to a modular and extensible form with numerous bug fixes and support for Python 3.
 
