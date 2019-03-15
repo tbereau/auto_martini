@@ -2,7 +2,7 @@
 #  -*- coding: utf8 -*-
 
 '''
-  Created on March 13, 2019
+  Created on March 13, 2019 by Andrew Abi-Mansour
 
           _    _ _______ ____    __  __          _____ _______ _____ _   _ _____ 
      /\  | |  | |__   __/ __ \  |  \/  |   /\   |  __ \__   __|_   _| \ | |_   _|
@@ -28,609 +28,727 @@
   Github link to original repo: https://github.com/tbereau/auto_martini
 '''
 
-from rdkit import Chem
-from rdkit.Chem import rdchem
-from rdkit.Chem import rdMolDescriptors
-from rdkit.Chem import AllChem
+from common import *
 
-import os, sys
-from collections import defaultdict
-from bs4 import BeautifulSoup
-import requests
-import math
-import numpy as np
+# For feature extraction
+fdefName = os.path.join(RDConfig.RDDataDir, 'BaseFeatures.fdef')
+factory = ChemicalFeatures.BuildFeatureFactory(fdefName)
 
-# Measured octanol/water free energies from MARTINI.
-# Data used TI, not partitioning of Marrink et al. JPCB 2007.
-deltaFTypes = {
-  'Qda': -15.04,
-  'Qa' : -15.04,
-  'Qd' : -15.04,
-  'Q0' : -22.35,
-  'P5' :  -8.88,
-  'P4' :  -9.30,
-  'P3' :  -8.81,
-  'P2' :  -3.85,
-  'P1' :  -2.26,
-  'Nda':   2.49,
-  'Na' :   2.49,
-  'Nd' :   2.49,
-  'N0' :   4.22,
-  'C5' :   6.93,
-  'C4' :  10.14,
-  'C3' :  12.26,
-  'C2' :  13.74,
-  'C1' :  14.20,
-}
+def read_delta_f_types():
+    """Returns delta_f types dictionary
+    Measured octanol/water free energies from MARTINI
+    Data used TI, not partitioning of Marrink et al. JPCB 2007"""
+    delta_f_types = dict()
+    delta_f_types['Qda'] = -15.04
+    delta_f_types['Qa'] = -15.04
+    delta_f_types['Qd'] = -15.04
+    delta_f_types['Q0'] = -22.35
+    delta_f_types['P5'] = -8.88
+    delta_f_types['P4'] = -9.30
+    delta_f_types['P3'] = -8.81
+    delta_f_types['P2'] = -3.85
+    delta_f_types['P1'] = -2.26
+    delta_f_types['Nda'] = 2.49
+    delta_f_types['Na'] = 2.49
+    delta_f_types['Nd'] = 2.49
+    delta_f_types['N0'] = 4.22
+    delta_f_types['C5'] = 6.93
+    delta_f_types['C4'] = 10.14
+    delta_f_types['C3'] = 12.26
+    delta_f_types['C2'] = 13.74
+    delta_f_types['C1'] = 14.20
+    return delta_f_types
 
-def genMoleculeSMI(smi):
-  '''Generate mol object from smiles string'''
-  smi = smi.upper()
-  mol = Chem.MolFromSmiles(smi)
-  mol = Chem.AddHs(mol)
-  AllChem.EmbedMolecule(mol, randomSeed = 1, useRandomCoords=True) # Set Seed for random coordinate generation = 1.
-  try:
-    AllChem.UFFOptimizeMolecule(mol)
-  except ValueError:
-    print("Supply input args")
-  return mol
+def gen_molecule_smi(smi):
+    """Generate mol object from smiles string"""
 
-def genMoleculeSDF(sdf):
-  '''Generate mol object from SD file'''
-  suppl = Chem.SDMolSupplier(sdf)
-  if len(suppl) > 1:
-    print("Error. Only one molecule may be provided.")
-    sys.exit(1)
-  for mol in suppl:
-    if mol is None:
-      print("Error. Can't read molecule.")
-      sys.exit(1)
-  return mol
+    logging.debug('Entering gen_molecule_smi()')
 
-def getCharge(mol):
-  '''Get net charge of molecule'''
-  return Chem.rdmolops.GetFormalCharge(mol)
+    if '.' in smi:
+        raise ValueError('Error. Only one molecule may be provided.')
 
-def smi2alogps(smi, wcLogP, bead, args, trial=False):
-  '''Returns water/octanol partitioning free energy
-  according to ALOGPS'''
+    # Get smiles without sanitization
+    molecule = Chem.MolFromSmiles(smi, False)
 
-  session = requests.session()
-  req = session.get('http://vcclab.org/web/alogps/calc?SMILES=' + str(smi))
-  doc = BeautifulSoup(req.content, "lxml")
-  soup = doc.prettify()
-  foundMol1 = False
-
-  for line in soup.split("\n"):
-    line = line.split()
-    if "mol_1" in line:
-      logP = float(line[line.index('mol_1')+1])
-      foundMol1 = True
-      break
-      
-  if not foundMol1:
-    # If we're forcing a prediction, use Wildman-Crippen
-    if args.forcepred:
-      if trial == True:
-        wrn = "; Warning: bead ID " + str(bead) + \
-          " predicted from Wildman-Crippen. Fragment " + str(smi) + "\n"
-        sys.stderr.write(wrn)
-      logP = wcLogP
-    else:
-      if args.verbose:
-        print("ALOGPS can't predict fragment:", smi)
-      exit(1)
-
-  return convertLogK(logP)
-
-def convertLogK(logK):
-  '''Convert log_{10}K to free energy (in kJ/mol)'''
-  return 0.008314*300.0*logK/math.log10(math.exp(1))
-
-def mad(Type, deltaF):
-  '''Mean absolute difference between type Type and deltaF'''
-  return math.fabs(deltaFTypes[Type] - deltaF)
-
-def determineBeadType(deltaF, charge, hbondA, hbondD, inRing):
-  '''Determine CG bead type from deltaF value, charge,
-  and hbond acceptor, and donor'''
-  # if args.verbose:
-  #   print "; dF:",deltaF/4.2,'kcal/mol'
-  if charge < -1 or charge > +1:
-    print("Charge is too large:", charge)
-    print("No adequate force-field parameter")
-    exit(1)
-  beadType = []
-  if inRing:
-    # We're in a ring, divide free energy by 3
-    # (average number of beads per ring)
-    if abs(deltaF) > 0.1:
-      deltaF *= 2/3.
-  error = 0.0
-  if charge != 0:
-    # The compound has a +/- charge -> Q type
-    error = mad('Qda',deltaF)
-    if hbondA > 0 and hbondD > 0:
-      beadType = "Qda"
-    elif hbondA > 0 and hbondD == 0:
-      beadType = "Qa"
-    elif hbondA == 0 and hbondD > 0:
-      beadType = "Qd"
-    else:
-      beadType = "Q0"
-  else:
-    # Neutral group
-    # Use Hbond information only if we're close to Nda, Na, Nd types
-    error = mad('Nda',deltaF)
-    if error < 3.0 and (hbondA > 0 or hbondD > 0):
-      if hbondA > 0 and hbondD > 0:
-        beadType = "Nda"
-      elif hbondA > 0 and hbondD == 0:
-        beadType = "Na"
-      elif hbondA == 0 and hbondD > 0:
-        beadType = "Nd"
-    else:
-      # all other cases. Simply find the atom type that's closest in
-      # free energy.
-      otherTypes = ['P5','P4','P3','P2','P1','N0','C5','C4','C3','C2','C1']
-      minError = 1000.0
-      for cgType in otherTypes:
-        tmpError = mad(cgType,deltaF)
-        if tmpError < minError:
-          minError = tmpError
-          beadType = cgType
-      error = minError
-  # if error > 5:
-  #   print "Warning: large error between beead type and logK value:"
-  #   print " Type {:s} ({:5.2f}) vs. {:5.2f}".format(beadType,
-  #     deltaFTypes[beadType],deltaF)
-  if inRing:
-    beadType = "S" + beadType
-  return beadType
-
-def printHeader(args):
-  print(";;;; GENERATED WITH auto-martini")
-  if args.smi:
-    print("; INPUT SMILES:",args.smi)
-  else:
-    print(";",args.sdf)
-  print("; Tristan Bereau (2014)")
-  print("")
-  print('[moleculetype]')
-  print('; molname       nrexcl')
-  print('  {:5s}         2'.format(args.molname))
-  print('')
-  print('[atoms]')
-  print('; id    type    resnr   residu  atom    cgnr    charge  smiles')
-  return
-
-def printAtoms(cgBeads, mol, atomPartitioning, ringAtoms, ringAtomsFlat, hbondA, hbondD, args, trial=False):
-  '''print CG Atoms in itp format'''
-  atomNames = []
-  beadTypes = []
-
-  for bead in range(len(cgBeads)):
-    # Determine SMI of substructure
     try:
-      smiFrag, wcLogP, charge = substruct2smi(mol, atomPartitioning, bead, cgBeads, ringAtoms)
-    except:
+        cp = Chem.Mol(molecule)
+        Chem.SanitizeMol(cp)
+        molecule = cp
+
+    except: 
       raise
+        
+    nm = AdjustAromaticNs(molecule)
 
-    atomName = ""
+    if nm is not None:
+      Chem.SanitizeMol(nm)
+      molecule = nm
+      smi = Chem.MolToSmiles(nm)
+      logging.warning('Fixed smiles format to %s' % smi)
+    else:
+      logging.warning('Smiles cannot be adjusted %s' % smi)
+    # Continue
 
-    for character, count in sorted(letterOccurrences(smiFrag).items()):
-      try:
-          float(character)
-          pass
-      except ValueError:
-        if count == 1:
-          atomName += "{:s}".format(character)
-        else:
-          atomName += "{:s}{:s}".format(character, str(count))
-    # Get charge for smiFrag
-    molFrag = genMoleculeSMI(smiFrag)
-    chargeFrag = getCharge(molFrag)
-    # Extract ALOGPS free energy
+    molecule = Chem.AddHs(molecule)
+    AllChem.EmbedMolecule(molecule, randomSeed = 1, useRandomCoords=True) # Set Seed for random coordinate generation = 1.
     try:
-      if chargeFrag == 0:
-        alogps = smi2alogps(smiFrag, wcLogP, bead+1, args, trial)
-      else:
-        alogps = 0.0
-    except:
-      raise
-    hbondAFlag = 0
-    for at in hbondA:
-      if atomPartitioning[at] == bead:
-        hbondAFlag = 1
-        break
-    hbondDFlag = 0
-    for at in hbondD:
-      if atomPartitioning[at] == bead:
-        hbondDFlag = 1
-        break
-    inRing = True if cgBeads[bead] in ringAtomsFlat else False
-    beadType = determineBeadType(alogps, charge, hbondAFlag, hbondDFlag, inRing)
-    atomName = ""
-    nameIndex = 0
-
-    while atomName in atomNames or nameIndex == 0:
-      nameIndex += 1
-      atomName = "{:1s}{:02d}".format(beadType[0],nameIndex)
-    atomNames.append(atomName)
-
-    if trial == False:
-      print('  {:<5d} {:5s}   1       {:5s}   {:7s} {:<5d}  {:2d}     ; {:s}'.format(bead+1, beadType, args.molname, atomName, bead+1, charge, smiFrag))
-
-    beadTypes.append(beadType)
-
-  return atomNames, beadTypes
+        AllChem.UFFOptimizeMolecule(molecule)
+    except: 
+      raise ValueError
+    
+    return molecule
 
 
-def printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, atomPartitioning, trial=False):
-  '''print CG bonds in itp format'''
-  if trial == False:
-    print("")
-  # Bond information
-  bondList = []
-  constList = []
-  if len(cgBeads) > 1:
-    for i in range(len(cgBeads)):
-      for j in range(i+1,len(cgBeads)):
-        dist = np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1
-        if dist < 0.65:
-          # Are atoms part of the same ring
-          inRing = False
-          for ring in ringAtoms:
-            if cgBeads[i] in ring and cgBeads[j] in ring:
-              inRing = True
-              break
-          if inRing:
-            constList.append([i,j,dist])
-          else:
-            # Check that the bond is not too short
-            if dist < 0.2:
-              raise NameError('Bond too short')
-            # Look for a bond between an atom of i and an atom of j
-            foundConnection = False
-            atomsInBeadI = []
-            for aa in atomPartitioning.keys():
-              if atomPartitioning[aa] == i:
-                atomsInBeadI.append(aa)
-            atomsInBeadJ = []
-            for aa in atomPartitioning.keys():
-              if atomPartitioning[aa] == j:
-                atomsInBeadJ.append(aa)
-            for ib in range(len(mol.GetBonds())):
-              abond = mol.GetBondWithIdx(ib)
-              if (abond.GetBeginAtomIdx() in atomsInBeadI and \
-                abond.GetEndAtomIdx() in atomsInBeadJ) or \
-                (abond.GetBeginAtomIdx() in atomsInBeadJ and \
-                abond.GetEndAtomIdx() in atomsInBeadI):
-                foundConnection = True
-            if foundConnection:
-              bondList.append([i,j,dist])
+def gen_molecule_sdf(sdf):
+    """Generate mol object from SD file"""
+    logging.debug('Entering gen_molecule_sdf()')
+    suppl = Chem.SDMolSupplier(sdf)
+    if len(suppl) > 1:
+        logging.warning('Error. Only one molecule may be provided.')
+        exit(1)
+    molecule = ''
+    for molecule in suppl:
+        if molecule is None:
+            logging.warning('Error. Can\'t read molecule.')
+            exit(1)
+    return molecule
 
-    for ring in ringAtoms:
-      # Only keep one bond between a ring and a given external bead
-      for i in range(len(cgBeads)):
-        at = cgBeads[i]
-        if at not in ring:
-          bondsToRing = []
-          for b in bondList:
-            if (cgBeads[b[0]] in ring and b[1] == at) or \
-              (b[0] == at and cgBeads[b[1]] in ring):
-              bondsToRing.append(b)
-          # keep closest
-          closestBond = [-1,-1,1000.0]
-          for r in range(len(bondsToRing)):
-            if bondsToRing[r][2] < closestBond[2]:
-              closestBond = bondsToRing[r]
-          # Delete the other bonds
-          for b in bondsToRing:
-            if b != closestBond:
-              bondList.remove(b)
-      beadsBondedToRing = []
-      for i in range(len(cgBeads)):
-        atomsInBead = []
-        for key, val in atomPartitioning.iteritems():
-          if val == i:
-            atomsInBead.append(key)
-        for b in bondList:
-          if (b[0] in ring and b[1] in atomsInBead) or \
-            (b[0] in atomsInBead and b[1] in ring):
-            beadsBondedToRing.append(i)
-      # Delete bond between 2 beads if they're both linked
-      # to the same ring.
-      for i in range(len(cgBeads)):
-        for j in range(i+1,len(cgBeads)):
-          if cgBeads[i] in beadsBondedToRing and \
-            cgBeads[j] in beadsBondedToRing:
-            for b in bondList:
-              if (b[0] == i and b[1] == j) or \
-                (b[0] == j and b[1] == i):
-                bondList.remove(b)
+def print_header(molname, smi=None, sdf=None):
+    """Print topology header"""
+    logging.debug('Entering print_header()')
+    print('; GENERATED WITH auto_martini.py')
+    if smi:
+        print('; INPUT SMILES:', smi)
+    else:
+        print(';', sdf)
+    print('; Tristan Bereau (2014)')
+    print('')
+    print('[moleculetype]')
+    print('; molname       nrexcl')
+    print('  {:5s}         2'.format(molname))
+    print('')
+    print('[atoms]')
+    print('; id    type    resnr   residue  atom    cgnr    charge  smiles')
+    return
 
-    # Replace bond by constraint if both atoms have constraints
-    # to the same third atom
-    bondListIdx = 0
-    while bondListIdx < len(bondList):
-      b = bondList[bondListIdx]
-      for i in range(len(cgBeads)):
-        constI = False
-        constJ = False
-        for c in constList:
-          if (c[0] == b[0] and c[1] == i) or \
-            (c[0] == i and c[1] == b[0]):
-            constI = True
-          if (c[0] == b[1] and c[1] == i) or \
-            (c[0] == i and c[1] == b[1]):
-            constJ = True
-        if constI and constJ:
-          constList.append(b)
-          bondList.remove(b)
-      bondListIdx += 1
 
-    # Go through list of constraints. If we find an extra
-    # possible constraint between beads that have constraints,
-    # add it.
-    beadsWithConst = []
-    for c in constList:
-      if c[0] not in beadsWithConst:
-        beadsWithConst.append(c[0])
-      if c[1] not in beadsWithConst:
-        beadsWithConst.append(c[1])
-    beadsWithConst = sorted(beadsWithConst)
-    for i in range(len(beadsWithConst)):
-      for j in range(1+i,len(beadsWithConst)):
-        constExists = False
-        for c in constList:
-          if (c[0] == i  and c[1] == j) or \
-            (c[0] == j and c[1] == i):
-            constExists = True
+def letter_occurrences(string):
+    """Count letter occurences"""
+    logging.debug('Entering letter_occurrences()')
+    frequencies = defaultdict(lambda: 0)
+    for character in string:
+        if character.isalnum():
+            frequencies[character.upper()] += 1
+    return frequencies
+
+
+def get_charge(molecule):
+    """Get net charge of molecule"""
+    logging.debug('Entering get_charge()')
+    return Chem.rdmolops.GetFormalCharge(molecule)
+
+
+def get_hbond_a(features):
+    """Get Hbond acceptor information"""
+    logging.debug('Entering get_hbond_a()')
+    hbond = []
+    for feat in features:
+        if feat.GetFamily() == "Acceptor":
+            for i in feat.GetAtomIds():
+                if i not in hbond:
+                    hbond.append(i)
+    return hbond
+
+
+def get_hbond_d(features):
+    """Get Hbond donor information"""
+    logging.debug('Entering get_hbond_d()')
+    hbond = []
+    for feat in features:
+        if feat.GetFamily() == "Donor":
+            for i in feat.GetAtomIds():
+                if i not in hbond:
+                    hbond.append(i)
+    return hbond
+
+def get_atoms(molecule):
+    """List all heavy atoms"""
+    logging.debug('Entering get_atoms()')
+    conformer = molecule.GetConformer()
+    num_atoms = conformer.GetNumAtoms()
+    list_heavyatoms = []
+    list_heavyatomnames = []
+    logging.info('------------------------------------------------------')
+    logging.info('; Heavy atoms:')
+    atoms = np.arange(num_atoms)
+    for i in np.nditer(atoms):
+        atom_name = molecule.GetAtomWithIdx(int(atoms[i])).GetSymbol()
+        if atom_name != "H":
+            list_heavyatoms.append(atoms[i])
+            list_heavyatomnames.append(atom_name)
+    logging.info('; %s' % list_heavyatomnames)
+    if len(list_heavyatoms) == 0:
+        logging.warning('Error. No heavy atom found.')
+        exit(1)
+    return list_heavyatoms, list_heavyatomnames
+
+def get_ring_atoms(molecule):
+    """Get ring atoms"""
+    logging.debug('Entering get_ring_atoms()')
+    ringatoms = []
+    ringinfo = molecule.GetRingInfo()
+    rings = ringinfo.AtomRings()
+    for at in rings:
+        ring = list(sorted(at))
+        ringatoms.append(ring)
+    logging.info('; ring atoms: %s' % ringatoms)
+    return ringatoms
+
+def get_heavy_atom_coords(molecule):
+    """Extract atomic coordinates of heavy atoms in molecule mol"""
+    logging.debug('Entering get_heavy_atom_coords()')
+    heavyatom_coords = []
+    conformer = molecule.GetConformer()
+    # number of atoms in mol
+    num_atoms = molecule.GetConformer().GetNumAtoms()
+    for i in range(num_atoms):
+        if molecule.GetAtomWithIdx(i).GetSymbol() != "H":
+            heavyatom_coords.append(np.array(
+                [conformer.GetAtomPosition(i)[j] for j in range(3)]))
+    return conformer, heavyatom_coords
+
+def extract_features(molecule):
+    """Extract features of molecule"""
+    logging.debug('Entering extract_features()')
+    features = factory.GetFeaturesForMol(molecule)
+    return features
+
+def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
+    """Substructure to smiles conversion; also output Wildman-Crippen log_p;
+         and charge of group."""
+
+    frag = rdchem.EditableMol(molecule)
+
+    # fragment smi: [H]N([H])c1nc(N([H])[H])n([H])n1
+
+    num_atoms = molecule.GetConformer().GetNumAtoms()
+    # First delete all hydrogens
+    for i in range(num_atoms):
+        if molecule.GetAtomWithIdx(i).GetSymbol() == "H":
+            # find atom from coordinates
+            submol = frag.GetMol()
+            for j in range(submol.GetConformer().GetNumAtoms()):
+                if molecule.GetConformer().GetAtomPosition(i)[0] == \
+                        submol.GetConformer().GetAtomPosition(j)[0]:
+                    frag.RemoveAtom(j)
+    # Identify atoms involved in same ring as cg_bead (only one ring)
+    atoms_in_ring = []
+    for ring in ringatoms:
+        if cgbeads[cg_bead] in ring:
+            atoms_in_ring = ring[:]  # CHANGED
             break
-        if not constExists:
-          dist = np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1
-          if dist < 0.35:
-            # Are atoms part of the same ring
-            inRing = False
-            for ring in ringAtoms:
-              if cgBeads[i] in ring and cgBeads[j] in ring:
-                inRing = True
+    # Then heavy atoms that aren't part of the CG bead (except those
+    # involved in the same ring).
+    for i in partitioning.keys():
+        if partitioning[i] != cg_bead and i not in atoms_in_ring:
+            # find atom from coordinates
+            submol = frag.GetMol()
+            for j in range(submol.GetConformer().GetNumAtoms()):
+                if molecule.GetConformer().GetAtomPosition(i)[0] == \
+                        submol.GetConformer().GetAtomPosition(j)[0]:
+                    frag.RemoveAtom(j)
+    # Wildman-Crippen log_p
+    wc_log_p = rdMolDescriptors.CalcCrippenDescriptors(frag.GetMol())[0]
+    
+    # Charge -- look at atoms that are only part of the bead (no ring rule)
+    chg = 0
+    for i in partitioning.keys():
+        if partitioning[i] == cg_bead:
+            chg += molecule.GetAtomWithIdx(i).GetFormalCharge()
+
+    smi = Chem.MolToSmiles(Chem.rdmolops.AddHs(frag.GetMol(), addCoords=True))
+ 
+    # fragment smi: Nc1ncnn1 ---------> FAILURE! Need to fix this Andrew! For now, just a hackish soln:
+    smi = smi.lower() if smi.islower() else smi.upper()
+
+    return smi, wc_log_p, chg
+
+def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partitioning, ringatoms, ringatoms_flat, trial=False):
+    """Print CG Atoms in itp format"""
+
+    logging.debug('Entering print_atoms()')
+    atomnames = []
+    beadtypes = []
+    for bead in range(len(cgbeads)):
+        # Determine SMI of substructure
+        try:
+            smi_frag, wc_log_p, charge = substruct2smi(molecule, partitioning, bead, cgbeads, ringatoms)
+        except:
+          raise
+
+        atom_name = ""
+        for character, count in sorted(six.iteritems(letter_occurrences(smi_frag))):
+
+            if count == 1:
+              atom_name += "{:s}".format(character)
+            else:
+              atom_name += "{:s}{:s}".format(character, str(count))
+
+        # Get charge for smi_frag
+        mol_frag = gen_molecule_smi(smi_frag)
+        charge_frag = get_charge(mol_frag)
+
+        # Extract ALOGPS free energy
+        try:
+            if charge_frag == 0:
+                alogps = smi2alogps(forcepred, smi_frag, wc_log_p, bead + 1, trial)
+            else:
+                alogps = 0.0
+        except:
+          raise
+
+        hbond_a_flag = 0
+        for at in hbonda:
+            if partitioning[at] == bead:
+                hbond_a_flag = 1
                 break
-            # Check that it's not in the bond list
-            inBondList = False
-            for b in bondList:
-              if (b[0] == i and b[1] == j) or \
-                (b[0] == j and b[0] == i):
-                inBondList = True
+        hbond_d_flag = 0
+        for at in hbondd:
+            if partitioning[at] == bead:
+                hbond_d_flag = 1
                 break
-            if not inBondList and inRing:
-              constList.append([i,j,dist])
+        in_ring = cgbeads[bead] in ringatoms_flat
+        bead_type = determine_bead_type(alogps, charge, hbond_a_flag, hbond_d_flag, in_ring)
+        atom_name = ""
+        name_index = 0
+        while atom_name in atomnames or name_index == 0:
+            name_index += 1
+            atom_name = "{:1s}{:02d}".format(bead_type[0], name_index)
+        atomnames.append(atom_name)
+        if not trial:
+            print('    {:<5d} {:5s}   1     {:5s}     {:7s} {:<5d}    {:2d}   ; {:s}'.format(
+                bead + 1, bead_type, molname, atom_name, bead + 1, charge, smi_frag))
+        beadtypes.append(bead_type)
 
-    if trial == False:
-      if len(bondList) > 0:
-        print("[bonds]")
-        print("; i j   funct   length  force.c.")
-        for b in bondList:
-          # Make sure atoms in bond are not part of the same ring
-          print("  {:d} {:d}   1       {:4.2f}    1250".format(b[0]+1,b[1]+1,b[2]))
-        print("")
-      if len(constList) > 0:
-        print("[constraints]")
-        print(";  i   j     funct   length")
-        for c in constList:
-          print("   {:<3d} {:<3d}   1       {:4.2f}".format(c[0]+1,c[1]+1,c[2]))
-        print("")
-      # Make sure there's at least a bond to every atom
-      for i in range(len(cgBeads)):
-        bondToI = False
-        for b in bondList + constList:
-          if i in [b[0],b[1]]:
-            bondToI = True
-        if not bondToI:
-          print("Error. No bond to atom",i+1)
-          exit(1)
-  return bondList, constList
+    return atomnames, beadtypes
 
-def printAngles(cgBeads, mol, atomPartitioning, cgBeadCoords,
-  bondList, constList, ringAtoms):
-  '''print CG angles in itp format'''
-  if len(cgBeads) > 2:
-    # Angles
-    angleList = []
-    for i in range(len(cgBeads)):
-      for j in range(len(cgBeads)):
-        for k in range(len(cgBeads)):
-          # Only up to 2 atoms can be ring-like
-          allInRing = False
-          for ring in ringAtoms:
-            if cgBeads[i] in ring and cgBeads[j] in ring and \
-              cgBeads[k] in ring:
-              allInRing = True
-              break
-          # Forbid all atoms linked by constraints
-          allConstraints = False
-          ijBonded = False
-          jkBonded = False
-          ijConst  = False
-          jkConst  = False
-          for b in bondList + constList:
-            if i in [b[0],b[1]] and j in [b[0],b[1]]:
-              ijBonded = True
-              if b in constList:
-                ijConst = True
-            if j in [b[0],b[1]] and k in [b[0],b[1]]:
-              jkBonded = True
-              if b in constList:
-                jkConst = True
-          if ijConst and jkConst:
-            allConstraints = True
-          if not allInRing and ijBonded and jkBonded and \
-            i != j and j != k and i != k and \
-            not allConstraints:
-            # Measure angle between i, j, and k.
-            angle = 180./math.pi*math.acos(
-              np.dot(cgBeadCoords[i]-cgBeadCoords[j],
-              cgBeadCoords[k]-cgBeadCoords[j])/(
-              np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j]) *
-              np.linalg.norm(cgBeadCoords[k]-cgBeadCoords[j])))
-            # Look for any double bond between atoms belonging to these CG beads.
-            atomsInFragment = []
-            for aa in atomPartitioning.keys():
-              if atomPartitioning[aa] == j:
-                atomsInFragment.append(aa)
-            forcConst = 25.0
-            for ib in range(len(mol.GetBonds())):
-              abond = mol.GetBondWithIdx(ib)
-              if abond.GetBeginAtomIdx() in atomsInFragment and \
-                abond.GetEndAtomIdx() in atomsInFragment:
-                bondType = mol.GetBondBetweenAtoms(abond.GetBeginAtomIdx(),
-                  abond.GetEndAtomIdx()).GetBondType()
-                if bondType == Chem.rdchem.BondType.DOUBLE:
-                  forcConst = 45.0
-            newAngle = True
-            for a in angleList:
-              if i in a and j in a and k in a:
-                newAngle = False
-            if newAngle:
-              angleList.append([i,j,k,angle,forcConst])
-    if len(angleList) > 0:
-      print("[angles]")
-      print("; i j k         funct   angle   force.c.")
-      for a in angleList:
-        print("  {:d} {:d} {:d}         2       {:<5.1f}  {:5.1f}".format(a[0]+1,a[1]+1,a[2]+1,a[3],a[4]))
-      print("")
-  return
 
-def printDihedrals(cgBeads,bondList,constList,ringAtoms,cgBeadCoords):
-  '''Print CG dihedrals in itp format'''
-  if len(cgBeads) > 3:
-    # Dihedrals
-    dihedList = []
-    # Three ring atoms and one non ring
-    for i in range(len(cgBeads)):
-      for j in range(len(cgBeads)):
-        for k in range(len(cgBeads)):
-          for l in range(len(cgBeads)):
-            if i != j and i != k and i != l \
-              and j != k and j != l and k != l:
-              # 3 atoms need to be ring like (in one ring!)
-              threeInRing = False
-              for ring in ringAtoms:
-                if [[cgBeads[i] in ring], [cgBeads[j] in ring],
-                  [cgBeads[k] in ring], [cgBeads[l] in ring]].count([True]) >= 3:
-                  threeInRing = True
-                  break
-              for b in constList:
-                if i in [b[0],b[1]] and j in [b[0],b[1]]:
-                  ijConst = True
-                if j in [b[0],b[1]] and k in [b[0],b[1]]:
-                  jkConst = True
-                if k in [b[0],b[1]] and l in [b[0],b[1]]:
-                  klConst = True
-              # Distance criterion--beads can't be far apart
-              disThres = 0.35
-              closeEnough = False
-              if np.linalg.norm(cgBeadCoords[i]-cgBeadCoords[j])*0.1 < disThres \
-                and np.linalg.norm(cgBeadCoords[j]-cgBeadCoords[k])*0.1 < disThres \
-                and np.linalg.norm(cgBeadCoords[k]-cgBeadCoords[l])*0.1 < disThres:
-                closeEnough = True
-              alreadyDih = False
-              for dih in dihedList:
-                if dih[0] == l and dih[1] == k and \
-                  dih[2] == j and dih[3] == i:
-                  alreadyDih = True
-                  break
-              if threeInRing and closeEnough and not alreadyDih:
-                r1 = cgBeadCoords[j]-cgBeadCoords[i]
-                r2 = cgBeadCoords[k]-cgBeadCoords[j]
-                r3 = cgBeadCoords[l]-cgBeadCoords[k]
-                p1 = np.cross(r1, r2)/(np.linalg.norm(r1)*
-                  np.linalg.norm(r2))
-                p2 = np.cross(r2, r3)/(np.linalg.norm(r2)*
-                  np.linalg.norm(r3))
-                r2 = r2 / np.linalg.norm(r2)
-                cosphi = np.dot(p1,p2)
-                sinphi = np.dot(r2,np.cross(p1,p2))
-                angle = 180./math.pi*np.arctan2(sinphi,cosphi)
-                forcConst = 10.0
-                dihedList.append([i,j,k,l,angle,forcConst])
-    if len(dihedList) > 0:
-      print("[dihedrals]")
-      print(";  i     j    k    l   funct   angle  force.c.")
-      for d in dihedList:
-        print("   {:d}     {:d}    {:d}    {:d}       2     {:<5.1f}  {:5.1f}".format(d[0]+1,d[1]+1,d[2]+1,d[3]+1,d[4],d[5]))
-      print("")
-  return
+def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial=False):
+    """print CG bonds in itp format"""
+    logging.debug('Entering print_bonds()')
+    if not trial:
+        print('')
+    # Bond information
+    bondlist = []
+    constlist = []
+    if len(cgbeads) > 1:
+        for i in range(len(cgbeads)):
+            for j in range(i + 1, len(cgbeads)):
+                dist = np.linalg.norm(cgbead_coords[i] - cgbead_coords[j]) * 0.1
+                if dist < 0.65:
+                    # Are atoms part of the same ring
+                    in_ring = False
+                    for ring in ringatoms:
+                        if cgbeads[i] in ring and cgbeads[j] in ring:
+                            in_ring = True
+                            break
+                    if in_ring:
+                        constlist.append([i, j, dist])
+                    else:
+                        # Check that the bond is not too short
+                        if dist < 0.2:
+                            raise NameError('Bond too short')
+                        # Look for a bond between an atom of i and an atom of j
+                        found_connection = False
+                        atoms_in_bead_i = []
+                        for aa in partitioning.keys():
+                            if partitioning[aa] == i:
+                                atoms_in_bead_i.append(aa)
+                        atoms_in_bead_j = []
+                        for aa in partitioning.keys():
+                            if partitioning[aa] == j:
+                                atoms_in_bead_j.append(aa)
+                        for ib in range(len(molecule.GetBonds())):
+                            abond = molecule.GetBondWithIdx(ib)
+                            if (abond.GetBeginAtomIdx() in atoms_in_bead_i and
+                                abond.GetEndAtomIdx() in atoms_in_bead_j) or \
+                                    (abond.GetBeginAtomIdx() in atoms_in_bead_j and
+                                     abond.GetEndAtomIdx() in atoms_in_bead_i):
+                                found_connection = True
+                        if found_connection:
+                            bondlist.append([i, j, dist])
 
-def substruct2smi(mol, atomPartitioning, cgBead, cgBeads, ringAtoms):
-  '''Substructure to smiles conversion; also output Wildman-Crippen logP;
-     and charge of group.'''
-  frag = rdchem.EditableMol(mol)
-  numAtoms = mol.GetConformer().GetNumAtoms()
-  # First delete all hydrogens
-  for i in range(numAtoms):
-    if mol.GetAtomWithIdx(i).GetSymbol() == "H":
-      # find atom from coordinates
-      submol = frag.GetMol()
-      for j in range(submol.GetConformer().GetNumAtoms()):
-        if mol.GetConformer().GetAtomPosition(i)[0] == \
-          submol.GetConformer().GetAtomPosition(j)[0]:
-          frag.RemoveAtom(j)
-  # Identify atoms involved in same ring as cgBead (only one ring)
-  atomsInRing = []
-  for ring in ringAtoms:
-    if cgBeads[cgBead] in ring:
-      atomsInRing = ring[:] ;# CHANGED
-      break
-  # Add atoms off the ring that belong to the fragment.
-  for atom in atomsInRing:
-    if atom == cgBeads[cgBead]:
-      for atp in atomPartitioning.keys():
-        if atomPartitioning[atp] == atomPartitioning[atom] and atp not in atomsInRing:
-          atomsInRing.append(atp)
-  # Then heavy atoms that aren't part of the CG bead (except those
-  # involved in the same ring).
-  for i in atomPartitioning.keys():
-    submol = frag.GetMol()
-    if atomPartitioning[i] != cgBead and i not in atomsInRing:
-      # find atom from coordinates
-      submol = frag.GetMol()
-      for j in range(submol.GetConformer().GetNumAtoms()):
-        if mol.GetConformer().GetAtomPosition(i)[0] == \
-          submol.GetConformer().GetAtomPosition(j)[0]:
-          frag.RemoveAtom(j)
-  # Wildman-Crippen logP
-  wcLogP = rdMolDescriptors.CalcCrippenDescriptors(frag.GetMol())[0]
-  tmpfile = 'tmp-auto-martini.smi'
-  sw = Chem.rdmolfiles.SmilesWriter(tmpfile,nameHeader='')
-  # Charge -- look at atoms that are only part of the bead (no ring rule)
-  chg = 0
-  for i in atomPartitioning.keys():
-    if atomPartitioning[i] == cgBead:
-      chg += mol.GetAtomWithIdx(i).GetFormalCharge()
-  # Chem.rdmolfiles.SmilesWriter.write(sw,frag.GetMol())
-  Chem.rdmolfiles.SmilesWriter.write(sw,
-    Chem.rdmolops.AddHs(frag.GetMol(), addCoords=True )) # Andrew: problem is this seems to write the SMILES code in lower-case letters
-  sw.close()
-  # Read file
-  try:
-    f = open(tmpfile,'r')
-    s = f.readlines()
-    f.close()
-  except IOError as e:
-    print("Error. Can't read file",tmpfile)
-    print(e)
-    exit(1)
-  os.remove(tmpfile)
+        for ring in ringatoms:
+            # Only keep one bond between a ring and a given external bead
+            for i in range(len(cgbeads)):
+                at = cgbeads[i]
+                if at not in ring:
+                    bonds_to_ring = []
+                    for b in bondlist:
+                        bead = i
+                        if (cgbeads[b[0]] in ring and b[1] == bead) or \
+                                (b[0] == bead and cgbeads[b[1]] in ring):
+                            bonds_to_ring.append(b)
+                    # keep closest
+                    closest_bond = [-1, -1, 1000.0]
+                    for r in range(len(bonds_to_ring)):
+                        if bonds_to_ring[r][2] < closest_bond[2]:
+                            closest_bond = bonds_to_ring[r]
+                    # Delete the other bonds
+                    for b in bonds_to_ring:
+                        if b != closest_bond:
+                            bondlist.remove(b)
+            bead_bonded_to_ring = []
+            for i in range(len(cgbeads)):
+                atoms_in_bead = []
+                for key, val in six.iteritems(partitioning):
+                    if val == i:
+                        atoms_in_bead.append(key)
+                for b in bondlist:
+                    if (cgbeads[b[0]] in ring and b[1] in atoms_in_bead) or \
+                            (b[0] in atoms_in_bead and cgbeads[b[1]] in ring):
+                        bead_bonded_to_ring.append(i)
+            # Delete bond between 2 beads if they're both linked
+            # to the same ring.
+            for i in range(len(cgbeads)):
+                for j in range(i + 1, len(cgbeads)):
+                    if cgbeads[i] in bead_bonded_to_ring and \
+                       cgbeads[j] in bead_bonded_to_ring:
+                        for b in bondlist:
+                            if (b[0] == i and b[1] == j) or \
+                                    (b[0] == j and b[1] == i):
+                                bondlist.remove(b)
+        # Replace bond by constraint if both atoms have constraints
+        # to the same third atom
 
-  smiFrag, wcLogP, charge = s[1].split()[0], wcLogP, chg
+        bond_list_idx = 0
+        while bond_list_idx < len(bondlist):
+            b = bondlist[bond_list_idx]
+            for i in range(len(cgbeads)):
+                const_i = False
+                const_j = False
+                for c in constlist:
+                    if (c[0] == b[0] and c[1] == i) or \
+                            (c[0] == i and c[1] == b[0]):
+                        const_i = True
+                    if (c[0] == b[1] and c[1] == i) or \
+                            (c[0] == i and c[1] == b[1]):
+                        const_j = True
+                if const_i and const_j:
+                    constlist.append(b)
+                    bondlist.remove(b)
+                    # Start over
+                    bond_list_idx = -1
+            bond_list_idx += 1
 
-  return smiFrag, wcLogP, charge 
+        # Go through list of constraints. If we find an extra
+        # possible constraint between beads that have constraints,
+        # add it.
+        beads_with_const = []
+        for c in constlist:
+            if c[0] not in beads_with_const:
+                beads_with_const.append(c[0])
+            if c[1] not in beads_with_const:
+                beads_with_const.append(c[1])
+        beads_with_const = sorted(beads_with_const)
+        for i in range(len(beads_with_const)):
+            for j in range(1 + i, len(beads_with_const)):
+                const_exists = False
+                for c in constlist:
+                    if (c[0] == i and c[1] == j) or \
+                            (c[0] == j and c[1] == i):
+                        const_exists = True
+                        break
+                if not const_exists:
+                    dist = np.linalg.norm(cgbead_coords[i] - cgbead_coords[j]) * 0.1
+                    if dist < 0.35:
+                        # Check that it's not in the bond list
+                        in_bond_list = False
+                        for b in bondlist:
+                            if (b[0] == i and b[1] == j) or \
+                                    (b[0] == j and b[0] == i):
+                                in_bond_list = True
+                                break
+                        # Are atoms part of the same ring
+                        in_ring = False
+                        for ring in ringatoms:
+                            if cgbeads[i] in ring and cgbeads[j] in ring:
+                                in_ring = True
+                                break
+                        # If not in bondlist and in the same ring, add the contraint
+                        if not in_bond_list and in_ring:
+                            constlist.append([i, j, dist])
 
-def letterOccurrences(string):
-  frequencies = defaultdict(lambda: 0)
-  for character in string:
-    if character.isalnum():
-      frequencies[character.upper()] += 1
-  return frequencies
+        if not trial:
+            if len(bondlist) > 0:
+                print('[bonds]')
+                print('; i j     funct     length    force.c.')
+                for b in bondlist:
+                    # Make sure atoms in bond are not part of the same ring
+                    print('  {:d} {:d}       1         {:4.2f}     1250'.format(
+                        b[0] + 1, b[1] + 1, b[2]))
+                print('')
+            if len(constlist) > 0:
+                print('[constraints]')
+                print(';  i   j     funct   length')
+                for c in constlist:
+                    print('   {:<3d} {:<3d}   1       {:4.2f}'.format(
+                        c[0] + 1, c[1] + 1, c[2]))
+                print('')
+            # Make sure there's at least a bond to every atom
+            for i in range(len(cgbeads)):
+                bond_to_i = False
+                for b in bondlist + constlist:
+                    if i in [b[0], b[1]]:
+                        bond_to_i = True
+                if not bond_to_i:
+                    logging.warning('Error. No bond to atom %d' % (i + 1))
+                    exit(1)
+    return bondlist, constlist
+
+
+def print_angles(cgbeads, molecule, partitioning, cgbead_coords, bondlist, constlist, ringatoms):
+    """print CG angles in itp format"""
+    logging.debug('Entering print_angles()')
+    if len(cgbeads) > 2:
+        # Angles
+        angle_list = []
+        for i in range(len(cgbeads)):
+            for j in range(len(cgbeads)):
+                for k in range(len(cgbeads)):
+                    # Only up to 2 atoms can be ring-like
+                    all_in_ring = False
+                    for ring in ringatoms:
+                        if cgbeads[i] in ring and cgbeads[j] in ring and \
+                           cgbeads[k] in ring:
+                            all_in_ring = True
+                            break
+                    # Forbid all atoms linked by constraints
+                    all_constraints = False
+                    ij_bonded = False
+                    jk_bonded = False
+                    ij_const = False
+                    jk_const = False
+                    for b in bondlist + constlist:
+                        if i in [b[0], b[1]] and j in [b[0], b[1]]:
+                            ij_bonded = True
+                            if b in constlist:
+                                ij_const = True
+                        if j in [b[0], b[1]] and k in [b[0], b[1]]:
+                            jk_bonded = True
+                            if b in constlist:
+                                jk_const = True
+                    if ij_const and jk_const:
+                        all_constraints = True
+                    if not all_in_ring and ij_bonded and jk_bonded and \
+                       i != j and j != k and i != k and \
+                            not all_constraints:
+                        # Measure angle between i, j, and k.
+                        angle = 180. / math.pi * math.acos(
+                            np.dot(cgbead_coords[i] - cgbead_coords[j],
+                                   cgbead_coords[k] - cgbead_coords[j]) / (
+                                np.linalg.norm(cgbead_coords[i] - cgbead_coords[j]) *
+                                np.linalg.norm(cgbead_coords[k] - cgbead_coords[j])))
+                        # Look for any double bond between atoms belonging to these CG beads.
+                        atoms_in_fragment = []
+                        for aa in partitioning.keys():
+                            if partitioning[aa] == j:
+                                atoms_in_fragment.append(aa)
+                        forc_const = 25.0
+                        for ib in range(len(molecule.GetBonds())):
+                            abond = molecule.GetBondWithIdx(ib)
+                            if abond.GetBeginAtomIdx() in atoms_in_fragment and \
+                               abond.GetEndAtomIdx() in atoms_in_fragment:
+                                bondtype = molecule.GetBondBetweenAtoms(abond.GetBeginAtomIdx(),
+                                                                        abond.GetEndAtomIdx()).GetBondType()
+                                if bondtype == rdchem.BondType.DOUBLE:
+                                    forc_const = 45.0
+                        new_angle = True
+                        for a in angle_list:
+                            if i in a and j in a and k in a:
+                                new_angle = False
+                        if new_angle:
+                            angle_list.append([i, j, k, angle, forc_const])
+        if len(angle_list) > 0:
+            print('[angles]')
+            print('; i j k         funct   angle   force.c.')
+            for a in angle_list:
+                print('  {:d} {:d} {:d}         2       {:<5.1f}  {:5.1f}'.format(
+                    a[0] + 1, a[1] + 1, a[2] + 1, a[3], a[4]))
+            print('')
+    return
+
+
+def print_dihedrals(cgbeads, constlist, ringatoms, cgbead_coords):
+    """Print CG dihedrals in itp format"""
+    logging.debug('Entering print_dihedrals()')
+    if len(cgbeads) > 3:
+        # Dihedrals
+        dihed_list = []
+        # Three ring atoms and one non ring
+        for i in range(len(cgbeads)):
+            for j in range(len(cgbeads)):
+                for k in range(len(cgbeads)):
+                    for l in range(len(cgbeads)):
+                        if i != j and i != k and i != l \
+                                and j != k and j != l and k != l:
+                            # 3 atoms need to be ring like (in one ring!)
+                            three_in_ring = False
+                            for ring in ringatoms:
+                                if [[cgbeads[i] in ring], [cgbeads[j] in ring],
+                                   [cgbeads[k] in ring], [cgbeads[l] in ring]].count([True]) >= 3:
+                                    three_in_ring = True
+                                    break
+                            for b in constlist:
+                                if i in [b[0], b[1]] and j in [b[0], b[1]]:
+                                    pass
+                                if j in [b[0], b[1]] and k in [b[0], b[1]]:
+                                    pass
+                                if k in [b[0], b[1]] and l in [b[0], b[1]]:
+                                    pass
+                            # Distance criterion--beads can't be far apart
+                            disthres = 0.35
+                            close_enough = False
+                            if np.linalg.norm(cgbead_coords[i] - cgbead_coords[j]) * 0.1 < disthres \
+                                    and np.linalg.norm(cgbead_coords[j] - cgbead_coords[k]) * 0.1 < disthres \
+                                    and np.linalg.norm(cgbead_coords[k] - cgbead_coords[l]) * 0.1 < disthres:
+                                close_enough = True
+                            already_dih = False
+                            for dih in dihed_list:
+                                if dih[0] == l and dih[1] == k and \
+                                   dih[2] == j and dih[3] == i:
+                                    already_dih = True
+                                    break
+                            if three_in_ring and close_enough and not already_dih:
+                                r1 = cgbead_coords[j] - cgbead_coords[i]
+                                r2 = cgbead_coords[k] - cgbead_coords[j]
+                                r3 = cgbead_coords[l] - cgbead_coords[k]
+                                p1 = np.cross(r1, r2) / (np.linalg.norm(r1) *
+                                                         np.linalg.norm(r2))
+                                p2 = np.cross(r2, r3) / (np.linalg.norm(r2) *
+                                                         np.linalg.norm(r3))
+                                r2 /= np.linalg.norm(r2)
+                                cosphi = np.dot(p1, p2)
+                                sinphi = np.dot(r2, np.cross(p1, p2))
+                                angle = 180. / math.pi * np.arctan2(sinphi, cosphi)
+                                forc_const = 10.0
+                                dihed_list.append([i, j, k, l, angle, forc_const])
+        if len(dihed_list) > 0:
+            print('[dihedrals]')
+            print(';  i     j    k    l   funct   angle  force.c.')
+            for d in dihed_list:
+                print('   {:d}     {:d}    {:d}    {:d}       2     {:<5.1f}  {:5.1f}'.format(
+                    d[0] + 1, d[1] + 1, d[2] + 1, d[3] + 1, d[4], d[5]))
+            print('')
+    return
+
+
+
+def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
+    """Returns water/octanol partitioning free energy
+    according to ALOGPS"""
+    logging.debug('Entering smi2alogps()')
+    req = ""
+    soup = ""
+    try:
+        session = requests.session()
+        logging.debug('Calling http://vcclab.org/web/alogps/calc?SMILES='+str(smi))
+        req = session.get('http://vcclab.org/web/alogps/calc?SMILES=' + str(smi.replace('#','%23')))
+    except:
+        logging.warning("Error. Can't reach vcclab.org to estimate free energy.")
+        exit(1)
+    try:
+        doc = BeautifulSoup(req.content, "lxml")
+    except:
+        logging.warning("Error with BeautifulSoup constructor")
+        exit(1)
+    try:
+        soup = doc.prettify()
+    except:
+        logging.warning("Error with BeautifulSoup prettify")
+        exit(1)
+    found_mol_1 = False
+    log_p = ''
+    for line in soup.split("\n"):
+        line = line.split()
+        if "mol_1" in line:
+            log_p = float(line[line.index('mol_1') + 1])
+            found_mol_1 = True
+            break
+    if not found_mol_1:
+        # If we're forcing a prediction, use Wildman-Crippen
+        if forcepred:
+            if trial:
+                wrn = "; Warning: bead ID " + str(bead) + \
+                      " predicted from Wildman-Crippen. Fragment " + str(smi) + "\n"
+                sys.stderr.write(wrn)
+            log_p = wc_log_p
+        else:
+            logging.warning('ALOGPS can\'t predict fragment: %s' % smi)
+            exit(1)
+    logging.debug('logp value: %7.4f' % log_p)
+    return convert_log_k(log_p)
+
+
+def convert_log_k(log_k):
+    """Convert log_{10}K to free energy (in kJ/mol)"""
+    val = 0.008314 * 300.0 * log_k / math.log10(math.exp(1))
+    logging.debug('free energy %7.4f kJ/mol' % val)
+    return val
+
+
+def mad(bead_type, delta_f, in_ring=False):
+    """Mean absolute difference between type type and delta_f"""
+    # logging.debug('Entering mad()')
+    delta_f_types = read_delta_f_types()
+    return math.fabs(delta_f_types[bead_type] - delta_f)
+
+
+def determine_bead_type(delta_f, charge, hbonda, hbondd, in_ring):
+    """Determine CG bead type from delta_f value, charge,
+    and hbond acceptor, and donor"""
+    if charge < -1 or charge > +1:
+        logging.warning('Charge is too large: %s' % charge)
+        logging.warning('No adequate force-field parameter.')
+        exit(1)
+    bead_type = []
+    if in_ring:
+        # We're in a ring, divide free energy by 3
+        # (average number of beads per ring)
+        if abs(delta_f) > 0.1:
+            delta_f *= 2 / 3.
+    if charge != 0:
+        # The compound has a +/- charge -> Q type
+        if hbonda > 0 and hbondd > 0:
+            bead_type = "Qda"
+        elif hbonda > 0 and hbondd == 0:
+            bead_type = "Qa"
+        elif hbonda == 0 and hbondd > 0:
+            bead_type = "Qd"
+        else:
+            bead_type = "Q0"
+    else:
+        # Neutral group
+        # Use Hbond information only if we're close to Nda, Na, Nd types
+        error = mad('Nda', delta_f, in_ring)
+        if error < 3.0 and (hbonda > 0 or hbondd > 0):
+            if hbonda > 0 and hbondd > 0:
+                bead_type = "Nda"
+            elif hbonda > 0 and hbondd == 0:
+                bead_type = "Na"
+            elif hbonda == 0 and hbondd > 0:
+                bead_type = "Nd"
+        else:
+            # all other cases. Simply find the atom type that's closest in
+            # free energy.
+            othertypes = ['P5', 'P4', 'P3', 'P2', 'P1', 'N0', 'C5', 'C4', 'C3', 'C2', 'C1']
+            min_error = 1000.0
+            for cgtype in othertypes:
+                tmp_error = mad(cgtype, delta_f, in_ring)
+                if tmp_error < min_error:
+                    min_error = tmp_error
+                    bead_type = cgtype
+            logging.debug("closest type: %s; error %7.4f" % (bead_type, min_error))
+    if in_ring:
+        bead_type = "S" + bead_type
+    return bead_type

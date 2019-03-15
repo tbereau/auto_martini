@@ -2,7 +2,7 @@
 #  -*- coding: utf8 -*-
 
 '''
-  Created on March 13, 2019
+  Created on March 13, 2019 by Andrew Abi-Mansour
 
           _    _ _______ ____    __  __          _____ _______ _____ _   _ _____ 
      /\  | |  | |__   __/ __ \  |  \/  |   /\   |  __ \__   __|_   _| \ | |_   _|
@@ -28,82 +28,30 @@
   Github link to original repo: https://github.com/tbereau/auto_martini
 '''
 
-import os
+from common import *
 
-def outputXYZ(mol, args):
-  '''Ouput XYZ file of molecule object'''
-  numAtoms = mol.GetConformer().GetNumAtoms()
-  if args.xyz[-4:] != ".xyz":
-    args.xyz = args.xyz + ".xyz"
-  try:
-    with open(args.xyz,'w') as f:
-      f.write(str(numAtoms) + "\n")
-      f.write(" " + args.xyz[:-4] + "\n")
-      for i in range(numAtoms):
-        f.write("{:2s}  {:7.4f} {:7.4f} {:7.4f}\n".format(
-          mol.GetAtomWithIdx(i).GetSymbol(),
-          mol.GetConformer().GetAtomPosition(i)[0],
-          mol.GetConformer().GetAtomPosition(i)[1],
-          mol.GetConformer().GetAtomPosition(i)[2]))
-      f.write("\n")
-      f.close()
-  except IOError:
-    print("Can't write to file " + args.xyz)
-    exit(1)
-  return
+def output_gro(output_file, sites, site_names, molname):
+    """Output GRO file of CG structure"""
+    logging.debug('Entering output_gro()')
+    num_beads = len(sites)
 
-def outputGRO(beads, beadNames, args):
-  '''Output GRO file of CG structure'''
-  numBeads = len(beads)
-  if len(beads) != len(beadNames):
-    print("Error. Incompatible number of beads and bead names.")
-    exit(1)
-  if args.gro[-4:] != ".gro":
-    args.gro = args.gro + ".gro"
-  try:
-    with open(args.gro,'w') as f:
-      f.write("{:s} generated from {:s}\n".format(
-        args.molname,os.path.basename(__file__)))
-      f.write("{:5d}\n".format(numBeads))
-      for i in range(numBeads):
-        f.write("{:5d}{:<6s} {:3s}{:5d}{:8.3f}{:8.3f}{:8.3f}\n".format(
-          i+1, args.molname, beadNames[i], i+1, beads[i][0]/10.,
-          beads[i][1]/10., beads[i][2]/10.))
-      f.write("{:10.5f}{:10.5f}{:10.5f}\n".format(10.,10.,10.))
-      f.close()
-  except IOError:
-    print("Can't write to file " + args.gro)
-    exit(1)
-  return
-
-def outputPDB(mol, cgBeads, args):
-  '''Output PDB file of AA/CG structure'''
-  for i in range(len(cgBeads)):
-    ati = mol.GetAtomWithIdx(i)
-    pdbres = Chem.rdchem.AtomPDBResidueInfo(ati)
-    print(pdbres.GetResidueName())
-    print(ati.GetSmarts())
-  pw = Chem.rdmolfiles.PDBWriter(args.pdb)
-  Chem.rdmolfiles.PDBWriter.write(pw, mol)
-  pw.close()
-  return
-
-def outputMap(atomPartitioning, args):
-  '''Output the all-atom mapping for each bead'''
-  beadMap = {}
-  # Turn around the atomPartitioning so it is CG -> AA, rather than AA -> CG
-  for atom, bead in atomPartitioning.iteritems() :
-    if bead not in beadMap:
-      beadMap[bead] = []
-    beadMap[bead].append(atom)
-  try:
-    with open(args.map, 'w') as f:
-      for bead in sorted(beadMap.keys()):
-        f.write("{:d} : ".format(bead+1))
-        f.write(" ".join(["{:d}".format(a+1) for a in beadMap[bead]]))
-        f.write("\n")
-      f.close()
-  except IOError:
-    print("Can't write to file " + args.map)
-    exit(1)
-  return
+    if len(sites) != len(site_names):
+        logging.warning('Error. Incompatible number of beads and bead names.')
+        exit(1)
+    if output_file[-4:] != ".gro":
+        output_file += ".gro"
+    try:
+        with open(output_file, 'w') as f:
+            f.write("{:s} generated from {:s}\n".format(
+                molname, os.path.basename(__file__)))
+            f.write("{:5d}\n".format(num_beads))
+            for i in range(num_beads):
+                f.write("{:5d}{:<6s} {:3s}{:5d}{:8.3f}{:8.3f}{:8.3f}\n".format(
+                    i + 1, molname, site_names[i], i + 1, sites[i][0] / 10.,
+                    sites[i][1] / 10., sites[i][2] / 10.))
+            f.write("{:10.5f}{:10.5f}{:10.5f}\n".format(10., 10., 10.))
+            f.close()
+    except IOError:
+        logging.warning('Can\'t write to file %s' % output_file)
+        exit(1)
+    return

@@ -2,7 +2,7 @@
 #  -*- coding: utf8 -*-
 
 '''
-  Created on March 13, 2019
+  Created on March 13, 2019 by Andrew Abi-Mansour
 
           _    _ _______ ____    __  __          _____ _______ _____ _   _ _____ 
      /\  | |  | |__   __/ __ \  |  \/  |   /\   |  __ \__   __|_   _| \ | |_   _|
@@ -34,252 +34,195 @@
   - function checkAdditivity() defined "mad" variable which is already defined as a function
   - function genMoleculeSDF() did not use "sdf" input argument
   - function printBonds() used undefined "atomPartitioning" object
+  - function Substructure() no longer creates then reads "tmp-auto-martini.smi" file
+
 
   TODO: make this run in Python 3
 
 '''
 
-import sys,os
-import argparse
-import math
-import numpy as np
-from rdkit import Chem
-from rdkit.Chem import ChemicalFeatures
-from rdkit.Chem import rdchem
-from rdkit.Chem import rdMolDescriptors
-from rdkit import RDConfig
-from itertools import chain
-import lxml
-
-import cProfile
+from common import *
 
 import output
 import topology
-from optimization import findBeadPos, getHeavyAtomCoords, voronoiAtoms
+import optimization
 
-# For feature extraction
-fdefName = os.path.join(RDConfig.RDDataDir,'BaseFeatures.fdef')
-factory = ChemicalFeatures.BuildFeatureFactory(fdefName)
+def get_coords(conformer, sites, avg_pos, ringatoms_flat):
+    """Extract coordinates of CG beads"""
+    logging.debug('Entering get_coords()')
+    # CG beads are averaged over best trial combinations for all
+    # non-aromatic atoms.
+    logging.debug('Entering get_coords()')
+    site_coords = []
+    for i in range(len(sites)):
+        if sites[i] in ringatoms_flat:
+            site_coords.append(np.array([conformer.GetAtomPosition(int(sites[i]))[j] for j in range(3)]))
+        else:
+            # Use average
+            site_coords.append(np.array(avg_pos[i]))
+    return site_coords
 
 
-def getHbondA(feats):
-  '''Get Hbond acceptor information'''
-  hbondA = []
-  for feat in feats:
-    if feat.GetFamily() == "Acceptor":
-      for i in feat.GetAtomIds():
-        if i not in hbondA:
-          hbondA.append(i)
-  return hbondA
-
-def getHbondD(feats):
-  '''Get Hbond donor information'''
-  hbondD = []
-  for feat in feats:
-    if feat.GetFamily() == "Donor":
-      for i in feat.GetAtomIds():
-        if i not in hbondD:
-          hbondD.append(i)
-  return hbondD
-
-def extractFeatures(mol):
-  '''Extract features of mol'''
-  feats = factory.GetFeaturesForMol(mol)
-  # if len(feats) == 0:
-  #   print "Error. Can't extract molecular features."
-  #   exit(1)
-  return feats
-
-def getRingAtoms(feats, args):
-  '''Get ring atoms'''
-  ringAtoms = []
-  for feat in feats:
-    if feat.GetType() in ["RH6_6","RH5_5","RH4_4","RH3_3","Arom5","Arom6","Arom7","Arom8"]:
-      newRing = []
-      for at in feat.GetAtomIds():
-          newRing.append(at)
-      if newRing not in ringAtoms:
-        ringAtoms.append(newRing)
-  if args.verbose:
-    print("; ring atoms:",ringAtoms)
-  return ringAtoms
-
-def getCGBeadCoords(mol, cgBeads, avgPos, ringAtomsFlat):
-  '''Extract coordinates of CG beads'''
-  # CG beads are averaged over best trial combinations for all
-  # non-aromatic atoms.
-  cgBeadCoords = []
-  conf = mol.GetConformer()
-  for i in range(len(cgBeads)):
-    if cgBeads[i] in ringAtomsFlat:
-      cgBeadCoords.append(np.array([conf.GetAtomPosition(cgBeads[i])[j]
-        for j in range(3)]))
-    else:
-      # Use average
-      cgBeadCoords.append(np.array(avgPos[i]))
-  return cgBeadCoords
-
-def checkAdditivity(beadTypes, mol, args):
-  '''Check additivity assumption between sum of free energies of CG beads
-  and free energy of whole molecule'''
-  # If there's only one bead, don't check.
-  if len(beadTypes) == 1:
-    return True
-  sumFrag = 0.0
-  rings = False
-  for bead in beadTypes:
-    if bead[0] == "S": # bead belongs to a ring
-      bead = bead[1:]
-      rings = True
-    sumFrag += topology.deltaFTypes[bead]
-  # Wildman-Crippen logP
-  wcLogP = rdMolDescriptors.CalcCrippenDescriptors(mol)[0]
-
-  # Write out SMILES string of entire molecule
-  tmpfile = 'tmp-auto-martini.smi'
-  sw = Chem.rdmolfiles.SmilesWriter(tmpfile, nameHeader='')
-  Chem.rdmolfiles.SmilesWriter.write(sw, mol)
-  sw.close()
-  # Read file
-  try:
-    f = open(tmpfile,'r')
-    s = f.readlines()
-    f.close()
-  except IOError as e:
-    print("Error. Can't read file", tmpfile)
-    print(e)
-    exit(1)
-  os.remove(tmpfile)
-  wholeMoldG = topology.smi2alogps(s[1].split()[0], wcLogP, "MOL", args, True)
-  mad = math.fabs((wholeMoldG - sumFrag)/wholeMoldG)
-
-  if args.verbose:
-    print("; Mapping additivity assumption ratio: {0:7.4f} ({1:7.4f} vs {2:7.4f})".format(mad,wholeMoldG,sumFrag))
-  if (not rings and mad < 0.5) or (rings):
-    return True
-  else:
-    return False
-
-def run(mol, feats, ringAtoms, args):
-
-  # Get Hbond information
-  hbondA = getHbondA(feats)
-  hbondD = getHbondD(feats)
-
-  # for feat in feats:
-  #   print feat.GetFamily(),feat.GetType(),feat.GetAtomIds()
-
-  # Flatten list of ring atoms
-  ringAtomsFlat = list(chain.from_iterable(ringAtoms))
-
-  # Optimize CG bead positions -- keep all possibilities in case something goes
-  # wrong later in the code.
-  listCGBeads,listBeadPos = findBeadPos(mol, feats, ringAtoms, args)
-
-  # Loop through best 1% cgBeads and avgPos
-  maxAttempts = int(math.ceil(0.5*len(listCGBeads)))
-
-  if args.verbose:
-    print("; Max. number of attempts:",maxAttempts)
-  attempt = 0
-
-  while attempt < maxAttempts:
-
-    print("Running Iteration {}/{}".format(attempt, maxAttempts))
-
-    cgBeads = listCGBeads[attempt]
-    beadPos  = listBeadPos[attempt]
-    success  = True
-    # Extract atom coordinates of heavy atoms
-    heavyAtomCoords = getHeavyAtomCoords(mol) # remains constant
-    # Extract position of CG beads
-    cgBeadCoords = getCGBeadCoords(mol, cgBeads, beadPos, ringAtomsFlat) # changes with each iteration
-
-    # Partition atoms into CG beads
-    atomPartitioning = voronoiAtoms(cgBeadCoords, heavyAtomCoords)
-
-    if args.verbose:
-      print("; Atom partitioning:", atomPartitioning)
-
-    atomNames, beadTypes = topology.printAtoms(cgBeads, mol, atomPartitioning, ringAtoms,
-      ringAtomsFlat, hbondA, hbondD, args, True)
-
-    if atomNames == []:
-      success = False
-
-    # Check additivity between fragments and entire molecule
-    if not checkAdditivity(beadTypes, mol, args):
-      success = False
-
-    # Bond list
+def check_additivity(forcepred, beadtypes, molecule):
+    """Check additivity assumption between sum of free energies of CG beads
+    and free energy of whole molecule"""
+    logging.debug('Entering check_additivity()')
+    # If there's only one bead, don't check.
+    if len(beadtypes) == 1:
+        return True
+    sum_frag = 0.0
+    rings = False
+    logging.info('; Bead types: %s' % beadtypes)
+    for bead in beadtypes:
+        if bead[0] == "S":
+            bead = bead[1:]
+            rings = True
+        delta_f_types = topology.read_delta_f_types()
+        sum_frag += delta_f_types[bead]
+    # Wildman-Crippen log_p
+    wc_log_p = rdMolDescriptors.CalcCrippenDescriptors(molecule)[0]
+    # Write out SMILES string of entire molecule
+    tmpfile = 'tmp-auto-martini.smi'
+    sw = rdmolfiles.SmilesWriter(tmpfile, nameHeader='')
+    rdmolfiles.SmilesWriter.write(sw, molecule)
+    sw.close()
+    # Read file
+    s = ''
     try:
-      bondList, constList = topology.printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, atomPartitioning, True) # this is so stupid ... how do we know if pringBonds technically fails?!
-    except:
-      success = False
-
-    if success:
-      topology.printHeader(args)
-      atomNames, beadTypes = topology.printAtoms(cgBeads, mol, atomPartitioning, ringAtoms,
-        ringAtomsFlat, hbondA, hbondD, args, False)
-      bondList, constList = topology.printBonds(cgBeads, mol, cgBeadCoords, ringAtoms, atomPartitioning, False)
-      topology.printAngles(cgBeads, mol, atomPartitioning, cgBeadCoords,
-        bondList, constList, ringAtoms)
-      topology.printDihedrals(cgBeads,bondList,constList,ringAtoms,cgBeadCoords)
-      # We've reached all the way here, exit the while loop
-      attempt = maxAttempts+1
+        f = open(tmpfile, 'r')
+        s = f.readlines()
+        f.close()
+    except IOError as e:
+        logging.warning('Error. Can\'t read file %s' % tmpfile)
+        logging.warning(e)
+        exit(1)
+    os.remove(tmpfile)
+    whole_mol_dg = topology.smi2alogps(forcepred, s[1].split()[0], wc_log_p, "MOL", True)
+    m_ad = math.fabs((whole_mol_dg - sum_frag) / whole_mol_dg)
+    logging.info('; Mapping additivity assumption ratio: %7.4f (whole vs sum: %7.4f vs. %7.4f)'
+                % (m_ad, whole_mol_dg, sum_frag))
+    if (not rings and m_ad < 0.5) or rings:
+        return True
     else:
-      attempt += 1
+        return False
 
-  if attempt == maxAttempts:
-    err = "; ERROR: no successful mapping found.\n" + \
-      "; Try running with the '--fpred' and/or '--verbose' options.\n"
-    sys.stderr.write(err)
-    sys.exit(0)
+def cg_molecule(molecule, molname, aa_output=None, cg_output=None, forcepred=False):
+    """Main routine to coarse-grain molecule"""
+    # Get molecule's features
 
-  # Optional atomistic output to XYZ file
-  if args.xyz:
-    output.outputXYZ(mol, args)
-  # Optional CG output to GRO file
-  if args.gro:
-    output.outputGRO(cgBeadCoords, atomNames, args)
-  # Optional output of mapping
-  if args.map:
-    output.outputMap(atomPartitioning, args)
+    feats = topology.extract_features(molecule)
 
+    # Get list of heavy atoms and their coordinates
+    list_heavy_atoms, list_heavyatom_names = topology.get_atoms(molecule)
+    conf, heavy_atom_coords = topology.get_heavy_atom_coords(molecule)
+
+    # Identify ring-type atoms
+    ring_atoms = topology.get_ring_atoms(molecule)
+
+    # Get Hbond information
+    hbond_a = topology.get_hbond_a(feats)
+    hbond_d = topology.get_hbond_d(feats)
+
+    # Flatten list of ring atoms
+    ring_atoms_flat = list(chain.from_iterable(ring_atoms))
+
+    # Optimize coarse-grained bead positions -- keep all possibilities in case something goes
+    # wrong later in the code.
+    list_cg_beads, list_bead_pos = optimization.find_bead_pos(molecule, conf, list_heavy_atoms, heavy_atom_coords, ring_atoms,
+                                                 ring_atoms_flat)
+
+    # Loop through best 1% cg_beads and avg_pos
+    cg_bead_names = []
+    cg_bead_coords = []
+    max_attempts = int(math.ceil(0.5 * len(list_cg_beads)))
+    logging.info('; Max. number of attempts: %s' % max_attempts)
+    attempt = 0
+
+    while attempt < max_attempts:
+        cg_beads = list_cg_beads[attempt]
+        bead_pos = list_bead_pos[attempt]
+        success = True
+
+        # Extract position of coarse-grained beads
+        cg_bead_coords = get_coords(conf, cg_beads, bead_pos, ring_atoms_flat)
+
+        # Partition atoms into coarse-grained beads
+        atom_partitioning = optimization.voronoi_atoms(cg_bead_coords, heavy_atom_coords)
+        logging.info('; Atom partitioning: %s' % atom_partitioning)
+
+        cg_bead_names, bead_types = topology.print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d, atom_partitioning, ring_atoms, ring_atoms_flat, True)
+
+        if not cg_bead_names:
+            success = False
+        # Check additivity between fragments and entire molecule
+        if not check_additivity(forcepred, bead_types, molecule):
+            success = False
+        # Bond list
+        try:
+            bond_list, const_list = topology.print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms, True)
+        except (NameError, ValueError):
+            success = False
+
+        if success:
+            topology.print_header(molname)
+            cg_bead_names, bead_types = topology.print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d,
+                                                    atom_partitioning, ring_atoms, ring_atoms_flat, False)
+            print("print_atoms_2nd: ", Chem.MolToSmiles(molecule))
+
+            bond_list, const_list = topology.print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms,
+                                                False)
+            topology.print_angles(cg_beads, molecule, atom_partitioning, cg_bead_coords, bond_list, const_list, ring_atoms)
+            topology.print_dihedrals(cg_beads, const_list, ring_atoms, cg_bead_coords)
+
+            # We've reached all the way here, exit the while loop
+            attempt = max_attempts + 1
+        else:
+            attempt += 1
+            logging.info('------------------------------------------------------')
+
+    if attempt == max_attempts:
+        err = "; ERROR: no successful mapping found.\n" + \
+              "; Try running with the '--fpred' and/or '--verbose' options.\n"
+        sys.stderr.write(err)
+        exit(1)
+
+    # Optional all-atom output to GRO file
+    if aa_output:
+        output.output_gro(aa_output, heavy_atom_coords, list_heavyatom_names, "MOL")
+
+    # Optional coarse-grained output to GRO file
+    if cg_output:
+        output.output_gro(cg_output, cg_bead_coords, cg_bead_names, molname)
 
 if __name__ == '__main__':
 
-  # Parse command-line options
-  parser = argparse.ArgumentParser(description='Map atomistic structure to MARTINI mapping', epilog='Tristan BEREAU (2014)')
-  group = parser.add_mutually_exclusive_group(required=True)
-  group.add_argument('--sdf', dest='sdf', type=str, required=False,
-        help='SDF file of atomistic coordinates')
-  group.add_argument('--smi', dest='smi', type=str, required=False,
-        help='SMILES string of atomistic structure')
-  parser.add_argument('--mol', dest='molname', type=str, required=True,
-        help='Name of CG molecule')
-  parser.add_argument('--xyz', dest='xyz', type=str,
-        help='output atomistic structure to OUT.xyz file')
-  parser.add_argument('--gro', dest='gro', type=str,
-        help='output CG structure to OUT.gro file')
-  parser.add_argument('--map', dest='map', type=str,
-        help='output details of mapping')
-  parser.add_argument('--verbose', dest='verbose', action='store_true',
-        help='verbose')
-  parser.add_argument('--fpred', dest='forcepred', action='store_true',
-        help='verbose')
+    # Parse command-line options
+    parser = argparse.ArgumentParser(description='Map atomistic structure to MARTINI mapping',
+                                     epilog='Tristan BEREAU (2014)')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--sdf', dest='sdf', type=str, required=False, help='SDF file of atomistic coordinates')
+    group.add_argument('--smi', dest='smi', type=str, required=False, help='SMILES string of atomistic structure')
+    parser.add_argument('--mol', dest='molname', type=str, required=True, help='Name of CG molecule')
+    parser.add_argument('--aa', dest='aa', type=str, help='output all-atom structure to .gro file')
+    parser.add_argument('--cg', dest='cg', type=str, help='output coarse-grained structure to .gro file')
+    parser.add_argument('-v', '--verbose', dest='verbose', action='count', default=0, help='increase verbosity')
+    parser.add_argument('--fpred', dest='forcepred', action='store_true', help='verbose')
 
-  args = parser.parse_args()
+    args = parser.parse_args()
+    if args.verbose >= 2:
+        level = logging.DEBUG
+    elif args.verbose >= 1:
+        level = logging.INFO
+    else:
+        level = logging.WARNING
 
-  if args.sdf:
-    # Generate molecule's structure from SDF
-    mol = topology.genMoleculeSDF(args.sdf)
-  else:
-    mol = topology.genMoleculeSMI(args.smi)
+    logging.basicConfig(filename='auto_martini.log', format='%(asctime)s:%(levelname)s: %(message)s', level=level)
 
-  feats = extractFeatures(mol)
+    # Generate molecule's structure from SDF or SMILES
+    if args.sdf:
+        mol = topology.gen_molecule_sdf(args.sdf)
+    else:
+        mol = topology.gen_molecule_smi(args.smi) 
 
-  # Identify ring-type atoms
-  ringAtoms = getRingAtoms(feats, args)
+    cg_molecule(mol, args.molname, args.aa, args.cg, args.forcepred)
 
-  run(mol, feats, ringAtoms, args)

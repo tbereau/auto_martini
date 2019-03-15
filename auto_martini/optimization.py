@@ -41,13 +41,6 @@
 
 from common import *
 
-import numpy as np
-
-try:
-  cimport numpy as np
-except:
-  pass # no Cython .. no problem
-
 def read_bead_params():
     """Returns bead parameter dictionary
     CG Bead vdw radius (in Angstroem)"""
@@ -214,10 +207,12 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, ring_atoms, listb
 
 
 def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_atoms, ringatoms_flat):
+
     """Try out all possible combinations of CG beads
     up to threshold number of beads per atom. find
     arrangement with best energy score. Return all
     possible arrangements sorted by energy score."""
+
     logging.debug('Entering find_bead_pos()')
     # Check number of heavy atoms
     if len(list_heavy_atoms) == 0:
@@ -285,7 +280,10 @@ def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_
         for at in best_trial_comb:
             logging.info('; CG bead: %s' % at)
         logging.info('; with energy: %s' % ene_best_trial)
+        
     sorted_combs = np.array(sorted(list_trial_comb, key=itemgetter(2)))
+
+    
     return sorted_combs[:, 0], sorted_combs[:, 1]
 
 
