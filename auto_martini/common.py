@@ -1,6 +1,3 @@
-# !/usr/bin/python
-#  -*- coding: utf8 -*-
-
 '''
   Created on March 14, 2019 by Andrew Abi-Mansour
 
@@ -26,16 +23,6 @@
   and LICENSE files.
 
   Github link to original repo: https://github.com/tbereau/auto_martini
-
-  BUGS found and fixed:
-
-  - function substruct2smi() returned SMILES string in lower case letters
-  - function printAtoms() uses undefined objects "hbondA" and "hbondD"
-  - function checkAdditivity() defined "mad" variable which is already defined as a function
-  - function genMoleculeSDF() did not use "sdf" input argument
-  - function printBonds() used undefined "atomPartitioning" object
-
-  TODO: make this run in Python 3
 
 '''
 
