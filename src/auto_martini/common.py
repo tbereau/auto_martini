@@ -12,9 +12,9 @@
   @originally written by: Tristan BEREAU (bereau at mpip-mainz.mpg.de)
   @modified by: Andrew Abi-Mansour (andrew.gaam at gmail.com)
 
-  Auto_martini: a tool for automatic MARTINI mapping and parametrization of small organic molecules                                               
+  Auto_Martini: a tool for automatic MARTINI mapping and parametrization of small organic molecules                                               
     
-  Auto_martini is open-source, distributed under the terms of the GNU Public
+  Auto_Martini is open-source, distributed under the terms of the GNU Public
   License, version 2 or later. It is distributed in the hope that it will
   be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
@@ -32,7 +32,11 @@ import sys
 import itertools
 import os
 import math
+
 import logging
+logging.basicConfig(filename='auto_martini.log', format='%(asctime)s:%(levelname)s: %(message)s', level=logging.INFO)
+
+
 import numpy as np
 import six
 import requests
