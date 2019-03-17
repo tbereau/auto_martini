@@ -31,20 +31,51 @@ doi = {10.1021/acs.jctc.5b00056}
 }
 ```
 
-## Installation
-`auto-martini` is a python script that requires a number of dependencies:
+## Installation & Testing
+`auto-martini` is a python module that requires a number of dependencies:
 * `numpy`: see http://docs.scipy.org/doc/numpy/user/install.html
 * `rdkit`: see http://www.rdkit.org/docs/Install.html
-* `beautifulsoup`: see http://www.crummy.com/software/BeautifulSoup/
+* `bs4`: see http://www.crummy.com/software/BeautifulSoup/ 
 * `requests`: see http://docs.python-requests.org/en/latest/user/install/
 
-`numpy` and `rdkit` can be installed by some package managers. Otherwise you'll have to compile it from source. `beautifulsoup` and `requests` can easily be installed using [pip](https://pip.pypa.io/en/latest/) or [easy_install](https://pypi.python.org/pypi/setuptools). In case you do not have root access to your computer to install new software, have a look at [virtualenv](https://pypi.python.org/pypi/virtualenv).
-
-Once all the dependencies are correctly installed, a call to the program should return a usage-information message similar to the following:
+For a python 2 installation, pip can be used to install all 4 depdendencies:
 ```
-usage: auto-martini [-h] (--sdf SDF | --smi SMI) --mol MOLNAME [--xyz XYZ]
-                    [--gro GRO] [--verbose] [--fpred]
-auto-martini: error: argument --mol is required
+pip install numpy rdkit bs4 requests
+``` 
+For optimal performance, however, we commend you use python 3, which requires installing rdkit from its source code.  Once all the dependencies are correctly installed, auto_martini can be run as a module via:
+```
+python -m auto_martini [mode] [options]
+```
+Here mode can be either 'run' or 'test'. The foemer is covered in the next section. To make sure auto_martini runs correctly on your system, run:
+```
+python -m auto_martini test
+```
+To display the usage-information (help), either supply -h, --help, or nothing to auto_martini:
+ 
+```
+usage: auto_martini [-h] [--sdf SDF | --smi SMI] [--mol MOLNAME] [--aa AA]
+                    [--cg CG] [-v] [--fpred]
+                    {run,test}
+
+Generates Martini force field for atomistic structures of small organic molecules
+
+positional arguments:
+  {run,test}     run or test auto_martini
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --sdf SDF      SDF file of atomistic coordinates
+  --smi SMI      SMILES string of atomistic structure
+  --mol MOLNAME  Name of CG molecule
+  --aa AA        output all-atom structure to .gro file
+  --cg CG        output coarse-grained structure to .gro file
+  -v, --verbose  increase verbosity
+  --fpred        verbose
+
+Developers:
+===========
+Tristan Bereau (bereau [at] mpip-mainz.mpg.de)
+Andrew Abi-Mansour (andrew.gaam [at] gmail.com)
 ```
 
 ## Usage
