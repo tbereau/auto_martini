@@ -12,9 +12,9 @@
   @originally written by: Tristan BEREAU (bereau at mpip-mainz.mpg.de)
   @modified by: Andrew Abi-Mansour (andrew.gaam at gmail.com)
 
-  Auto_martini: a tool for automatic MARTINI mapping and parametrization of small organic molecules                                               
+  Auto_Martini: a tool for automatic MARTINI mapping and parametrization of small organic molecules                                               
     
-  Auto_martini is open-source, distributed under the terms of the GNU Public
+  Auto_Martini is open-source, distributed under the terms of the GNU Public
   License, version 2 or later. It is distributed in the hope that it will
   be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
@@ -106,7 +106,6 @@ def check_additivity(forcepred, beadtypes, molecule):
 def cg_molecule(molecule, molname, aa_output=None, cg_output=None, forcepred=False):
     """Main routine to coarse-grain molecule"""
     # Get molecule's features
-
     feats = topology.extract_features(molecule)
 
     # Get list of heavy atoms and their coordinates
@@ -174,7 +173,7 @@ def cg_molecule(molecule, molname, aa_output=None, cg_output=None, forcepred=Fal
             attempt = max_attempts + 1
         else:
             attempt += 1
-            logging.info('------------------------------------------------------')
+            logging.info('Running Auto_Martini v{}'.format(__version__))
 
     if attempt == max_attempts:
         err = "; ERROR: no successful mapping found.\n" + \
