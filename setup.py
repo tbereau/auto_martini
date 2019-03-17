@@ -15,9 +15,9 @@
   @originally written by: Tristan BEREAU (bereau at mpip-mainz.mpg.de)
   @modified by: Andrew Abi-Mansour (andrew.gaam at gmail.com)
 
-  Auto_MARTINI: a tool for automatic MARTINI mapping and parametrization of small organic molecules                                               
+  Auto_Martini: a tool for automatic MARTINI mapping and parametrization of small organic molecules                                               
     
-  Auto_MARTINI is open-source, distributed under the terms of the GNU Public
+  Auto_Martini is open-source, distributed under the terms of the GNU Public
   License, version 2 or later. It is distributed in the hope that it will
   be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
@@ -58,7 +58,7 @@ setup(
     name = "auto_martini",
     version = __version__,
     author = ["Tristan Bereau", "Andrew Abi-Mansour"],
-    author_email = ["bereau@mpip-mainz.mpg.de", "andrew.gaam@gmail.com"],
+    author_email = ["bereau [at] mpip-mainz.mpg.de", "andrew.gaam [at] gmail.com"],
     description = ("A tool for automatic MARTINI mapping and parametrization of small organic molecules "),
     license = "GPL v2",
     keywords = "Coarse-grained Molecular Dynamics, MARTINI force field",
