@@ -1,6 +1,3 @@
-# !/usr/bin/python
-#  -*- coding: utf8 -*-
-
 '''
   Created on March 17, 2019 by Andrew Abi-Mansour
 
@@ -27,3 +24,5 @@
 
   Github link to original repo: https://github.com/tbereau/auto_martini
   '''
+
+__version__ = '0.1'

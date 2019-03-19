@@ -31,8 +31,8 @@
 import argparse
 import logging
 
-from auto_martini.solver import cg_molecule
-from auto_martini.topology import gen_molecule_smi, gen_molecule_sdf
+from auto_martini.engine.solver import cg_molecule
+from auto_martini.engine.topology import gen_molecule_smi, gen_molecule_sdf
 
 import sys
 
@@ -41,8 +41,12 @@ def checkArgs(args):
 
   if not args.sdf and not args.smi:
     parser.error("run requires --sdf or --smi")
-    if not args.mol:
-      parser.error("run requires --mol")
+  
+  if not args.molname:
+    parser.error("run requires --mol")
+  
+  if not args.topfname:
+    parser.error("run requires --top")
 
 parser = argparse.ArgumentParser(prog='auto_martini', description='Generates Martini force field for atomistic structures of small organic molecules',
                                 formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -55,8 +59,9 @@ group = parser.add_mutually_exclusive_group(required=False)
 group.add_argument('--sdf', dest='sdf', type=str, required=False, help='SDF file of atomistic coordinates')
 group.add_argument('--smi', dest='smi', type=str, required=False, help='SMILES string of atomistic structure')
 parser.add_argument('--mol', dest='molname', type=str, required=False, help='Name of CG molecule')
-parser.add_argument('--aa', dest='aa', type=str, help='output all-atom structure to .gro file')
-parser.add_argument('--cg', dest='cg', type=str, help='output coarse-grained structure to .gro file')
+parser.add_argument('--aa', dest='aa', type=str, help='filename of all-atom structure .gro file')
+parser.add_argument('--cg', dest='cg', type=str, help='filename of coarse-grained structure .gro file')
+parser.add_argument('--top', dest='topfname', type=str, help='filename of output topology file')
 parser.add_argument('-v', '--verbose', dest='verbose', action='count', default=0, help='increase verbosity')
 parser.add_argument('--fpred', dest='forcepred', action='store_true', help='verbose')
 
@@ -82,4 +87,4 @@ if args.mode == 'run':
   else:
       mol = gen_molecule_smi(args.smi) 
 
-  cg_molecule(mol, args.molname, args.aa, args.cg, args.forcepred)
+  cg_molecule(mol, args.molname, args.topfname, args.aa, args.cg, args.forcepred)
