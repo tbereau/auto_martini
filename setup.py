@@ -43,12 +43,12 @@
 
 from setuptools import setup, find_packages
 
-__version__ = 0.1
+from src.auto_martini import __version__
 
 try:
 	from Cython.Build import cythonize
 	import numpy
-	optimal_list = cythonize("auto_martini/optimization.pyx")
+	optimal_list = cythonize("src/auto_martini/optimization.pyx")
 	include_dirs = [numpy.get_include()]
 except:
 	optimal_list = []
