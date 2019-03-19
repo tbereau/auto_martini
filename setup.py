@@ -27,7 +27,7 @@
 
   Github link to original repo: https://github.com/tbereau/auto_martini
 
-  BUGS found and fixed:
+  Some BUGS fixed + improvements:
 
   - function substruct2smi() returned SMILES string in lower case letters
   - function printAtoms() uses undefined objects "hbondA" and "hbondD"
@@ -35,9 +35,10 @@
   - function genMoleculeSDF() did not use "sdf" input argument
   - function printBonds() used undefined "atomPartitioning" object
   - function Substructure() no longer creates then reads "tmp-auto-martini.smi" file
-
-
-  TODO: make this run in Python 3
+  - function check_additivity() no longer creates then reads "tmp-auto-martini.smi" file
+  - Added --top arg to the parser so that the output topology would be written to a file (no longer printed to stdout)
+  - Added support for python 3
+  - Created a new "optimization.pyx" module for faster implementation (in C) of find_bead_pos() routine
 
 '''
 
@@ -48,11 +49,12 @@ from src.auto_martini import __version__
 try:
 	from Cython.Build import cythonize
 	import numpy
-	optimal_list = cythonize("src/auto_martini/optimization.pyx")
+	optimal_list = cythonize("src/auto_martini/engine/optimization.pyx")
 	include_dirs = [numpy.get_include()]
 except:
-	optimal_list = []
-	include_dirs = []
+  print('Failed to cythonize optimization module. For optimal performance, make sure Cython is properly installed.')
+  optimal_list = []
+  include_dirs = []
 
 setup(
     name = "auto_martini",
@@ -61,11 +63,10 @@ setup(
     author_email = ["bereau [at] mpip-mainz.mpg.de", "andrew.gaam [at] gmail.com"],
     description = ("A tool for automatic MARTINI mapping and parametrization of small organic molecules "),
     license = "GPL v2",
-    keywords = "Coarse-grained Molecular Dynamics, MARTINI force field",
+    keywords = "Coarse-grained Molecular Dynamics, MARTINI Force Field",
     url = "https://github.com/Andrew-AbiMansour/Auto_MARTINI",
-    packages=['auto_martini'],
-    package_dir={'auto_martini': 'src/auto_martini'},
-    package_data={'auto_martini': ['examples/*.sdf', 'LICENSE', 'README.md']},
+    packages=find_packages('src'),
+    package_dir={'auto_martini':'src/auto_martini'},
     include_package_data=True,
     install_requires=['numpy', 'bs4', 'pytool'],
     classifiers=[
