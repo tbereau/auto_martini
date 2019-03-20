@@ -67,14 +67,15 @@ setup(
     url = "https://github.com/Andrew-AbiMansour/Auto_MARTINI",
     packages=find_packages('src'),
     package_dir={'auto_martini':'src/auto_martini'},
+    package_data={'test': ['src/auto_martini/test/*.sdf'],},
     include_package_data=True,
     install_requires=['numpy', 'bs4', 'pytool'],
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Topic :: Utilities",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
-	"Programming Language :: Python :: 2.7",
-	"Programming Language :: Python :: 3.6"
+	     "Programming Language :: Python :: 2.7",
+	     "Programming Language :: Python :: 3.6"
     ],
     zip_safe=False,
     ext_modules=optimal_list,
