@@ -156,10 +156,7 @@ def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, for
             attempt += 1
 
     if attempt == max_attempts:
-        err = "; ERROR: no successful mapping found.\n" + \
-              "; Try running with the '--fpred' and/or '--verbose' options.\n"
-        sys.stderr.write(err)
-        exit(1)
+        raise RuntimeError('ERROR: no successful mapping found.\nTry running with the --fpred and/or --verbose options.')
 
     # Optional all-atom output to GRO file
     if aa_output:
