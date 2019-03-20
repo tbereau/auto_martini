@@ -488,7 +488,7 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                         b[0] + 1, b[1] + 1, b[2])
 
             if len(constlist) > 0:
-                text = text + '[constraints]\n' + ';  i   j     funct   length\n'
+                text = text + '\n[constraints]\n' + ';  i   j     funct   length\n'
                 
                 for c in constlist:
                     text = text + '   {:<3d} {:<3d}   1       {:4.2f}\n'.format(
@@ -572,7 +572,7 @@ def print_angles(cgbeads, molecule, partitioning, cgbead_coords, bondlist, const
                             angle_list.append([i, j, k, angle, forc_const])
 
         if len(angle_list) > 0:
-            text = text + '[angles]\n'
+            text = text + '\n[angles]\n'
             text = text + '; i j k         funct   angle   force.c.\n'
             for a in angle_list:
                 text = text + '  {:d} {:d} {:d}         2       {:<5.1f}  {:5.1f}\n'.format(

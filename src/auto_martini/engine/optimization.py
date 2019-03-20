@@ -26,22 +26,12 @@
   and LICENSE files.
 
   Github link to original repo: https://github.com/tbereau/auto_martini
-
-  BUGS found and fixed:
-
-  - function substruct2smi() returned SMILES string in lower case letters
-  - function printAtoms() uses undefined objects "hbondA" and "hbondD"
-  - function checkAdditivity() defined "mad" variable which is already defined as a function
-  - function genMoleculeSDF() did not use "sdf" input argument
-  - function printBonds() used undefined "atomPartitioning" object
-
-  TODO: make this run in Python 3
-
 '''
 
 from auto_martini.engine.common import *
 
 import numpy as np
+
 
 def read_bead_params():
     """Returns bead parameter dictionary
@@ -107,14 +97,17 @@ def eval_gaussian_interac(molecule, conformer, list_beads, ringatoms):
     """From collection of CG beads placed on mol, evaluate
     objective function of interacting beads"""
     logging.debug('Entering eval_gaussian_interac()')
+
     weight_sum = 0.0
     weight_overlap = 0.0
     weight_at_in_bd = 0.0
     bead_params = read_bead_params()
+    
     # Offset energy for every new CG bead.
     # Distinguish between aromatics and others.
     num_aromatics = 0
     lumped_atoms = []
+
     # Creat list_beads array and loop over indeces
     list_beads_array = np.asarray(list_beads)
     for i in np.nditer(np.arange(list_beads_array.size)):
@@ -123,12 +116,14 @@ def eval_gaussian_interac(molecule, conformer, list_beads, ringatoms):
     weight_offset_bd_weights = bead_params['offset_bd_weight'] * (list_beads_array.size - num_aromatics) + \
         bead_params['offset_bd_aromatic_weight'] * num_aromatics
     weight_sum += weight_offset_bd_weights
+
     # Repulsive overlap between CG beads
     for i in np.nditer(np.arange(list_beads_array.size)):
         if i < list_beads_array.size-1:
             for j in np.nditer(np.arange(i+1, list_beads_array.size)):
                 weight_overlap += gaussian_overlap(conformer, list_beads_array[i], list_beads_array[j], ringatoms)
     weight_sum += weight_overlap
+
     # Attraction between atoms nearby to CG bead
     for i in np.nditer(np.arange(list_beads_array.size)):
         weight, lumped = atoms_in_gaussian(molecule, conformer, list_beads_array[i], ringatoms)
@@ -209,20 +204,22 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, ring_atoms, listb
 
 
 def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_atoms, ringatoms_flat):
-    """Try out all possible combinations of CG beads
-    up to threshold number of beads per atom. find
-    arrangement with best energy score. Return all
-    possible arrangements sorted by energy score."""
+    """Try out all possible combinations of CG beads up to threshold number of beads per atom. Find
+    arrangement with best energy score. Return all possible arrangements sorted by energy score."""
+    
     logging.debug('Entering find_bead_pos()')
+    
     # Check number of heavy atoms
     if len(list_heavy_atoms) == 0:
         print('Error. No heavy atom found.')
         exit(1)
+    
     if len(list_heavy_atoms) == 1:
         # Put one CG bead on the one heavy atom.
         best_trial_comb = np.array(list(itertools.combinations(range(len(list_heavy_atoms)), 1)))
         avg_pos = [[conformer.GetAtomPosition(best_trial_comb[0])[j] for j in range(3)]]
         return best_trial_comb, avg_pos
+    
     if len(list_heavy_atoms) > 50:
         print('Error. Exhaustive enumeration can\'t handle large molecules.')
         print('Number of heavy atoms: %d' % len(list_heavy_atoms))
@@ -233,35 +230,42 @@ def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_
         for j in range(i + 1, len(list_heavy_atoms)):
             if molecule.GetBondBetweenAtoms(int(list_heavy_atoms[i]), int(list_heavy_atoms[j])) is not None:
                 list_bonds.append([list_heavy_atoms[i], list_heavy_atoms[j]])
+    
     # Max number of beads. At most 2.5 heavy atoms per bead.
     max_beads = int(len(list_heavy_atoms) / 2.)
+    
     # Collect all possible combinations of bead positions
     best_trial_comb = []
     list_trial_comb = []
     ene_best_trial = 1e6
     last_best_trial_comb = []
+    
     # Keep track of all combinations and scores
     list_combs = []
     list_energies = []
+    
     for num_beads in range(1, max_beads + 1):
+
         # Use recursive function to loop through all possible
         # combinations of CG bead positions.
         seq_one_beads = np.array(list(itertools.combinations(list_heavy_atoms, num_beads)))
         combs = []
         energies = []
+
         # Trial positions: any heavy atom
         for seq in seq_one_beads:
             trial_comb = list(seq)
             acceptable_trial = check_beads(list_heavy_atoms, heavyatom_coords, trial_comb, ring_atoms, list_bonds)
             if acceptable_trial:
+
                 # Do the energy evaluation
                 trial_ene = eval_gaussian_interac(molecule, conformer, trial_comb, ringatoms_flat)
                 combs.append(trial_comb)
                 energies.append(trial_ene)
+                
                 logging.info('; %s %s', trial_comb, trial_ene)
                 # Make sure all atoms within one bead would be connected
-                if all_atoms_in_beads_connected(trial_comb,
-                   heavyatom_coords, list_heavy_atoms, list_bonds):
+                if all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavy_atoms, list_bonds):
                     # Accept the move
                     if trial_ene < ene_best_trial:
                         ene_best_trial = trial_ene
@@ -272,15 +276,16 @@ def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_
                         beadpos[l] = [conformer.GetAtomPosition(int(sorted(trial_comb)[l]))[m] for m in range(3)]
                     # Store configuration
                     list_trial_comb.append([trial_comb, beadpos, trial_ene])
+
         if last_best_trial_comb == best_trial_comb:
             break
+
         last_best_trial_comb = best_trial_comb
         list_combs.append(combs)
         list_energies.append(energies)
 
     sorted_combs = np.array(sorted(list_trial_comb, key=itemgetter(2)))
     return sorted_combs[:, 0], sorted_combs[:, 1]
-
 
 def all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, bondlist):
     """Make sure all atoms within one CG bead are connected to at least
