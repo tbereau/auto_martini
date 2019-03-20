@@ -88,3 +88,6 @@ if args.mode == 'run':
       mol = gen_molecule_smi(args.smi) 
 
   cg_molecule(mol, args.molname, args.topfname, args.aa, args.cg, args.forcepred)
+else:
+  path, _ = __file__.split(__name__)
+  cg_molecule(gen_molecule_sdf(path + '/test/ibuprofen.sdf'), molname='IBU', topfname='ibu.itp')

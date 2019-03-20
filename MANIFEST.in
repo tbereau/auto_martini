@@ -1,3 +1,4 @@
 global-include *.pyx
 include README.md 
 include LICENSE
+include src/auto_martini/test/*.sdf
