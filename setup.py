@@ -77,7 +77,7 @@ class Installer(object):
 
   def __exit__(self, *a):
     os.chdir('../..')
-    sys.path.append(os.getcwd() + '/' + name + '/' + lib)
+    sys.path.append(os.getcwd() + '/' + self.name + '/lib')
 
 
 # check if rdkit is installed ... else compile it from source
