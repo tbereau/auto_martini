@@ -5,4 +5,4 @@ python:
 install:
 - sudo apt-get install python-rdkit && pip install requests bs4 numpy cython
 script:
-- python -m auto_martini test
+- cd Auto_MARTINI && python setup.py install --user && cd .. && python -m auto_martini test
