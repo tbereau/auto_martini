@@ -72,7 +72,7 @@ class Installer(object):
     python_lib = self.find('libpython{}.so'.format(python_version).format(python_version), '/') 
     python_exec = sys.executable
 
-    os.system('cmake .. -DPYTHON_LIBRARY={} -DPYTHON_EXECUTABLE={} -DBOOST_ROOT=/usr/include/boost'.format(python_lib, python_exec))
+    os.system('cmake .. -DPYTHON_LIBRARY={} -DPYTHON_EXECUTABLE={}'.format(python_lib, python_exec))
     os.system('make install')
 
   def __exit__(self, *a):

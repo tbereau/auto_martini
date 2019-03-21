@@ -1,10 +1,8 @@
+dist: xenial
 sudo: true
 language: python
 python:
 - 3.6
-before_install:
-- sudo apt-get update
-- sudo apt-get install -y libboost-all-dev libboost-python-dev
 install:
 - pip install requests bs4 numpy cython
 addons:
