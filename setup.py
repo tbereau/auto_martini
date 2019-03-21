@@ -42,42 +42,60 @@
 
 '''
 
-from setuptools import setup, find_packages
+import sys, os
 
-from src.auto_martini import __version__
+path = os.path.abspath(__file__).split(__file__)[0] + 'src/auto_martini/__init__.py'
 
-try:
-	from Cython.Build import cythonize
-	import numpy
-	optimal_list = cythonize("src/auto_martini/engine/optimization.pyx")
-	include_dirs = [numpy.get_include()]
-except:
-  print('Failed to cythonize optimization module. For optimal performance, make sure Cython is properly installed.')
-  optimal_list = []
-  include_dirs = []
+if sys.version_info[0] < 3:
+  import imp
+  version_mod = imp.load_source('__init__.py', path)
+elif sys.version_info[1] <= 3:
+  from importlib.machinery import SourceFileLoader
+  version_mod = SourceFileLoader('__init__.py', path).load_module() # this works in v3.6.7 too
+else: # v3.4 and above
+  import importlib.util
+  spec = importlib.util.spec_from_file_location('__init__.py', path)
+  version_mod = importlib.util.module_from_spec(spec)
+  spec.loader.exec_module(version_mod)
 
-setup(
-    name = "auto_martini",
-    version = __version__,
-    author = ["Tristan Bereau", "Andrew Abi-Mansour"],
-    author_email = ["bereau [at] mpip-mainz.mpg.de", "andrew.gaam [at] gmail.com"],
-    description = ("A tool for automatic MARTINI mapping and parametrization of small organic molecules "),
-    license = "GPL v2",
-    keywords = "Coarse-grained Molecular Dynamics, MARTINI Force Field",
-    url = "https://github.com/Andrew-AbiMansour/Auto_MARTINI",
-    packages=find_packages('src'),
-    package_dir={'auto_martini':'src/auto_martini'},
-    package_data={'test': ['src/auto_martini/test/*.sdf'],},
-    include_package_data=True,
-    install_requires=['numpy', 'bs4', 'pytool'],
-    classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
-        "Topic :: Utilities",
-        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
-	     "Programming Language :: Python :: 2.7",
-	     "Programming Language :: Python :: 3.6"
-    ],
-    zip_safe=False,
-    ext_modules=optimal_list,
-    include_dirs=include_dirs
-)
+__version__ =  version_mod.__version__
+
+if __name__ == '__main__':
+
+  from setuptools import setup, find_packages
+
+  try:
+  	from Cython.Build import cythonize
+  	import numpy
+  	optimal_list = cythonize("src/auto_martini/engine/optimization.pyx")
+  	include_dirs = [numpy.get_include()]
+  except:
+    print('Failed to cythonize optimization module. For optimal performance, make sure Cython is properly installed.')
+    optimal_list = []
+    include_dirs = []
+
+  setup(
+      name = "auto_martini",
+      version = __version__,
+      author = ["Tristan Bereau", "Andrew Abi-Mansour"],
+      author_email = ["bereau [at] mpip-mainz.mpg.de", "andrew.gaam [at] gmail.com"],
+      description = ("A tool for automatic MARTINI mapping and parametrization of small organic molecules "),
+      license = "GPL v2",
+      keywords = "Coarse-grained Molecular Dynamics, MARTINI Force Field",
+      url = "https://github.com/Andrew-AbiMansour/Auto_MARTINI",
+      packages=find_packages('src'),
+      package_dir={'auto_martini':'src/auto_martini'},
+      package_data={'test': ['src/auto_martini/test/*.sdf'],},
+      include_package_data=True,
+      install_requires=['numpy', 'bs4', 'pytool'],
+      classifiers=[
+          "Development Status :: 2 - Pre-Alpha",
+          "Topic :: Utilities",
+          "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+  	     "Programming Language :: Python :: 2.7",
+  	     "Programming Language :: Python :: 3.6"
+      ],
+      zip_safe=False,
+      ext_modules=optimal_list,
+      include_dirs=include_dirs
+  )
