@@ -9,5 +9,6 @@ addons:
  packages:
  - libboost-dev
  - libboost-python-dev
+ - libboost-all-dev
 script:
 - python setup.py install && cd .. && python -m auto_martini test
