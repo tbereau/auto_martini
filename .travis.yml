@@ -4,14 +4,14 @@ python:
 - 3.6
 before_install:
 - sudo apt-get update
-- sudo apt-get install -y libboost-all-dev libboost-python-dev libboost-dev
+- sudo apt-get install -y libboost-all-dev libboost-python-dev
 install:
 - pip install requests bs4 numpy cython
 addons:
  apt:
- packages:
- - libboost-dev
- - libboost-python-dev
- - libboost-all-dev
+  update: true
+  packages:
+  - libboost-python-dev
+  - libboost-all-dev
 script:
 - python setup.py install && cd .. && python -m auto_martini test
