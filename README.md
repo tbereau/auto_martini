@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Andrew-AbiMansour/Auto_MARTINI.svg?branch=master)](https://travis-ci.org/Andrew-AbiMansour/Auto_MARTINI)
+
 Auto_MARTINI
 ============
 ***
