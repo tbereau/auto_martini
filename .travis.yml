@@ -2,7 +2,7 @@ dist: xenial
 sudo: true
 language: python
 python:
-- 3.6
+- 3.6-dev
 install:
 - pip install requests bs4 numpy cython
 addons:
