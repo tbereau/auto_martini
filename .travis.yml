@@ -1,5 +1,5 @@
 dist: xenial
-sudo: true
+sudo: false
 language: python
 python:
 - 3.6-dev
