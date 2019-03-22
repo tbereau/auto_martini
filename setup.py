@@ -72,6 +72,7 @@ class Installer(object):
     python_lib = self.find('libpython{}.so'.format(python_version).format(python_version), '/') 
     python_exec = sys.executable
 
+    print('python_lib = ' + python_lib, '; python_exec = ', python_exec)
     os.system('cmake .. -DPYTHON_LIBRARY={} -DPYTHON_EXECUTABLE={}'.format(python_lib, python_exec))
     os.system('make install')
 
