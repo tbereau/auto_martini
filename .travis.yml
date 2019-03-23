@@ -1,11 +1,11 @@
 dist: xenial
 sudo: false
 language: python
+env:
+- LD_LIBRARY_PATH=$HOME/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit/lib
 python:
 - 3.6-dev
 install:
 - pip3 install requests bs4 numpy cython && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.5
 script:
-- python setup.py install && cd .. && python -m auto_martini test
-env:
-- LD_LIBRARY_PATH=$HOME/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit/lib
+- python3 test_Travis.py
