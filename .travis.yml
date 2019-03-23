@@ -11,4 +11,4 @@ python:
 install:
 - pip3 install requests bs4 numpy cython
 script:
-- python3 test_Travis.py
+- python3 setup.py install && cd .. && python3 -m auto_martini test
