@@ -75,7 +75,7 @@ class Installer(object):
     if not python_lib:
       print('Could not find any installed python-dev (libpython.so) library.')
       print('Proceeding ...')
-      cm_args = ' -DPYTHON_EXECUTABLE={}'.format(ython_exec)
+      cm_args = ' -DPYTHON_EXECUTABLE={}'.format(python_exec)
     else:
       cm_args = ' -DPYTHON_LIBRARY={} -DPYTHON_EXECUTABLE={}'.format(python_lib, python_exec)
 
