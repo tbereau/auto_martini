@@ -9,6 +9,6 @@ apt:
 python:
 - 3.6-dev
 install:
-- pip3 install requests bs4 numpy cython && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.5
+- pip3 install requests bs4 numpy cython
 script:
 - python3 test_Travis.py
