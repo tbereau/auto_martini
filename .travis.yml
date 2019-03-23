@@ -6,4 +6,6 @@ python:
 install:
 - pip3 install requests bs4 numpy cython && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.5
 script:
-- export LD_LIBRARY_PATH=$LD_LIBRARYPATH:$HOME/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit/lib && python setup.py install && cd .. && python -m auto_martini test
+- python setup.py install && cd .. && python -m auto_martini test
+env:
+- LD_LIBRARY_PATH=$HOME/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit/lib
