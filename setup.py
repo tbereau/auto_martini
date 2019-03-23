@@ -80,7 +80,7 @@ class Installer(object):
       cm_args = ' -DPYTHON_LIBRARY={} -DPYTHON_EXECUTABLE={}'.format(python_lib, python_exec)
 
     os.system('cmake .. ' + cm_args)
-    os.system('make install')
+    os.system('make install -j 2')
 
   def __exit__(self, *a):
     os.chdir('../..')
