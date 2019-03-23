@@ -70,9 +70,12 @@ class Installer(object):
     python_version = str(sys.version_info[0]) + str(sys.version_info[1])
 
     python_lib = self.find('libpython{}.so'.format(python_version).format(python_version), '/') 
+
+    if not python_lib:
+      raise OSError('Could not find any installed python-dev (libpython.so) library.')
+
     python_exec = sys.executable
 
-    print('python_lib = ' + python_lib, '; python_exec = ', python_exec)
     os.system('cmake .. -DPYTHON_LIBRARY={} -DPYTHON_EXECUTABLE={}'.format(python_lib, python_exec))
     os.system('make install')
 
