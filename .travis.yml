@@ -1,8 +1,11 @@
 dist: xenial
-sudo: false
 language: python
 env:
 - LD_LIBRARY_PATH=$HOME/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit/lib
+addons:
+apt:
+ packages:
+ - libboost-all-dev
 python:
 - 3.6-dev
 install:
