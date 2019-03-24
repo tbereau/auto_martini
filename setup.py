@@ -91,6 +91,7 @@ class Installer(object):
 try:
   import rdkit
 except:
+  raise
   print('rdkit not found. Attempting to compile rdkit from source ...')
   with Installer(repo='https://github.com/rdkit/rdkit') as _:
     pass
