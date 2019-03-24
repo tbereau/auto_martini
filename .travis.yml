@@ -15,4 +15,4 @@ python:
 install:
 - pip3 install requests bs4 numpy cython ninja && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.7
 script:
-- ls /home/travis/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit/lib && ls $HOME/virtualenv/lib/python3.6/site-packages/rdkit/lib
+- python3 setup.py install && cd .. && python3 -m auto_martini test
