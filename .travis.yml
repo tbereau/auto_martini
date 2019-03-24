@@ -4,7 +4,7 @@ sudo: true
 before_install:
 - sudo apt-get update && sudo apt-get install libboost-all-dev libboost-python-dev
 env:
-- LD_LIBRARY_PATH=$HOME/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit/lib
+- LD_LIBRARY_PATH=$HOME/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit-2018.9.2.6-py3.6.egg/rdkit/lib
 addons:
 apt:
  update: true
@@ -13,6 +13,6 @@ apt:
 python:
 - 3.6-dev
 install:
-- pip3 install requests bs4 numpy cython
+- pip3 install requests bs4 numpy cython ninja && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.7
 script:
 - python3 setup.py install && cd .. && python3 -m auto_martini test
