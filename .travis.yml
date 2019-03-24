@@ -4,7 +4,7 @@ sudo: true
 before_install:
 - sudo apt-get update && sudo apt-get install libboost-all-dev libboost-python-dev
 env:
-- LD_LIBRARY_PATH=$HOME/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit-2018.9.2.6-py3.6.egg/rdkit/lib
+- LD_LIBRARY_PATH=$HOME/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit/lib
 addons:
 apt:
  update: true
