@@ -91,9 +91,8 @@ class Installer(object):
 try:
   import rdkit
 except:
-  raise
   print('rdkit not found. Attempting to compile rdkit from source ...')
-  with Installer(repo='https://github.com/rdkit/rdkit') as _:
+  with Installer(repo='https://github.com/Andrew-AbiMansour/rdkit') as _:
     pass
 
 # import auto_martini __version__ from src

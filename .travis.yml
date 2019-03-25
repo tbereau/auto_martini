@@ -13,6 +13,6 @@ apt:
 python:
 - 3.6-dev
 install:
-- pip3 install requests bs4 numpy cython ninja && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.7
+- pip3 install requests bs4 numpy cython ninja # && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.7
 script:
-- ls /home/travis/virtualenv/python3.6-dev/lib/python3.6/site-packages/rdkit/ -ltr && python3 setup.py install && cd .. && python3 -m auto_martini test
+- python3 setup.py install && cd .. && python3 -m auto_martini test
