@@ -13,6 +13,6 @@ apt:
 python:
 - 3.6-dev
 install:
-- pip3 install requests bs4 numpy cython ninja # && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.7
+- pip3 install requests bs4 numpy cython # && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.7
 script:
 - git clone https://github.com/Andrew-AbiMansour/rdkit && cd rdkit && python3 setup.py install && cd .. && rm -r rdkit && python3 setup.py install && python3 -m auto_martini test
