@@ -2,7 +2,7 @@ dist: xenial
 language: python
 sudo: false
 before_install:
-- sudo apt-get update && sudo apt-get install libboost-all-dev libboost-python-dev
+- sudo apt-get update && sudo apt-get install libboost-python1.67-dev libpython3.6-dev
 env:
   global:
   - MAKEFLAGS="-j 2"
