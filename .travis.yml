@@ -2,7 +2,7 @@ dist: xenial
 language: python
 sudo: false
 before_install:
-- sudo apt-get update && sudo apt-get install libboost-python1.67-dev libpython3.6-dev
+- sudo apt-get update && sudo apt-get install libboost-python-dev libboost-all-dev
 env:
   global:
   - MAKEFLAGS="-j 2"
@@ -11,7 +11,7 @@ addons:
 python:
 - 3.6-dev
 install:
-- pip3 install requests bs4 numpy cython && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.10
+- pip3 install requests bs4 numpy cython && pip3 install --index-url https://test.pypi.org/simple/ --no-binary rdkit==2018.9.2.10
 script:
 - ldd /home/travis/virtualenv/python3.6-dev/lib/libRDKitRDBoost.so
 - python3 setup.py install 
