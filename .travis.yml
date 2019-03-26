@@ -6,6 +6,7 @@ sudo: false
 env:
   global:
   - MAKEFLAGS="-j 2"
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/travis/virtualenv/python3.6-dev/lib
 addons:
 python:
 - 3.6-dev
