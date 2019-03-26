@@ -13,6 +13,6 @@ python:
 install:
 - pip3 install requests bs4 numpy cython && pip3 install --index-url https://test.pypi.org/simple/ rdkit==2018.9.2.10
 script:
-- ls /home/travis/virtualenv/python3.6-dev/lib/ -ltr
+- ldd /home/travis/virtualenv/python3.6-dev/lib/libRDKitRDBoost.so
 - python3 setup.py install 
 - python3 -m auto_martini test
