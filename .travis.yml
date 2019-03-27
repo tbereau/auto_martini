@@ -1,10 +1,10 @@
-dist: xenial
+dist: precise
 language: python
 sudo: required
 before_install:
 - sudo apt-get update && sudo apt-get install librdkit-dev python-rdkit 
 python:
-- 2.7.0
+- 2.7
 install:
 - pip install requests bs4 numpy cython
 virtualenv:
