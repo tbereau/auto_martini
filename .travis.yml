@@ -8,5 +8,6 @@ python:
 install:
 - sudo pip install requests bs4 numpy cython
 script:
-- sudo python setup.py install 
+- python setup.py install 
+- echo $PYTHONPATH
 - python -m auto_martini test
