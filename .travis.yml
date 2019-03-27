@@ -10,6 +10,5 @@ install:
 virtualenv:
 system_site_packages: true
 script:
-- ls /usr/lib/python2.7/dist-packages/rdkit -ltr
 - python setup.py install 
 - python -m auto_martini test
