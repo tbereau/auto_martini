@@ -1,18 +1,12 @@
 dist: xenial
 language: python
-sudo: false
+sudo: required
 before_install:
-- sudo apt-get update && sudo apt-get install libboost-python-dev libboost-all-dev
-env:
-  global:
-  - MAKEFLAGS="-j 2"
-  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/travis/virtualenv/python3.6-dev/lib
-addons:
+- sudo apt-get update && sudo apt-get install librdkit-dev python-rdkit 
 python:
-- 3.6-dev
+- 2.7
 install:
-- pip3 install requests bs4 numpy cython
-- pip3 install --index-url https://test.pypi.org/simple rdkit==2018.9.2.13
+- sudo pip install requests bs4 numpy cython
 script:
-- python3 setup.py install 
-- python3 -m auto_martini test
+- sudo python setup.py install 
+- python -m auto_martini test
