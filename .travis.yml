@@ -10,5 +10,7 @@ install:
 virtualenv:
 system_site_packages: true
 script:
+- ls /usr/lib/python2.7/dist-packages -ltr
+- ls /home/travis/virtualenv/python2.7.15/lib/python2.7/site-packages
 - python setup.py install 
 - python -m auto_martini test
