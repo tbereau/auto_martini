@@ -7,9 +7,6 @@ python:
 - 2.7
 install:
 - pip install requests bs4 numpy cython --user
-virtualenv:
-system_site_packages: true
 script:
-- ls ~/.local/python2.7/site-packages/ -ltr
 - python setup.py install --user 
 - python -m auto_martini test
