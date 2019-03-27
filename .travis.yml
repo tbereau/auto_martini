@@ -6,8 +6,7 @@ before_install:
 python:
 - 2.7
 install:
-- sudo pip install requests bs4 numpy cython
+- pip install requests bs4 numpy cython
 script:
 - python setup.py install 
-- echo $PYTHONPATH
 - python -m auto_martini test
