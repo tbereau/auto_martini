@@ -1,4 +1,4 @@
-dist: precise
+dist: xenial
 language: python
 sudo: required
 before_install:
@@ -10,5 +10,6 @@ install:
 virtualenv:
 system_site_packages: true
 script:
+- cp -r /usr/lib/python2.7/dist-packages/rdkit /home/travis/virtualenv/python2.7.13/lib/python2.7/site-packages/ 
 - python setup.py install 
 - python -m auto_martini test
