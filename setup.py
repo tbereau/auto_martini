@@ -67,7 +67,7 @@ class Installer(object):
     os.mkdir('build')
     os.chdir('build')
 
-    python_version = str(sys.version_info[0]) + str(sys.version_info[1])
+    python_version = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
 
     python_lib = self.find('libpython{}.so'.format(python_version).format(python_version), '/') 
     python_exec = sys.executable
@@ -94,7 +94,7 @@ except:
   print('rdkit not found. Attempting to compile rdkit from source ...')
   with Installer(repo='https://github.com/Andrew-AbiMansour/rdkit') as _:
     pass
-    
+
 # import auto_martini __version__ from src
 path = os.path.abspath(__file__).split(__file__)[0] + 'src/auto_martini/__init__.py'
 
