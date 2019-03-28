@@ -69,18 +69,20 @@ class Installer(object):
 
     python_version = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
 
-    python_lib = self.find('libpython{}.so'.format(python_version).format(python_version), '/') 
+    python_lib = self.find('libpython{}.so'.format(python_version), '/') 
     python_exec = sys.executable
 
     if not python_lib:
-      print('Could not find any installed python-dev (libpython.so) library.')
+      print('Could not find any installed python-dev (libpython{}.so).'.format(python_version))
       print('Proceeding ...')
       cm_args = ' -DPYTHON_EXECUTABLE={}'.format(python_exec)
     else:
       cm_args = ' -DPYTHON_LIBRARY={} -DPYTHON_EXECUTABLE={}'.format(python_lib, python_exec)
 
     os.system('cmake .. ' + cm_args)
-    os.system('make install -j 2')
+    
+    import multiprocessing
+    os.system('make install -j{}'.format(multiprocessing.cpu_count()))
 
   def __exit__(self, *a):
     os.chdir('../..')
@@ -92,7 +94,7 @@ try:
   import rdkit
 except:
   print('rdkit not found. Attempting to compile rdkit from source ...')
-  with Installer(repo='https://github.com/Andrew-AbiMansour/rdkit') as _:
+  with Installer(repo='https://github.com/rdkit/rdkit') as _:
     pass
 
 # import auto_martini __version__ from src
