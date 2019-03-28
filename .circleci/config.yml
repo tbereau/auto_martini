@@ -17,10 +17,9 @@ jobs:
             echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
 
-     - run:
+      - run:
          name: install global dependencies
          command: 'sudo apt-get install libboost-all-dev libboost-python-dev'
- 
 
       - run:
           name: install local dependencies
