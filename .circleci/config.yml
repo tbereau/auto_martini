@@ -19,7 +19,7 @@ jobs:
 
       - run:
          name: install global dependencies
-         command: 'sudo apt-get install libboost-all-dev libboost-python-dev'
+         command: 'sudo apt-get update && sudo apt-get install libboost-all-dev libboost-python-dev'
 
       - run:
           name: install local dependencies
