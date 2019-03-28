@@ -13,7 +13,7 @@ jobs:
 
     working_directory: ~/repo
     environment:
-	PIPENV_VENV_IN_PROJECT: true
+       PIPENV_VENV_IN_PROJECT: true
 
     steps:
       - checkout # checkout src code to working dir
