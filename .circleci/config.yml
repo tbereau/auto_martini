@@ -12,8 +12,6 @@ jobs:
       # - image: circleci/postgres:9.4
 
     working_directory: ~/repo
-    environment:
-       PIPENV_VENV_IN_PROJECT: true
 
     steps:
       - checkout # checkout src code to working dir
@@ -21,17 +19,14 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip3 install requests bs4 numpy cython cmake
+            pip3 install requests bs4 numpy cython cmake --user
 
       - run:
-          python3 setup.py install
+          python3 setup.py install --user
 
       - run:
           name: run tests
           command: |
-            . venv/bin/activate
             python3 -m auto_martini test
 
       - store_test_results:
