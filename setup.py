@@ -44,6 +44,57 @@
 
 import sys, os
 
+class Installer(object):
+
+  def __init__(self, repo):
+    self.repo = repo
+    self.name = repo.split('/')[-1]
+
+  def find(self, fname, path):
+
+    for root, dirs, files in os.walk(path):
+      if fname in files:
+        return os.path.join(root, fname)
+
+    return None
+
+
+  def __enter__(self):
+
+    os.system('git clone ' + self.repo)
+    
+    os.chdir(self.name)
+    os.mkdir('build')
+    os.chdir('build')
+
+    python_version = str(sys.version_info[0]) + str(sys.version_info[1])
+
+    python_lib = self.find('libpython{}.so'.format(python_version).format(python_version), '/') 
+    python_exec = sys.executable
+
+    if not python_lib:
+      print('Could not find any installed python-dev (libpython.so) library.')
+      print('Proceeding ...')
+      cm_args = ' -DPYTHON_EXECUTABLE={}'.format(python_exec)
+    else:
+      cm_args = ' -DPYTHON_LIBRARY={} -DPYTHON_EXECUTABLE={}'.format(python_lib, python_exec)
+
+    os.system('cmake .. ' + cm_args)
+    os.system('make install -j 2')
+
+  def __exit__(self, *a):
+    os.chdir('../..')
+    sys.path.append(os.getcwd() + '/' + self.name + '/lib')
+
+
+# check if rdkit is installed ... else compile it from source
+try:
+  import rdkit
+except:
+  print('rdkit not found. Attempting to compile rdkit from source ...')
+  with Installer(repo='https://github.com/Andrew-AbiMansour/rdkit') as _:
+    pass
+    
 # import auto_martini __version__ from src
 path = os.path.abspath(__file__).split(__file__)[0] + 'src/auto_martini/__init__.py'
 
