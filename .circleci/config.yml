@@ -19,7 +19,7 @@ jobs:
 
       - run:
            name: install global dependencies
-           command: 'sudo apt-get update && sudo apt-get install -y cmake'
+           command: 'sudo apt-get install -y cmake'
 
       - run:
           name: install dependencies
