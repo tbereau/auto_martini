@@ -9,8 +9,14 @@ jobs:
 
       - checkout # checkout src code to working dir
 
+      - run
+          name: update env vars
+          command: |
+            echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
+
       - run:
-          name: install dependencies
+          name: install local dependencies
           command: |
             pip3 install requests bs4 numpy cython cmake --user
 
