@@ -14,12 +14,17 @@ jobs:
     working_directory: ~/repo
 
     steps:
+
       - checkout # checkout src code to working dir
+
+      - run:
+           name: install global dependencies
+           command: 'apt-get update && sudo apt-get install -y cmake'
 
       - run:
           name: install dependencies
           command: |
-            pip3 install requests bs4 numpy cython cmake --user
+            pip3 install requests bs4 numpy cython --user
 
       - run:
           python3 setup.py install --user
