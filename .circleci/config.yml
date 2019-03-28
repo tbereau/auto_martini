@@ -10,8 +10,8 @@ jobs:
       - checkout # checkout src code to working dir
 
       - run
-          name: update env vars
-          command: |
+         name: update env vars
+         command: |
             echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
 
