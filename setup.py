@@ -82,10 +82,13 @@ class Installer(object):
     os.system('cmake .. ' + cm_args)
     
     if 'RDKITPROC' in os.environ:
-      os.system('make install -j{}'.format(os.environ['RDKITPROC']))
+      cmd = 'make install -j{}'.format(os.environ['RDKITPROC'])
     else:
       import multiprocessing
-      os.system('make install -j{}'.format(multiprocessing.cpu_count()))
+      cmd = 'make install -j{}'.format(multiprocessing.cpu_count())
+
+    print(cmd)
+    os.system(cmd)
 
   def __exit__(self, *a):
     os.chdir('../..')
