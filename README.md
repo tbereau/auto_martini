@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Andrew-AbiMansour/Auto_MARTINI.svg?branch=master)](https://travis-ci.org/Andrew-AbiMansour/Auto_MARTINI)
+[![Build Status](https://circleci.com/gh/Andrew-AbiMansour/Auto_Martini.svg?branch=master)](https://circleci.com/gh/Andrew-AbiMansour/Auto_Martini)
 
 Auto_MARTINI
 ============
