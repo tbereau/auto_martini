@@ -14,6 +14,7 @@ jobs:
       - run:
          name: update env vars
          command: |
+            apt-cache search libboost
             echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
 
@@ -27,10 +28,12 @@ jobs:
       - run:
           name: install local dependencies
           command: |
+            pip3 install --upgrade pip --user
             pip3 install requests bs4 numpy cython cmake --user
 
       - run:
-          python3 setup.py install --user
+          name: install auto_martini
+          command: python3 setup.py install --user
 
       - run:
           name: run tests
