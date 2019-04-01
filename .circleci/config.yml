@@ -20,7 +20,8 @@ jobs:
       - run:
          name: install global dependencies
          command: |
-	    sudo sed -i '/jessie-backports/d' /etc/apt/sources.list sudo sed -i '/jessie-updates/d' /etc/apt/sources.list ZZ
+            sudo sed -i '/jessie-backports/d' /etc/apt/sources.list 
+            sudo sed -i '/jessie-updates/d' /etc/apt/sources.list
             sudo apt-get update && sudo apt-get install libboost-all-dev libboost-python-dev
 
       - run:
