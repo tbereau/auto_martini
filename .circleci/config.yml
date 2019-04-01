@@ -32,7 +32,7 @@ jobs:
 
       - run:
           name: install auto_martini
-          command: RDKITPROC=2 && python3 setup.py install --user
+          command: export RDKITPROC=8 && python3 setup.py install --user
 
       - run:
           name: run tests
