@@ -17,6 +17,9 @@ jobs:
             echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
 
+            echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/circleci/repo/rdkit/lib' >> $BASH_ENV
+            source $BASH_ENV
+
       - run:
          name: install global dependencies
          command: |
