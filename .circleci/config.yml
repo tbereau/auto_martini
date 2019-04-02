@@ -35,7 +35,9 @@ jobs:
 
       - run:
           name: install auto_martini
-          command: export RDKITPROC=4 && python3 setup.py install --user
+          command: |
+            echo $LD_LIBRARY_PATH
+            export RDKITPROC=4 && python3 setup.py install --user
 
       - run:
           name: run tests
