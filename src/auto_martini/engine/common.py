@@ -55,6 +55,3 @@ from collections import defaultdict
 from operator import itemgetter
 from auto_martini.engine.sanifix4 import AdjustAromaticNs
 from auto_martini import __version__
-
-
-import cProfile
