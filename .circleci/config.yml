@@ -41,6 +41,7 @@ jobs:
       - run:
           name: run tests
           command: |
+            echo $LD_LIBRARY_PATH
             ls /home/circleci/repo/rdkit/lib -ltr
             python3 -m auto_martini test
 
