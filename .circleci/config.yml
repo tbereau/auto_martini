@@ -20,6 +20,9 @@ jobs:
             echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/circleci/repo/rdkit/lib' >> $BASH_ENV
             source $BASH_ENV
 
+            echo 'export PYTHONPATH=$PYTHONPATH:/home/circleci/repo/rdkit/rdkit' >> $BASH_ENV
+            source $BASH_ENV
+
       - run:
          name: install global dependencies
          command: |
@@ -43,6 +46,7 @@ jobs:
           command: |
             echo $LD_LIBRARY_PATH
             ls /home/circleci/repo/rdkit/lib -ltr
+            cd ..
             ls -ltr
             python3 -m auto_martini test
 
