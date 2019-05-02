@@ -7,7 +7,7 @@ Auto_MARTINI
 
 *Modified and optimized by:* Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US) 
 
-Automated MARTINI mapping and parametrization of small organic molecules. This fork restructures the original code to a modular and extensible form with numerous bug fixes and support for Python 3. For full documentation, click [here](https://github.com/Andrew-AbiMansour/Auto_Martini/blob/master/docs/html/index.html).
+Automated MARTINI mapping and parametrization of small organic molecules. This fork restructures the original code to a modular and extensible form with numerous bug fixes and support for Python 3. For full documentation, click [here](https://andrew-abimansour.github.io/Auto_Martini/docs/html/index.html).
 
 ## Publication
 For a detailed account of the software, see:
