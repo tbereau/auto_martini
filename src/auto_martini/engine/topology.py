@@ -262,7 +262,7 @@ def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
     smi = Chem.MolToSmiles(Chem.rdmolops.AddHs(frag.GetMol(), addCoords=True))
  
     # fragment smi: Nc1ncnn1 ---------> FAILURE! Need to fix this Andrew! For now, just a hackish soln:
-    smi = smi.lower() if smi.islower() else smi.upper()
+    # smi = smi.lower() if smi.islower() else smi.upper()
 
     return smi, wc_log_p, chg
 
