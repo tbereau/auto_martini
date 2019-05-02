@@ -1,5 +1,5 @@
-.. auto_martini documentation master file, created by
-   sphinx-quickstart on Sat Apr 27 11:29:59 2019.
+.. PyGran documentation master file, created by
+   sphinx-quickstart on Fri Apr 26 11:29:59 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -8,9 +8,8 @@ Welcome to Auto_Martini's documentation!
 
 Contents:
 
-.. autosummary:: :toctree: _autosummary
-
-.. automodule:: src.auto_martini
+.. automodule:: src.auto_martini.engine
+.. automodule:: src.auto_martini.test
 
      Members
      =======
@@ -21,4 +20,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
