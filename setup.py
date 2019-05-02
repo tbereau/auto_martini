@@ -87,13 +87,11 @@ class Installer(object):
       import multiprocessing
       cmd = 'make install -j{}'.format(multiprocessing.cpu_count())
 
-    print(cmd)
     os.system(cmd)
 
   def __exit__(self, *a):
     os.chdir('../..')
     sys.path.append(os.getcwd() + '/' + self.name + '/lib')
-
 
 # check if rdkit is installed ... else compile it from source
 try:
