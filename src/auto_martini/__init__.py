@@ -1,4 +1,17 @@
 '''
+
+auto_martini modules
+====================
+
+.. autosummary::
+    :toctree: _autosummary
+
+    engine
+    test
+
+'''
+
+'''
   Created on March 17, 2019 by Andrew Abi-Mansour
 
           _    _ _______ ____    __  __          _____ _______ _____ _   _ _____ 
@@ -23,6 +36,9 @@
   and LICENSE files.
 
   Github link to original repo: https://github.com/tbereau/auto_martini
-  '''
+
+'''
 
 __version__ = '0.1'
+
+
