@@ -3,6 +3,7 @@ Auto_MARTINI
 ***
 *Author:* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
 *Created:* 2014  
+*Modified:* 2019 by Kiran H. Kanekal  
 ***
 Automated MARTINI mapping and parametrization of small organic molecules.
 
@@ -28,6 +29,11 @@ pages = {2783--2791},
 doi = {10.1021/acs.jctc.5b00056}
 }
 ```
+
+The modifications are detailed in the supporting information of the following article:
+Kanekal, Kiran H., and Tristan Bereau. "Resolution limit of data-driven coarse-grained models spanning chemical space." arXiv preprint arXiv:1907.04082 (2019).
+
+https://arxiv.org/abs/1907.04082
 
 ## Installation
 `auto-martini` is a python script that requires a number of dependencies:
@@ -66,8 +72,8 @@ In case no problem arises, it will output the gromacs .itp file:
 
 [atoms]
 ; id    type    resnr   residu  atom    cgnr    charge  smiles
-  1     SP2     1       GUA     S01     1       0     ; Nc1ncnn1
-  2     SP2     1       GUA     S02     2       0     ; Nc1ncnn1
+  1     SP1     1       GUA     S01     1       0     ; Nc1ncnn1
+  2     SP1     1       GUA     S02     2       0     ; Nc1ncnn1
 
 [constraints]
 ;  i   j     funct   length
