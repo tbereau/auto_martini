@@ -3,7 +3,7 @@ Auto_MARTINI
 ***
 *Author:* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
 *Created:* 2014  
-*Modified:* 2019 by Kiran H. Kanekal  
+*Modified:* 2019 by Kiran H. Kanekal, Mara Jochum, and Tristan Bereau 
 ***
 Automated MARTINI mapping and parametrization of small organic molecules.
 
