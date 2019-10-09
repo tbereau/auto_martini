@@ -1,6 +1,3 @@
-# !/usr/bin/python
-#  -*- coding: utf8 -*-
-
 '''
   Created on March 17, 2019 by Andrew Abi-Mansour
 
@@ -29,7 +26,6 @@
 
   Some BUGS fixed + improvements:
 
-  - function substruct2smi() returned SMILES string in lower case letters
   - function printAtoms() uses undefined objects "hbondA" and "hbondD"
   - function checkAdditivity() defined "mad" variable which is already defined as a function
   - function genMoleculeSDF() did not use "sdf" input argument
