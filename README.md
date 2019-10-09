@@ -2,7 +2,7 @@
 
 Auto_MARTINI
 ============
-*Original author:* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
+*Author:* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
 *Created:* 2014  
 
 *Modified and optimized by:* Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US) 
@@ -70,6 +70,7 @@ optional arguments:
   --mol MOLNAME  Name of CG molecule
   --aa AA        output all-atom structure to .gro file
   --cg CG        output coarse-grained structure to .gro file
+  --top TOP      topology output filename
   -v, --verbose  increase verbosity
   --fpred        verbose
 
@@ -82,13 +83,13 @@ Andrew Abi-Mansour (andrew.gaam [at] gmail.com)
 ## Usage
 To coarse-grain a molecule, simply provide its SMILES code (option `--smi SMI`) or a .SDF file (option `'--sdf file.sdf`). You also need to provide a name for the CG molecule (not longer than 5 characters) using the `--mol` option.  For instance, to coarse grain [guanazole](http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=15078), you can either obtain/generate (e.g., from Open Babel) an SDF file:
 ```
-python auto-martini.py --sdf guanazole.sdf --mol GUA
+python -m auto-martini run --sdf guanazole.sdf --mol GUA --top GUA.itp
 ```
 (the name GUA is arbitrary) or use its SMILES code within double quotes
 ```
-python auto-martini.py --smi "N1=C(N)NN=C1N" --mol GUA
+python -m auto-martini run --smi "N1=C(N)NN=C1N" --mol GUA --top GUA.itp
 ```
-In case no problem arises, it will output the gromacs .itp file:
+In case no problem arises, it will output the gromacs GUA.itp file:
 ```
 ;;;; GENERATED WITH auto-martini
 ; INPUT SMILES: N1=C(N)NN=C1N
@@ -109,7 +110,7 @@ In case no problem arises, it will output the gromacs .itp file:
 ```
 Optionally, the code can also output a corresponding `.gro` file for the coarse-grained coordinates
 ```
-python auto-martini.py --smi "N1=C(N)NN=C1N" --mol GUA --gro gua.gro
+python -m auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --gro gua.gro --top GUA.itp
 ```
 Atomistic coordinates can be output in XYZ format using the `--xyz output.xyz` option.
 
