@@ -45,29 +45,28 @@ class Installer(object):
 
     return None
 
-
   def __enter__(self):
 
     os.system('git clone ' + self.repo)
-    
+
     os.chdir(self.name)
     os.mkdir('build')
     os.chdir('build')
 
     python_version = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
 
-    python_lib = self.find('libpython{}.so'.format(python_version), '/') 
+    python_lib = self.find('libpython{}.so'.format(python_version), '/') # unix-only 
     python_exec = sys.executable
 
     if not python_lib:
       print('Could not find any installed python-dev (libpython{}.so).'.format(python_version))
       print('Proceeding ...')
-      cm_args = ' -DPYTHON_EXECUTABLE={}'.format(python_exec)
+      cm_args = ' -DPYTHON_EXECUTABLE={} -DCMAKE_INSTALL_PREFIX=$HOME/.local'.format(python_exec)
     else:
-      cm_args = ' -DPYTHON_LIBRARY={} -DPYTHON_EXECUTABLE={}'.format(python_lib, python_exec)
+      cm_args = ' -DPYTHON_LIBRARY={} -DPYTHON_EXECUTABLE={} -DCMAKE_INSTALL_PREFIX=$HOME/.local'.format(python_lib, python_exec)
 
     os.system('cmake .. ' + cm_args)
-    
+
     if 'RDKITPROC' in os.environ:
       cmd = 'make install -j{}'.format(os.environ['RDKITPROC'])
     else:
@@ -77,18 +76,16 @@ class Installer(object):
     os.system(cmd)
 
   def __exit__(self, *a):
-    os.chdir('../..')
-    sys.path.append(os.getcwd() + '/' + self.name + '/lib')
+    os.chdir(os.path.join('..','..'))
+    sys.path.append(os.path.join(os.getcwd(), self.name, 'lib'))
 
 # check if rdkit is installed ... else compile it from source
 try:
   import rdkit
-except:
+except Exception:
   print('rdkit not found. Attempting to compile rdkit from source ...')
   with Installer(repo='https://github.com/rdkit/rdkit') as _:
     pass
-
-
 
 if __name__ == '__main__':
 
