@@ -10,7 +10,7 @@ Contents:
 ~~~~~~~~~
 .. autosummary::
 
-   :toctree: _autosummary
+   :toctree: autosummary
 
    engine
    test
