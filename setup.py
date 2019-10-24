@@ -94,7 +94,7 @@ if __name__ == '__main__':
   try:
   	from Cython.Build import cythonize
   	import numpy
-  	optimal_list = cythonize("src/auto_martini/engine/optimization.pyx")
+  	optimal_list = cythonize("src/auto_martini/optimization.pyx")
   	include_dirs = [numpy.get_include()]
   except:
     print('Failed to cythonize optimization module. For optimal performance, make sure Cython is properly installed.')
@@ -112,7 +112,7 @@ if __name__ == '__main__':
       url = "https://github.com/Andrew-AbiMansour/Auto_MARTINI",
       packages=find_packages('src'),
       package_dir={'auto_martini':'src/auto_martini'},
-      package_data={'test': ['src/auto_martini/test/*.sdf'],},
+      package_data={'test': ['test/*.sdf'],},
       include_package_data=True,
       install_requires=['numpy', 'bs4', 'pytool'],
       classifiers=[
