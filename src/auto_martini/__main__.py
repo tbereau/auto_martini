@@ -3,20 +3,21 @@ Created on March 17, 2019 by Andrew Abi-Mansour
 
 This is the::
 
- █████╗ ██╗   ██╗████████╗ ██████╗         ███╗   ███╗ █████╗ ██████╗ ████████╗██╗███╗   ██╗██╗
-██╔══██╗██║   ██║╚══██╔══╝██╔═══██╗        ████╗ ████║██╔══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██║
-███████║██║   ██║   ██║   ██║   ██║        ██╔████╔██║███████║██████╔╝   ██║   ██║██╔██╗ ██║██║
-██╔══██║██║   ██║   ██║   ██║   ██║        ██║╚██╔╝██║██╔══██║██╔══██╗   ██║   ██║██║╚██╗██║██║
-██║  ██║╚██████╔╝   ██║   ╚██████╔╝███████╗██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   ██║██║ ╚████║██║
-╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝╚═╝
+	     _   _   _ _____ ___    __  __    _    ____ _____ ___ _   _ ___ 
+	    / \ | | | |_   _/ _ \  |  \/  |  / \  |  _ \_   _|_ _| \ | |_ _|
+	   / _ \| | | | | || | | | | |\/| | / _ \ | |_) || |  | ||  \| || | 
+	  / ___ \ |_| | | || |_| | | |  | |/ ___ \|  _ < | |  | || |\  || | 
+	 /_/   \_\___/  |_| \___/  |_|  |_/_/   \_\_| \_\|_| |___|_| \_|___|                                                            
+                                                                 
+Tool for automatic MARTINI mapping and parametrization of small organic molecules
 
-toolkit for automatic MARTINI mapping and parametrization of small organic molecules
+Developers::
 
-Auto_Martini is developed by::
-Tristan BEREAU (bereau at mpip-mainz.mpg.de)
-Andrew Abi-Mansour (andrew.gaam at gmail.com)
+	Tristan BEREAU (bereau at mpip-mainz.mpg.de)
+	Kiran Kanekal (kanekal at mpip-mainz.mpg.de)
+	Andrew Abi-Mansour (andrew.gaam at gmail.com)
 
-Auto_Martini is open-source, distributed under the terms of the GNU Public
+AUTO_MARTINI is open-source, distributed under the terms of the GNU Public
 License, version 2 or later. It is distributed in the hope that it will
 be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
 of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
@@ -46,9 +47,10 @@ def checkArgs(args):
 
 parser = argparse.ArgumentParser(prog='auto_martini', description='Generates Martini force field for atomistic structures of small organic molecules',
                                 formatter_class=argparse.RawDescriptionHelpFormatter,
-                                 epilog='''Developers:\n===========\nTristan Bereau (bereau [at] mpip-mainz.mpg.de)\nAndrew Abi-Mansour (andrew.gaam [at] gmail.com)''')
+                                 epilog='''Developers:\n===========\nTristan Bereau (bereau [at] mpip-mainz.mpg.de)\nKiran Kanekal (kanekal [at] mpip-mainz.mpg.de)
+					 \nAndrew Abi-Mansour (andrew.gaam [at] gmail.com)''')
 
-parser.add_argument('mode', type=str, help='run or test auto_martini', choices=['run','test'])
+parser.add_argument('--mode', type=str, choices=['run','test'], default='run', help="mode: run (compute FF) or test (validate)")
 
 group = parser.add_mutually_exclusive_group(required=False)
 

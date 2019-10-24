@@ -1,35 +1,33 @@
-# !/usr/bin/python
-#  -*- coding: utf8 -*-
-
 '''
-  Created on March 13, 2019 by Andrew Abi-Mansour
+Created on March 13, 2019 by Andrew Abi-Mansour
 
-          _    _ _______ ____    __  __          _____ _______ _____ _   _ _____ 
-     /\  | |  | |__   __/ __ \  |  \/  |   /\   |  __ \__   __|_   _| \ | |_   _|
-    /  \ | |  | |  | | | |  | | | \  / |  /  \  | |__) | | |    | | |  \| | | |  
-   / /\ \| |  | |  | | | |  | | | |\/| | / /\ \ |  _  /  | |    | | | . ` | | |  
-  / ____ \ |__| |  | | | |__| | | |  | |/ ____ \| | \ \  | |   _| |_| |\  |_| |_ 
- /_/    \_\____/   |_|  \____/  |_|  |_/_/    \_\_|  \_\ |_|  |_____|_| \_|_____|
-                                                                                 
-                                                                                 
-  @originally written by: Tristan BEREAU (bereau at mpip-mainz.mpg.de)
-  @modified by: Andrew Abi-Mansour (andrew.gaam at gmail.com)
+This is the::
 
-  Auto_Martini: a tool for automatic MARTINI mapping and parametrization of small organic molecules                                               
-    
-  Auto_Martini is open-source, distributed under the terms of the GNU Public
-  License, version 2 or later. It is distributed in the hope that it will
-  be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
-  received a copy of the GNU General Public License along with PyGran.
-  If not, see http://www.gnu.org/licenses . See also top-level README
-  and LICENSE files.
+	     _   _   _ _____ ___    __  __    _    ____ _____ ___ _   _ ___ 
+	    / \ | | | |_   _/ _ \  |  \/  |  / \  |  _ \_   _|_ _| \ | |_ _|
+	   / _ \| | | | | || | | | | |\/| | / _ \ | |_) || |  | ||  \| || | 
+	  / ___ \ |_| | | || |_| | | |  | |/ ___ \|  _ < | |  | || |\  || | 
+	 /_/   \_\___/  |_| \___/  |_|  |_/_/   \_\_| \_\|_| |___|_| \_|___|                                                            
+                                                                 
+Tool for automatic MARTINI mapping and parametrization of small organic molecules
 
-  Github link to original repo: https://github.com/tbereau/auto_martini
+Developers::
+
+	Tristan BEREAU (bereau at mpip-mainz.mpg.de)
+	Kiran Kanekal (kanekal at mpip-mainz.mpg.de)
+	Andrew Abi-Mansour (andrew.gaam at gmail.com)
+
+AUTO_MARTINI is open-source, distributed under the terms of the GNU Public
+License, version 2 or later. It is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
+received a copy of the GNU General Public License along with PyGran.
+If not, see http://www.gnu.org/licenses . See also top-level README
+and LICENSE files.
 '''
 
-from auto_martini.engine.common import *
-from auto_martini import __version__
+from .common import *
+from . import __version__
 
 # For feature extraction
 fdefName = os.path.join(RDConfig.RDDataDir, 'BaseFeatures.fdef')
@@ -76,18 +74,18 @@ def gen_molecule_smi(smi):
         Chem.SanitizeMol(cp)
         molecule = cp
 
-    except: 
-      raise
-        
+    except ValueError:
+        logging.warning(f'Bad smiles format {smi} found')
+
     nm = AdjustAromaticNs(molecule)
 
     if nm is not None:
       Chem.SanitizeMol(nm)
       molecule = nm
       smi = Chem.MolToSmiles(nm)
-      logging.warning('Fixed smiles format to %s' % smi)
+      logging.warning(f'Fixed smiles format to {smi}')
     else:
-      logging.warning('Smiles cannot be adjusted %s' % smi)
+      logging.warning(f'Smiles cannot be adjusted {smi}')
     # Continue
 
     molecule = Chem.AddHs(molecule)
@@ -118,9 +116,9 @@ def print_header(molname):
     """Print topology header"""
     logging.debug('Entering print_header()')
 
-    text = '; GENERATED WITH Auto_Martini v{} for {}\n'.format(__version__, molname)
+    text = '; GENERATED WITH auto_Martini v{} for {}\n'.format(__version__, molname)
 
-    info = '; Developed by: Tristan Bereau and Andrew Abi-Mansour\n\n'+ '[moleculetype]\n' + \
+    info = '; Developed by: Kiran Kanekal, Tristan Bereau, and Andrew Abi-Mansour\n\n'+ '[moleculetype]\n' + \
             '; molname       nrexcl\n' + '  {:5s}         2\n\n'.format(molname) + '[atoms]\n' + \
             '; id    type    resnr   residue  atom    cgnr    charge  smiles\n'
 
@@ -665,9 +663,8 @@ def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
         exit(1)
     try:
         doc = BeautifulSoup(req.content, "lxml")
-    except:
-        print("Error with BeautifulSoup constructor")
-        exit(1)
+    except Exception:
+        raise
     try:
         soup = doc.prettify()
     except:

@@ -1,37 +1,37 @@
 '''
-  Created on March 13, 2019 by Andrew Abi-Mansour
+Created on March 13, 2019 by Andrew Abi-Mansour
 
-          _    _ _______ ____    __  __          _____ _______ _____ _   _ _____ 
-     /\  | |  | |__   __/ __ \  |  \/  |   /\   |  __ \__   __|_   _| \ | |_   _|
-    /  \ | |  | |  | | | |  | | | \  / |  /  \  | |__) | | |    | | |  \| | | |  
-   / /\ \| |  | |  | | | |  | | | |\/| | / /\ \ |  _  /  | |    | | | . ` | | |  
-  / ____ \ |__| |  | | | |__| | | |  | |/ ____ \| | \ \  | |   _| |_| |\  |_| |_ 
- /_/    \_\____/   |_|  \____/  |_|  |_/_/    \_\_|  \_\ |_|  |_____|_| \_|_____|
-                                                                                 
-                                                                                 
-  @originally written by: Tristan BEREAU (bereau at mpip-mainz.mpg.de)
-  @modified by: Andrew Abi-Mansour (andrew.gaam at gmail.com)
+This is the::
 
-  Auto_Martini: a tool for automatic MARTINI mapping and parametrization of small organic molecules                                               
-    
-  Auto_Martini is open-source, distributed under the terms of the GNU Public
-  License, version 2 or later. It is distributed in the hope that it will
-  be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
-  received a copy of the GNU General Public License along with PyGran.
-  If not, see http://www.gnu.org/licenses . See also top-level README
-  and LICENSE files.
+	     _   _   _ _____ ___    __  __    _    ____ _____ ___ _   _ ___ 
+	    / \ | | | |_   _/ _ \  |  \/  |  / \  |  _ \_   _|_ _| \ | |_ _|
+	   / _ \| | | | | || | | | | |\/| | / _ \ | |_) || |  | ||  \| || | 
+	  / ___ \ |_| | | || |_| | | |  | |/ ___ \|  _ < | |  | || |\  || | 
+	 /_/   \_\___/  |_| \___/  |_|  |_/_/   \_\_| \_\|_| |___|_| \_|___|                                                            
+                                                                 
+Tool for automatic MARTINI mapping and parametrization of small organic molecules
 
-  Github link to original repo: https://github.com/tbereau/auto_martini
+Developers::
 
+	Tristan BEREAU (bereau at mpip-mainz.mpg.de)
+	Kiran Kanekal (kanekal at mpip-mainz.mpg.de)
+	Andrew Abi-Mansour (andrew.gaam at gmail.com)
+
+AUTO_MARTINI is open-source, distributed under the terms of the GNU Public
+License, version 2 or later. It is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
+received a copy of the GNU General Public License along with PyGran.
+If not, see http://www.gnu.org/licenses . See also top-level README
+and LICENSE files.
 '''
 
-from auto_martini.engine.common import *
-from auto_martini.engine.common import __version__
+from .common import *
+from .common import __version__
 
-from auto_martini.engine import output
-from auto_martini.engine import topology
-from auto_martini.engine import optimization
+from . import output
+from . import topology
+from . import optimization
 
 def get_coords(conformer, sites, avg_pos, ringatoms_flat):
     """Extract coordinates of CG beads"""

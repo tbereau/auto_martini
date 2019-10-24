@@ -1,32 +1,35 @@
 """
-   This code in this file belongs to James Davidson and is discussed here:
-   
-   http://www.mail-archive.com/rdkit-discuss@lists.sourceforge.net/msg01185.html
-   http://www.mail-archive.com/rdkit-discuss@lists.sourceforge.net/msg01162.html
-   http://www.mail-archive.com/rdkit-discuss@lists.sourceforge.net/msg01900.html  
+Created on March 14, 2019 by Andrew Abi-Mansour
 
-  Created on March 14, 2019 by Andrew Abi-Mansour
+The code in this file belongs to James Davidson and is discussed here::
 
-          _    _ _______ ____    __  __          _____ _______ _____ _   _ _____ 
-     /\  | |  | |__   __/ __ \  |  \/  |   /\   |  __ \__   __|_   _| \ | |_   _|
-    /  \ | |  | |  | | | |  | | | \  / |  /  \  | |__) | | |    | | |  \| | | |  
-   / /\ \| |  | |  | | | |  | | | |\/| | / /\ \ |  _  /  | |    | | | . ` | | |  
-  / ____ \ |__| |  | | | |__| | | |  | |/ ____ \| | \ \  | |   _| |_| |\  |_| |_ 
- /_/    \_\____/   |_|  \____/  |_|  |_/_/    \_\_|  \_\ |_|  |_____|_| \_|_____|
-                                                                                 
-                                                                                 
-  @originally written by: Tristan BEREAU (bereau at mpip-mainz.mpg.de)
-  @modified by: Andrew Abi-Mansour (andrew.gaam at gmail.com)
+	http://www.mail-archive.com/rdkit-discuss@lists.sourceforge.net/msg01185.html
+	http://www.mail-archive.com/rdkit-discuss@lists.sourceforge.net/msg01162.html
+	http://www.mail-archive.com/rdkit-discuss@lists.sourceforge.net/msg01900.html  
 
-  Auto_martini: a tool for automatic MARTINI mapping and parametrization of small organic molecules                                               
-    
-  Auto_martini is open-source, distributed under the terms of the GNU Public
-  License, version 2 or later. It is distributed in the hope that it will
-  be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
-  received a copy of the GNU General Public License along with PyGran.
-  If not, see http://www.gnu.org/licenses . See also top-level README
-  and LICENSE files. 
+This is the::
+
+	     _   _   _ _____ ___    __  __    _    ____ _____ ___ _   _ ___ 
+	    / \ | | | |_   _/ _ \  |  \/  |  / \  |  _ \_   _|_ _| \ | |_ _|
+	   / _ \| | | | | || | | | | |\/| | / _ \ | |_) || |  | ||  \| || | 
+	  / ___ \ |_| | | || |_| | | |  | |/ ___ \|  _ < | |  | || |\  || | 
+	 /_/   \_\___/  |_| \___/  |_|  |_/_/   \_\_| \_\|_| |___|_| \_|___|                                                            
+                                                                 
+Tool for automatic MARTINI mapping and parametrization of small organic molecules
+
+Developers::
+
+	Tristan BEREAU (bereau at mpip-mainz.mpg.de)
+	Kiran Kanekal (kanekal at mpip-mainz.mpg.de)
+	Andrew Abi-Mansour (andrew.gaam at gmail.com)
+
+AUTO_MARTINI is open-source, distributed under the terms of the GNU Public
+License, version 2 or later. It is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
+received a copy of the GNU General Public License along with PyGran.
+If not, see http://www.gnu.org/licenses . See also top-level README
+and LICENSE files.
 """
 
 
@@ -269,7 +272,7 @@ def AdjustAromaticNs(m,nitrogenPattern='[n&D2&H0;r5,r6]'):
                 break
             else:
                 revMap={}
-                for k,v in frag._idxMap.iteritems():
+                for k,v in frag._idxMap.items():
                     revMap[v]=k
                 for idx in indices:
                     oatom = m.GetAtomWithIdx(revMap[idx])
