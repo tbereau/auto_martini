@@ -48,7 +48,7 @@ def checkArgs(args):
 parser = argparse.ArgumentParser(prog='auto_martini', description='Generates Martini force field for atomistic structures of small organic molecules',
                                 formatter_class=argparse.RawDescriptionHelpFormatter,
                                  epilog='''Developers:\n===========\nTristan Bereau (bereau [at] mpip-mainz.mpg.de)\nKiran Kanekal (kanekal [at] mpip-mainz.mpg.de)
-					 \nAndrew Abi-Mansour (andrew.gaam [at] gmail.com)''')
+Andrew Abi-Mansour (andrew.gaam [at] gmail.com)''')
 
 parser.add_argument('--mode', type=str, choices=['run','test'], default='run', help="mode: run (compute FF) or test (validate)")
 
