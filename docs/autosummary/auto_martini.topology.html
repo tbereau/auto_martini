@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>auto_martini.topology &mdash; Auto-Martini 0.0.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="Auto-Martini 0.0.2 documentation" href="../index.html"/> 
+
+  
+  <script src="../static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Auto-Martini
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">auto_martini.topology</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Auto-Martini</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>auto_martini.topology</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/autosummary/auto_martini.topology.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-auto_martini.topology">
+<span id="auto-martini-topology"></span><h1>auto_martini.topology<a class="headerlink" href="#module-auto_martini.topology" title="Permalink to this headline">¶</a></h1>
+<p>Created on March 13, 2019 by Andrew Abi-Mansour</p>
+<p>This is the:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">_</span>   <span class="n">_</span>   <span class="n">_</span> <span class="n">_____</span> <span class="n">___</span>    <span class="n">__</span>  <span class="n">__</span>    <span class="n">_</span>    <span class="n">____</span> <span class="n">_____</span> <span class="n">___</span> <span class="n">_</span>   <span class="n">_</span> <span class="n">___</span>
+   <span class="o">/</span> \ <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span><span class="n">_</span>   <span class="n">_</span><span class="o">/</span> <span class="n">_</span> \  <span class="o">|</span>  \<span class="o">/</span>  <span class="o">|</span>  <span class="o">/</span> \  <span class="o">|</span>  <span class="n">_</span> \<span class="n">_</span>   <span class="n">_</span><span class="o">|</span><span class="n">_</span> <span class="n">_</span><span class="o">|</span> \ <span class="o">|</span> <span class="o">|</span><span class="n">_</span> <span class="n">_</span><span class="o">|</span>
+  <span class="o">/</span> <span class="n">_</span> \<span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">||</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span>\<span class="o">/|</span> <span class="o">|</span> <span class="o">/</span> <span class="n">_</span> \ <span class="o">|</span> <span class="o">|</span><span class="n">_</span><span class="p">)</span> <span class="o">||</span> <span class="o">|</span>  <span class="o">|</span> <span class="o">||</span>  \<span class="o">|</span> <span class="o">||</span> <span class="o">|</span>
+ <span class="o">/</span> <span class="n">___</span> \ <span class="o">|</span><span class="n">_</span><span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">||</span> <span class="o">|</span><span class="n">_</span><span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span>  <span class="o">|</span> <span class="o">|/</span> <span class="n">___</span> \<span class="o">|</span>  <span class="n">_</span> <span class="o">&lt;</span> <span class="o">|</span> <span class="o">|</span>  <span class="o">|</span> <span class="o">||</span> <span class="o">|</span>\  <span class="o">||</span> <span class="o">|</span>
+<span class="o">/</span><span class="n">_</span><span class="o">/</span>   \<span class="n">_</span>\<span class="n">___</span><span class="o">/</span>  <span class="o">|</span><span class="n">_</span><span class="o">|</span> \<span class="n">___</span><span class="o">/</span>  <span class="o">|</span><span class="n">_</span><span class="o">|</span>  <span class="o">|</span><span class="n">_</span><span class="o">/</span><span class="n">_</span><span class="o">/</span>   \<span class="n">_</span>\<span class="n">_</span><span class="o">|</span> \<span class="n">_</span>\<span class="o">|</span><span class="n">_</span><span class="o">|</span> <span class="o">|</span><span class="n">___</span><span class="o">|</span><span class="n">_</span><span class="o">|</span> \<span class="n">_</span><span class="o">|</span><span class="n">___</span><span class="o">|</span>
+</pre></div>
+</div>
+<p>Tool for automatic MARTINI mapping and parametrization of small organic molecules</p>
+<p>Developers:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Tristan</span> <span class="n">BEREAU</span> <span class="p">(</span><span class="n">bereau</span> <span class="n">at</span> <span class="n">mpip</span><span class="o">-</span><span class="n">mainz</span><span class="o">.</span><span class="n">mpg</span><span class="o">.</span><span class="n">de</span><span class="p">)</span>
+<span class="n">Kiran</span> <span class="n">Kanekal</span> <span class="p">(</span><span class="n">kanekal</span> <span class="n">at</span> <span class="n">mpip</span><span class="o">-</span><span class="n">mainz</span><span class="o">.</span><span class="n">mpg</span><span class="o">.</span><span class="n">de</span><span class="p">)</span>
+<span class="n">Andrew</span> <span class="n">Abi</span><span class="o">-</span><span class="n">Mansour</span> <span class="p">(</span><span class="n">andrew</span><span class="o">.</span><span class="n">gaam</span> <span class="n">at</span> <span class="n">gmail</span><span class="o">.</span><span class="n">com</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>AUTO_MARTINI is open-source, distributed under the terms of the GNU Public
+License, version 2 or later. It is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
+received a copy of the GNU General Public License along with PyGran.
+If not, see <a class="reference external" href="http://www.gnu.org/licenses">http://www.gnu.org/licenses</a> . See also top-level README
+and LICENSE files.</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-center">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.convert_log_k" title="auto_martini.topology.convert_log_k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_log_k</span></code></a>(log_k)</p></td>
+<td><p>Convert log_{10}K to free energy (in kJ/mol)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.topology.determine_bead_type" title="auto_martini.topology.determine_bead_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_bead_type</span></code></a>(delta_f, charge, hbonda, …)</p></td>
+<td><p>Determine CG bead type from delta_f value, charge, and hbond acceptor, and donor</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.extract_features" title="auto_martini.topology.extract_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_features</span></code></a>(molecule)</p></td>
+<td><p>Extract features of molecule</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.topology.gen_molecule_sdf" title="auto_martini.topology.gen_molecule_sdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gen_molecule_sdf</span></code></a>(sdf)</p></td>
+<td><p>Generate mol object from SD file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.gen_molecule_smi" title="auto_martini.topology.gen_molecule_smi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gen_molecule_smi</span></code></a>(smi)</p></td>
+<td><p>Generate mol object from smiles string</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.topology.get_atoms" title="auto_martini.topology.get_atoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_atoms</span></code></a>(molecule)</p></td>
+<td><p>List all heavy atoms</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.get_charge" title="auto_martini.topology.get_charge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_charge</span></code></a>(molecule)</p></td>
+<td><p>Get net charge of molecule</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.topology.get_hbond_a" title="auto_martini.topology.get_hbond_a"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_hbond_a</span></code></a>(features)</p></td>
+<td><p>Get Hbond acceptor information</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.get_hbond_d" title="auto_martini.topology.get_hbond_d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_hbond_d</span></code></a>(features)</p></td>
+<td><p>Get Hbond donor information</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.topology.get_heavy_atom_coords" title="auto_martini.topology.get_heavy_atom_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_heavy_atom_coords</span></code></a>(molecule)</p></td>
+<td><p>Extract atomic coordinates of heavy atoms in molecule mol</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.get_ring_atoms" title="auto_martini.topology.get_ring_atoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ring_atoms</span></code></a>(molecule)</p></td>
+<td><p>Get ring atoms</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.topology.letter_occurrences" title="auto_martini.topology.letter_occurrences"><code class="xref py py-obj docutils literal notranslate"><span class="pre">letter_occurrences</span></code></a>(string)</p></td>
+<td><p>Count letter occurences</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.mad" title="auto_martini.topology.mad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mad</span></code></a>(bead_type, delta_f[, in_ring])</p></td>
+<td><p>Mean absolute difference between type type and delta_f</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.topology.print_angles" title="auto_martini.topology.print_angles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_angles</span></code></a>(cgbeads, molecule, …)</p></td>
+<td><p>print CG angles in itp format</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.print_atoms" title="auto_martini.topology.print_atoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_atoms</span></code></a>(molname, forcepred, cgbeads, …)</p></td>
+<td><p>Print CG Atoms in itp format</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.topology.print_bonds" title="auto_martini.topology.print_bonds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_bonds</span></code></a>(cgbeads, molecule, partitioning, …)</p></td>
+<td><p>print CG bonds in itp format</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.print_dihedrals" title="auto_martini.topology.print_dihedrals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_dihedrals</span></code></a>(cgbeads, constlist, …)</p></td>
+<td><p>Print CG dihedrals in itp format</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.topology.print_header" title="auto_martini.topology.print_header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_header</span></code></a>(molname)</p></td>
+<td><p>Print topology header</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.read_delta_f_types" title="auto_martini.topology.read_delta_f_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_delta_f_types</span></code></a>()</p></td>
+<td><p>Returns delta_f types dictionary Measured octanol/water free energies from MARTINI Data used TI, not partitioning of Marrink et al.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.topology.smi2alogps" title="auto_martini.topology.smi2alogps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smi2alogps</span></code></a>(forcepred, smi, wc_log_p, bead[, …])</p></td>
+<td><p>Returns water/octanol partitioning free energy according to ALOGPS</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.topology.substruct2smi" title="auto_martini.topology.substruct2smi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substruct2smi</span></code></a>(molecule, partitioning, …)</p></td>
+<td><p>Substructure to smiles conversion; also output Wildman-Crippen log_p; and charge of group.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="auto_martini.topology.convert_log_k">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">convert_log_k</code><span class="sig-paren">(</span><em>log_k</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.convert_log_k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert log_{10}K to free energy (in kJ/mol)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.determine_bead_type">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">determine_bead_type</code><span class="sig-paren">(</span><em>delta_f</em>, <em>charge</em>, <em>hbonda</em>, <em>hbondd</em>, <em>in_ring</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.determine_bead_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine CG bead type from delta_f value, charge,
+and hbond acceptor, and donor</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.extract_features">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">extract_features</code><span class="sig-paren">(</span><em>molecule</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.extract_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract features of molecule</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.gen_molecule_sdf">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">gen_molecule_sdf</code><span class="sig-paren">(</span><em>sdf</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.gen_molecule_sdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate mol object from SD file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.gen_molecule_smi">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">gen_molecule_smi</code><span class="sig-paren">(</span><em>smi</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.gen_molecule_smi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate mol object from smiles string</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.get_atoms">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">get_atoms</code><span class="sig-paren">(</span><em>molecule</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.get_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all heavy atoms</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.get_charge">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">get_charge</code><span class="sig-paren">(</span><em>molecule</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.get_charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get net charge of molecule</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.get_hbond_a">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">get_hbond_a</code><span class="sig-paren">(</span><em>features</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.get_hbond_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Hbond acceptor information</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.get_hbond_d">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">get_hbond_d</code><span class="sig-paren">(</span><em>features</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.get_hbond_d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Hbond donor information</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.get_heavy_atom_coords">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">get_heavy_atom_coords</code><span class="sig-paren">(</span><em>molecule</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.get_heavy_atom_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract atomic coordinates of heavy atoms in molecule mol</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.get_ring_atoms">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">get_ring_atoms</code><span class="sig-paren">(</span><em>molecule</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.get_ring_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get ring atoms</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.letter_occurrences">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">letter_occurrences</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.letter_occurrences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count letter occurences</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.mad">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">mad</code><span class="sig-paren">(</span><em>bead_type</em>, <em>delta_f</em>, <em>in_ring=False</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.mad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mean absolute difference between type type and delta_f</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.print_angles">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">print_angles</code><span class="sig-paren">(</span><em>cgbeads</em>, <em>molecule</em>, <em>partitioning</em>, <em>cgbead_coords</em>, <em>bondlist</em>, <em>constlist</em>, <em>ringatoms</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.print_angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>print CG angles in itp format</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.print_atoms">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">print_atoms</code><span class="sig-paren">(</span><em>molname</em>, <em>forcepred</em>, <em>cgbeads</em>, <em>molecule</em>, <em>hbonda</em>, <em>hbondd</em>, <em>partitioning</em>, <em>ringatoms</em>, <em>ringatoms_flat</em>, <em>trial=False</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.print_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print CG Atoms in itp format</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.print_bonds">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">print_bonds</code><span class="sig-paren">(</span><em>cgbeads</em>, <em>molecule</em>, <em>partitioning</em>, <em>cgbead_coords</em>, <em>ringatoms</em>, <em>trial=False</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.print_bonds" title="Permalink to this definition">¶</a></dt>
+<dd><p>print CG bonds in itp format</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.print_dihedrals">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">print_dihedrals</code><span class="sig-paren">(</span><em>cgbeads</em>, <em>constlist</em>, <em>ringatoms</em>, <em>cgbead_coords</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.print_dihedrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print CG dihedrals in itp format</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.print_header">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">print_header</code><span class="sig-paren">(</span><em>molname</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.print_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print topology header</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.read_delta_f_types">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">read_delta_f_types</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.read_delta_f_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns delta_f types dictionary
+Measured octanol/water free energies from MARTINI
+Data used TI, not partitioning of Marrink et al. JPCB 2007</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.smi2alogps">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">smi2alogps</code><span class="sig-paren">(</span><em>forcepred</em>, <em>smi</em>, <em>wc_log_p</em>, <em>bead</em>, <em>trial=False</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.smi2alogps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns water/octanol partitioning free energy
+according to ALOGPS</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.topology.substruct2smi">
+<code class="descclassname">auto_martini.topology.</code><code class="descname">substruct2smi</code><span class="sig-paren">(</span><em>molecule</em>, <em>partitioning</em>, <em>cg_bead</em>, <em>cgbeads</em>, <em>ringatoms</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.topology.substruct2smi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Substructure to smiles conversion; also output Wildman-Crippen log_p;
+and charge of group.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright  .
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE: 'true'
+        };
+    </script>
+      <script type="text/javascript" src="../static/jquery.js"></script>
+      <script type="text/javascript" src="../static/underscore.js"></script>
+      <script type="text/javascript" src="../static/doctools.js"></script>
+      <script type="text/javascript" src="../static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

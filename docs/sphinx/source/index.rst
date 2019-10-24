@@ -1,4 +1,4 @@
-.. Auto_Martini documentation master file, created by
+.. Auto_MARTINI documentation master file, created by
    sphinx-quickstart on Fri Apr 26 11:29:59 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -11,8 +11,12 @@ Contents:
 .. autosummary::
 
    :toctree: _autosummary
-   solver
-   topology
+   auto_martini.common
+   auto_martini.solver
+   auto_martini.optimization
+   auto_martini.topology
+   auto_martini.sanifix4
+   auto_martini.output
 
 Requirements
 ~~~~~~~~~~~~
@@ -20,8 +24,8 @@ Requirements
 =====  ===========================  =======================
 Nr.    Code metadata description    ..
 =====  ===========================  =======================
-C1           code version            0.0.1
-C2     code repository                `github <https://github.com/Andrew-AbiMansour/Auto_Martini>`_
+C1           code version            0.0.2
+C2     code repository                `github <https://github.com/tbereau/auto_martini>`_
 C3     legal code license            `GPL v2.0 <https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html>`_
 C4     version-control system used    `git <https://git-scm.com>`_
 C5     languages & tools used       python 2/3, cython
@@ -35,7 +39,7 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. Auto_MArtini documentation master file, created by
+.. Auto_MARTINI documentation master file, created by
    sphinx-quickstart on Fri Apr 26 11:29:59 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.

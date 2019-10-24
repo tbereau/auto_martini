@@ -1,0 +1,326 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>auto_martini.optimization &mdash; Auto-Martini 0.0.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="Auto-Martini 0.0.2 documentation" href="../index.html"/> 
+
+  
+  <script src="../static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Auto-Martini
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">auto_martini.optimization</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Auto-Martini</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>auto_martini.optimization</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/autosummary/auto_martini.optimization.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-auto_martini.optimization">
+<span id="auto-martini-optimization"></span><h1>auto_martini.optimization<a class="headerlink" href="#module-auto_martini.optimization" title="Permalink to this headline">¶</a></h1>
+<p>Created on March 13, 2019 by Andrew Abi-Mansour</p>
+<p>This is the:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">_</span>   <span class="n">_</span>   <span class="n">_</span> <span class="n">_____</span> <span class="n">___</span>    <span class="n">__</span>  <span class="n">__</span>    <span class="n">_</span>    <span class="n">____</span> <span class="n">_____</span> <span class="n">___</span> <span class="n">_</span>   <span class="n">_</span> <span class="n">___</span>
+   <span class="o">/</span> \ <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span><span class="n">_</span>   <span class="n">_</span><span class="o">/</span> <span class="n">_</span> \  <span class="o">|</span>  \<span class="o">/</span>  <span class="o">|</span>  <span class="o">/</span> \  <span class="o">|</span>  <span class="n">_</span> \<span class="n">_</span>   <span class="n">_</span><span class="o">|</span><span class="n">_</span> <span class="n">_</span><span class="o">|</span> \ <span class="o">|</span> <span class="o">|</span><span class="n">_</span> <span class="n">_</span><span class="o">|</span>
+  <span class="o">/</span> <span class="n">_</span> \<span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">||</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span>\<span class="o">/|</span> <span class="o">|</span> <span class="o">/</span> <span class="n">_</span> \ <span class="o">|</span> <span class="o">|</span><span class="n">_</span><span class="p">)</span> <span class="o">||</span> <span class="o">|</span>  <span class="o">|</span> <span class="o">||</span>  \<span class="o">|</span> <span class="o">||</span> <span class="o">|</span>
+ <span class="o">/</span> <span class="n">___</span> \ <span class="o">|</span><span class="n">_</span><span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">||</span> <span class="o">|</span><span class="n">_</span><span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span>  <span class="o">|</span> <span class="o">|/</span> <span class="n">___</span> \<span class="o">|</span>  <span class="n">_</span> <span class="o">&lt;</span> <span class="o">|</span> <span class="o">|</span>  <span class="o">|</span> <span class="o">||</span> <span class="o">|</span>\  <span class="o">||</span> <span class="o">|</span>
+<span class="o">/</span><span class="n">_</span><span class="o">/</span>   \<span class="n">_</span>\<span class="n">___</span><span class="o">/</span>  <span class="o">|</span><span class="n">_</span><span class="o">|</span> \<span class="n">___</span><span class="o">/</span>  <span class="o">|</span><span class="n">_</span><span class="o">|</span>  <span class="o">|</span><span class="n">_</span><span class="o">/</span><span class="n">_</span><span class="o">/</span>   \<span class="n">_</span>\<span class="n">_</span><span class="o">|</span> \<span class="n">_</span>\<span class="o">|</span><span class="n">_</span><span class="o">|</span> <span class="o">|</span><span class="n">___</span><span class="o">|</span><span class="n">_</span><span class="o">|</span> \<span class="n">_</span><span class="o">|</span><span class="n">___</span><span class="o">|</span>
+</pre></div>
+</div>
+<p>Tool for automatic MARTINI mapping and parametrization of small organic molecules</p>
+<p>Developers:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Tristan</span> <span class="n">BEREAU</span> <span class="p">(</span><span class="n">bereau</span> <span class="n">at</span> <span class="n">mpip</span><span class="o">-</span><span class="n">mainz</span><span class="o">.</span><span class="n">mpg</span><span class="o">.</span><span class="n">de</span><span class="p">)</span>
+<span class="n">Kiran</span> <span class="n">Kanekal</span> <span class="p">(</span><span class="n">kanekal</span> <span class="n">at</span> <span class="n">mpip</span><span class="o">-</span><span class="n">mainz</span><span class="o">.</span><span class="n">mpg</span><span class="o">.</span><span class="n">de</span><span class="p">)</span>
+<span class="n">Andrew</span> <span class="n">Abi</span><span class="o">-</span><span class="n">Mansour</span> <span class="p">(</span><span class="n">andrew</span><span class="o">.</span><span class="n">gaam</span> <span class="n">at</span> <span class="n">gmail</span><span class="o">.</span><span class="n">com</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>AUTO_MARTINI is open-source, distributed under the terms of the GNU Public
+License, version 2 or later. It is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
+received a copy of the GNU General Public License along with PyGran.
+If not, see <a class="reference external" href="http://www.gnu.org/licenses">http://www.gnu.org/licenses</a> . See also top-level README
+and LICENSE files.</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-center">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.optimization.all_atoms_in_beads_connected" title="auto_martini.optimization.all_atoms_in_beads_connected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">all_atoms_in_beads_connected</span></code></a>(trial_comb, …)</p></td>
+<td><p>Make sure all atoms within one CG bead are connected to at least one other atom in that bead</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.optimization.atoms_in_gaussian" title="auto_martini.optimization.atoms_in_gaussian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">atoms_in_gaussian</span></code></a>(molecule, conformer, …)</p></td>
+<td><p>Returns weighted sum of atoms contained in bead bead_id</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.optimization.check_beads" title="auto_martini.optimization.check_beads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_beads</span></code></a>(list_heavyatoms, …)</p></td>
+<td><p>Check if CG bead positions in trailComb are acceptable</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.optimization.eval_gaussian_interac" title="auto_martini.optimization.eval_gaussian_interac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eval_gaussian_interac</span></code></a>(molecule, conformer, …)</p></td>
+<td><p>From collection of CG beads placed on mol, evaluate objective function of interacting beads</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.optimization.find_bead_pos" title="auto_martini.optimization.find_bead_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_bead_pos</span></code></a>(molecule, conformer, …)</p></td>
+<td><p>Try out all possible combinations of CG beads up to threshold number of beads per atom.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.optimization.gaussian_overlap" title="auto_martini.optimization.gaussian_overlap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gaussian_overlap</span></code></a>(conformer, bead1, bead2, …)</p></td>
+<td><p>“Returns overlap coefficient between two gaussians given distance dist</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.optimization.penalize_lonely_atoms" title="auto_martini.optimization.penalize_lonely_atoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">penalize_lonely_atoms</span></code></a>(molecule, conformer, …)</p></td>
+<td><p>Penalizes configuration if atoms aren’t included in any CG bead</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#auto_martini.optimization.read_bead_params" title="auto_martini.optimization.read_bead_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_bead_params</span></code></a>()</p></td>
+<td><p>Returns bead parameter dictionary CG Bead vdw radius (in Angstroem)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auto_martini.optimization.voronoi_atoms" title="auto_martini.optimization.voronoi_atoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">voronoi_atoms</span></code></a>(cgbead_coords, heavyatom_coords)</p></td>
+<td><p>Partition all atoms between CG beads</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="auto_martini.optimization.all_atoms_in_beads_connected">
+<code class="descclassname">auto_martini.optimization.</code><code class="descname">all_atoms_in_beads_connected</code><span class="sig-paren">(</span><em>trial_comb</em>, <em>heavyatom_coords</em>, <em>list_heavyatoms</em>, <em>bondlist</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.optimization.all_atoms_in_beads_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make sure all atoms within one CG bead are connected to at least
+one other atom in that bead</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.optimization.atoms_in_gaussian">
+<code class="descclassname">auto_martini.optimization.</code><code class="descname">atoms_in_gaussian</code><span class="sig-paren">(</span><em>molecule</em>, <em>conformer</em>, <em>bead_id</em>, <em>ringatoms</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.optimization.atoms_in_gaussian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns weighted sum of atoms contained in bead bead_id</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.optimization.check_beads">
+<code class="descclassname">auto_martini.optimization.</code><code class="descname">check_beads</code><span class="sig-paren">(</span><em>list_heavyatoms</em>, <em>heavyatom_coords</em>, <em>trial_comb</em>, <em>ring_atoms</em>, <em>listbonds</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.optimization.check_beads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if CG bead positions in trailComb are acceptable</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.optimization.eval_gaussian_interac">
+<code class="descclassname">auto_martini.optimization.</code><code class="descname">eval_gaussian_interac</code><span class="sig-paren">(</span><em>molecule</em>, <em>conformer</em>, <em>list_beads</em>, <em>ringatoms</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.optimization.eval_gaussian_interac" title="Permalink to this definition">¶</a></dt>
+<dd><p>From collection of CG beads placed on mol, evaluate
+objective function of interacting beads</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.optimization.find_bead_pos">
+<code class="descclassname">auto_martini.optimization.</code><code class="descname">find_bead_pos</code><span class="sig-paren">(</span><em>molecule</em>, <em>conformer</em>, <em>list_heavy_atoms</em>, <em>heavyatom_coords</em>, <em>ring_atoms</em>, <em>ringatoms_flat</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.optimization.find_bead_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try out all possible combinations of CG beads up to threshold number of beads per atom. Find
+arrangement with best energy score. Return all possible arrangements sorted by energy score.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.optimization.gaussian_overlap">
+<code class="descclassname">auto_martini.optimization.</code><code class="descname">gaussian_overlap</code><span class="sig-paren">(</span><em>conformer</em>, <em>bead1</em>, <em>bead2</em>, <em>ringatoms</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.optimization.gaussian_overlap" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Returns overlap coefficient between two gaussians
+given distance dist</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.optimization.penalize_lonely_atoms">
+<code class="descclassname">auto_martini.optimization.</code><code class="descname">penalize_lonely_atoms</code><span class="sig-paren">(</span><em>molecule</em>, <em>conformer</em>, <em>lumped_atoms</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.optimization.penalize_lonely_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Penalizes configuration if atoms aren’t included
+in any CG bead</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.optimization.read_bead_params">
+<code class="descclassname">auto_martini.optimization.</code><code class="descname">read_bead_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.optimization.read_bead_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns bead parameter dictionary
+CG Bead vdw radius (in Angstroem)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="auto_martini.optimization.voronoi_atoms">
+<code class="descclassname">auto_martini.optimization.</code><code class="descname">voronoi_atoms</code><span class="sig-paren">(</span><em>cgbead_coords</em>, <em>heavyatom_coords</em><span class="sig-paren">)</span><a class="headerlink" href="#auto_martini.optimization.voronoi_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partition all atoms between CG beads</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright  .
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE: 'true'
+        };
+    </script>
+      <script type="text/javascript" src="../static/jquery.js"></script>
+      <script type="text/javascript" src="../static/underscore.js"></script>
+      <script type="text/javascript" src="../static/doctools.js"></script>
+      <script type="text/javascript" src="../static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
