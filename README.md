@@ -36,18 +36,19 @@ doi = {10.1021/acs.jctc.5b00056}
 `auto-martini` is a python module that requires a number of dependencies:
 * `numpy`: see http://docs.scipy.org/doc/numpy/user/install.html
 * `rdkit`: see http://www.rdkit.org/docs/Install.html
-* `bs4`: see http://www.crummy.com/software/BeautifulSoup/ 
-* `requests`: see http://docs.python-requests.org/en/latest/user/install/
+* `bs4`: see http://www.crummy.com/software/BeautifulSoup/
+* `requests`: see http://docs.python-requests.org/en/latest/user/install
+* `lxml`: see https://github.com/lxml/lxml
 
-For a python 2 installation, pip can be used to install all 4 depdendencies:
+For a python 2 installation, pip can be used to install all 5 depdendencies:
 ```
-pip install numpy rdkit bs4 requests
+pip install numpy rdkit bs4 lxml requests
 ``` 
-For optimal performance, however, we commend you use python 3, which requires installing rdkit from its source code.  Once all the dependencies are correctly installed, auto_martini can be run as a module via:
+For optimal performance, however, we recommend you use python 3, which requires installing rdkit from its source code. Once all the dependencies are correctly installed, auto_martini can be run as a module via:
 ```
 python -m auto_martini [mode] [options]
 ```
-Here mode can be either 'run' or 'test'. The foemer is covered in the next section. To make sure auto_martini runs correctly on your system, run:
+By default, mode is set to 'run', which computes the MARTINI forcefield for a given molecule. In order to make sure auto_martini runs correctly on your system, run:
 ```
 python -m auto_martini test
 ```
@@ -80,7 +81,7 @@ Tristan Bereau (bereau [at] mpip-mainz.mpg.de)
 Andrew Abi-Mansour (andrew.gaam [at] gmail.com)
 ```
 
-## Usage
+## Example
 To coarse-grain a molecule, simply provide its SMILES code (option `--smi SMI`) or a .SDF file (option `'--sdf file.sdf`). You also need to provide a name for the CG molecule (not longer than 5 characters) using the `--mol` option.  For instance, to coarse grain [guanazole](http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=15078), you can either obtain/generate (e.g., from Open Babel) an SDF file:
 ```
 python -m auto-martini run --sdf guanazole.sdf --mol GUA --top GUA.itp
