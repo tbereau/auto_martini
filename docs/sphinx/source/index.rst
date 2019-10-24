@@ -11,9 +11,8 @@ Contents:
 .. autosummary::
 
    :toctree: _autosummary
-
-   engine
-   test
+   solver
+   topology
 
 Requirements
 ~~~~~~~~~~~~

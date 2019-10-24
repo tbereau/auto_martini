@@ -22,7 +22,7 @@ copyright = '' #'2019, Andrew Abi-Mansour'
 author = 'Andrew Abi-Mansour'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '0.0.2'
 
 # -- General configuration ------------------------------------------------
 autoclass_content = "both"  # include both class docstring and __init__
