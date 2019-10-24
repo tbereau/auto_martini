@@ -10,7 +10,7 @@ This is the::
                                                                                                
 toolkit for automatic MARTINI mapping and parametrization of small organic molecules
 
-Auto_Martini is developed by:
+Auto_Martini is developed by::
 Tristan BEREAU (bereau at mpip-mainz.mpg.de)
 Andrew Abi-Mansour (andrew.gaam at gmail.com)
 
@@ -21,4 +21,4 @@ GNU General Public License along with PyGran. If not, see http://www.gnu.org/lic
 README and LICENSE files.
 '''
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'

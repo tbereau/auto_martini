@@ -9,13 +9,12 @@ This is the::
 ██╔══██║██║   ██║   ██║   ██║   ██║        ██║╚██╔╝██║██╔══██║██╔══██╗   ██║   ██║██║╚██╗██║██║
 ██║  ██║╚██████╔╝   ██║   ╚██████╔╝███████╗██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   ██║██║ ╚████║██║
 ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝╚═╝
-                                                                                               
+
 toolkit for automatic MARTINI mapping and parametrization of small organic molecules
 
-Auto_Martini is developed by:
+Auto_Martini is developed by::
 Tristan BEREAU (bereau at mpip-mainz.mpg.de)
 Andrew Abi-Mansour (andrew.gaam at gmail.com)
-
 
 Auto_Martini is open-source, distributed under the terms of the GNU Public
 License, version 2 or later. It is distributed in the hope that it will
@@ -29,20 +28,19 @@ and LICENSE files.
 import argparse
 import logging
 
-from auto_martini.engine.solver import cg_molecule
-from auto_martini.engine.topology import gen_molecule_smi, gen_molecule_sdf
+from .solver import cg_molecule
+from .topology import gen_molecule_smi, gen_molecule_sdf
 
 import sys
-
 
 def checkArgs(args):
 
   if not args.sdf and not args.smi:
     parser.error("run requires --sdf or --smi")
-  
+
   if not args.molname:
     parser.error("run requires --mol")
-  
+
   if not args.topfname:
     parser.error("run requires --top")
 
@@ -69,23 +67,19 @@ if len(sys.argv)==1:
 
 args = parser.parse_args()
 
-if args.mode == 'run':
-  checkArgs(args)
+checkArgs(args)
 
-  if args.verbose >= 2:
-      level = logging.DEBUG
-  elif args.verbose >= 1:
-      level = logging.INFO
-  else:
-      level = logging.WARNING
-
-  # Generate molecule's structure from SDF or SMILES
-  if args.sdf:
-      mol = gen_molecule_sdf(args.sdf)
-  else:
-      mol = gen_molecule_smi(args.smi) 
-
-  cg_molecule(mol, args.molname, args.topfname, args.aa, args.cg, args.forcepred)
+if args.verbose >= 2:
+    level = logging.DEBUG
+elif args.verbose >= 1:
+    level = logging.INFO
 else:
-  path, _ = __file__.split(__name__)
-  cg_molecule(gen_molecule_sdf(path + '/test/ibuprofen.sdf'), molname='IBU', topfname='ibu.itp')
+    level = logging.WARNING
+
+# Generate molecule's structure from SDF or SMILES
+if args.sdf:
+    mol = gen_molecule_sdf(args.sdf)
+else:
+    mol = gen_molecule_smi(args.smi)
+
+cg_molecule(mol, args.molname, args.topfname, args.aa, args.cg, args.forcepred)
