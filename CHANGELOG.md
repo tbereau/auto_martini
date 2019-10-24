@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.1]
 ### Added
-
 - New CLI for reading input and writing output
 - New modular design consisting of "test" and "engine" submodules
 - CLI arg --top to the parser so that the output topology would be written to a file (no longer printed to stdout)
@@ -23,3 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Undefined objects "hbondA" and "hbondD" in function printAtoms()
 - Variable "mad" in function checkAdditivity() was already defined as a function
+
+## [0.0.2]
+### Added
+- Testing scripts that work with pytest
+
+### Changed
+- Fxed bug with ...
+
+### Removed
+- test submodule (replaced with pytest scripts)
