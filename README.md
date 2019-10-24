@@ -6,8 +6,8 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 
 ## Developers 
 Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
-Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany) 
-Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US) 
+Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)
+Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US)
 
 ## Publication
 For a detailed account of the software, see:
