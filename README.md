@@ -5,8 +5,8 @@ A toolkit that enables automatic generation of MARTINI forcefields for small org
 For full documentation, click [here](https://tbereau.github.io/auto_martini/docs/html/index.html).
 
 ## Developers 
-Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
-Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)
+Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)   
+Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)     
 Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US)
 
 ## Publication
