@@ -2,14 +2,7 @@ Auto_MARTINI
 ============
 ## What is Auto_MARTINI?
 A toolkit that enables automatic generation of MARTINI forcefields for small organic molecules. 
-For full documentation, click [here](https://tbereau.github.io/auto_martini/docs/html/index.html).
 
-## Developers 
-Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)   
-Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)     
-Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US)
-
-## Publication
 For a detailed account of the software, see:
 
 Bereau and Kremer, *J Chem Theory Comput*, DOI:10.1021/acs.jctc.5b00056 (2015)
@@ -17,7 +10,6 @@ Bereau and Kremer, *J Chem Theory Comput*, DOI:10.1021/acs.jctc.5b00056 (2015)
 [![DOI for Citing auto_martini](https://img.shields.io/badge/DOI-10.1021%2Facs.jctc.5b00056-blue.svg)](http://dx.doi.org/10.1021/acs.jctc.5b00056)
 
 Please consider citing the paper if you find `auto_martini` useful in your research.
-
 ```
 @article{bereau2015automartini,
 author = {Bereau, Tristan and Kremer, Kurt},
@@ -31,6 +23,13 @@ pages = {2783--2791},
 doi = {10.1021/acs.jctc.5b00056}
 }
 ```
+
+For full documentation, click [here](https://tbereau.github.io/auto_martini/docs/html/index.html).
+
+## Developers 
+Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)   
+Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)     
+Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US)
 
 ## Installation & Testing
 `auto-martini` requires a number of dependencies:
