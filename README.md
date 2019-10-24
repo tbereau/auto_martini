@@ -1,13 +1,13 @@
-[![Build Status](https://circleci.com/gh/Andrew-AbiMansour/Auto_Martini.svg?branch=master)](https://circleci.com/gh/Andrew-AbiMansour/Auto_Martini)
-
 Auto_MARTINI
 ============
-*Developers:* 
+## What is Auto_MARTINI?
+A toolkit that enables automatic generation of MARTINI forcefields for small organic molecules. 
+For full documentation, click [here](https://tbereau.github.io/auto_martini/docs/html/index.html).
+
+## Developers 
 Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
 Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany) 
 Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US) 
-
-Automated MARTINI mapping and parametrization of small organic molecules. This fork restructures the original code to a modular and extensible form with numerous bug fixes and support for Python 3. For full documentation, click [here](https://andrew-abimansour.github.io/Auto_Martini/docs/html/index.html).
 
 ## Publication
 For a detailed account of the software, see:
