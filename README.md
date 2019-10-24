@@ -12,7 +12,7 @@ Automated MARTINI mapping and parametrization of small organic molecules. This f
 ## Publication
 For a detailed account of the software, see:
 
-Bereau and Kremer, *J Chem Theory Comput*, DOI:10.1021/acs.jctc.5b00056 (2015) [link](http://dx.doi.org/10.1021/acs.jctc.5b00056)
+Bereau and Kremer, *J Chem Theory Comput*, DOI:10.1021/acs.jctc.5b00056 (2015)
 
 [![DOI for Citing auto_martini](https://img.shields.io/badge/DOI-10.1021%2Facs.jctc.5b00056-blue.svg)](http://dx.doi.org/10.1021/acs.jctc.5b00056)
 
@@ -33,18 +33,17 @@ doi = {10.1021/acs.jctc.5b00056}
 ```
 
 ## Installation & Testing
-`auto-martini` is a python module that requires a number of dependencies:
+`auto-martini` requires a number of dependencies:
 * `numpy`: see http://docs.scipy.org/doc/numpy/user/install.html
 * `rdkit`: see http://www.rdkit.org/docs/Install.html
 * `bs4`: see http://www.crummy.com/software/BeautifulSoup/
 * `requests`: see http://docs.python-requests.org/en/latest/user/install
 * `lxml`: see https://github.com/lxml/lxml
 
-For a python 2 installation, pip can be used to install all 5 depdendencies:
-```
-pip install numpy rdkit bs4 lxml requests
-``` 
-For optimal performance, however, we recommend you use python 3, which requires installing rdkit from its source code. Once all the dependencies are correctly installed, auto_martini can be run as a module via:
+For optimal performance, we recommend installing cython as well. We also recommend installing the latest version of rdkit with conda. If not rdkit installation is found, auto_martini
+will attempt to compile it from its source code. For a detailed installation, see the documentation.
+
+Once all the dependencies are correctly installed, auto_martini can be run via:
 ```
 python -m auto_martini [mode] [options]
 ```
