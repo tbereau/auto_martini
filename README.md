@@ -2,10 +2,10 @@
 
 Auto_MARTINI
 ============
-*Author:* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
-*Created:* 2014  
-
-*Modified and optimized by:* Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US) 
+*Developers:* 
+Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)  
+Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany) 
+Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US) 
 
 Automated MARTINI mapping and parametrization of small organic molecules. This fork restructures the original code to a modular and extensible form with numerous bug fixes and support for Python 3. For full documentation, click [here](https://andrew-abimansour.github.io/Auto_Martini/docs/html/index.html).
 
@@ -55,40 +55,39 @@ python -m auto_martini test
 To display the usage-information (help), either supply -h, --help, or nothing to auto_martini:
  
 ```
-usage: auto_martini [-h] [--sdf SDF | --smi SMI] [--mol MOLNAME] [--aa AA]
-                    [--cg CG] [-v] [--fpred]
-                    {run,test}
+usage: auto_martini [-h] [--mode {run,test}] [--sdf SDF | --smi SMI]
+                    [--mol MOLNAME] [--aa AA] [--cg CG] [--top TOPFNAME] [-v]
+                    [--fpred]
 
 Generates Martini force field for atomistic structures of small organic molecules
 
-positional arguments:
-  {run,test}     run or test auto_martini
-
 optional arguments:
-  -h, --help     show this help message and exit
-  --sdf SDF      SDF file of atomistic coordinates
-  --smi SMI      SMILES string of atomistic structure
-  --mol MOLNAME  Name of CG molecule
-  --aa AA        output all-atom structure to .gro file
-  --cg CG        output coarse-grained structure to .gro file
-  --top TOP      topology output filename
-  -v, --verbose  increase verbosity
-  --fpred        verbose
+  -h, --help         show this help message and exit
+  --mode {run,test}  mode: run (compute FF) or test (validate)
+  --sdf SDF          SDF file of atomistic coordinates
+  --smi SMI          SMILES string of atomistic structure
+  --mol MOLNAME      Name of CG molecule
+  --aa AA            filename of all-atom structure .gro file
+  --cg CG            filename of coarse-grained structure .gro file
+  --top TOPFNAME     filename of output topology file
+  -v, --verbose      increase verbosity
+  --fpred            verbose
 
 Developers:
 ===========
 Tristan Bereau (bereau [at] mpip-mainz.mpg.de)
+Kiran Kanekal (kanekal [at] mpip-mainz.mpg.de)
 Andrew Abi-Mansour (andrew.gaam [at] gmail.com)
 ```
 
 ## Example
 To coarse-grain a molecule, simply provide its SMILES code (option `--smi SMI`) or a .SDF file (option `'--sdf file.sdf`). You also need to provide a name for the CG molecule (not longer than 5 characters) using the `--mol` option.  For instance, to coarse grain [guanazole](http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=15078), you can either obtain/generate (e.g., from Open Babel) an SDF file:
 ```
-python -m auto-martini run --sdf guanazole.sdf --mol GUA --top GUA.itp
+python -m auto-martini --sdf guanazole.sdf --mol GUA --top GUA.itp
 ```
 (the name GUA is arbitrary) or use its SMILES code within double quotes
 ```
-python -m auto-martini run --smi "N1=C(N)NN=C1N" --mol GUA --top GUA.itp
+python -m auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --top GUA.itp
 ```
 In case no problem arises, it will output the gromacs GUA.itp file:
 ```
