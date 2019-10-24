@@ -28,7 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Testing scripts that work with pytest
 
 ### Changed
-- Fxed bug with ...
+- Method "gen_molecule_smi" in topology module no longer raises an exception when kekulization fails
+- CLI arg "mode" replaced with "--mode", defaults to "run"
 
 ### Removed
-- test submodule (replaced with pytest scripts)
+- Submodule "test" (replaced with pytest scripts)
