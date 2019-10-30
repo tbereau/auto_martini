@@ -39,7 +39,7 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 * [requests](http://docs.python-requests.org/en/latest/user/install)
 * [lxml](https://github.com/lxml/lxml)
 
-For optimal performance, we recommend installing cython as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
+For optimal performance, we recommend installing [cython](https://cython.org) as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
 will attempt to compile it from its source code. For a detailed installation, see the documentation.
 
 Once all the dependencies are correctly installed, auto_martini can be run via:
@@ -114,5 +114,5 @@ Atomistic coordinates can be output in XYZ format using the `--xyz output.xyz` o
 
 ## Caveats
 
-For frequently encountered problems, see [FEP](FEP.md)
+For frequently encountered problems, see [FEP](FEP.md).
 
