@@ -19,7 +19,7 @@ journal = {J Chem Theory Comput},
 year = {2015},
 volume = {11},
 number = {6},
-pages = {2783--2791},
+pages = {2783-2791},
 doi = {10.1021/acs.jctc.5b00056}
 }
 ```
@@ -27,19 +27,19 @@ doi = {10.1021/acs.jctc.5b00056}
 For full documentation, click [here](https://tbereau.github.io/auto_martini/docs/html/index.html).
 
 ## Developers 
-Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)   
-Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)     
-Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US)
+* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)   
+* Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)     
+* Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US)
 
 ## Installation & Testing
 `auto-martini` requires a number of dependencies:
-* `numpy`: see http://docs.scipy.org/doc/numpy/user/install.html
-* `rdkit`: see http://www.rdkit.org/docs/Install.html
-* `bs4`: see http://www.crummy.com/software/BeautifulSoup/
-* `requests`: see http://docs.python-requests.org/en/latest/user/install
-* `lxml`: see https://github.com/lxml/lxml
+* [numpy](http://docs.scipy.org/doc/numpy/user/install.html)
+* [rdkit](http://www.rdkit.org/docs/Install.html)
+* [bs4](http://www.crummy.com/software/BeautifulSoup)
+* [requests](http://docs.python-requests.org/en/latest/user/install)
+* [lxml](https://github.com/lxml/lxml)
 
-For optimal performance, we recommend installing cython as well. We also recommend installing the latest version of rdkit with conda. If not rdkit installation is found, auto_martini
+For optimal performance, we recommend installing cython as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
 will attempt to compile it from its source code. For a detailed installation, see the documentation.
 
 Once all the dependencies are correctly installed, auto_martini can be run via:
@@ -114,30 +114,5 @@ Atomistic coordinates can be output in XYZ format using the `--xyz output.xyz` o
 
 ## Caveats
 
-### Prediction algorithm
+For frequently encountered problems, see [FEP](FEP.md)
 
-Since ALOGPS, the prediction algorithm for octanol/water partitioning, relies on whole fragments rather than individual atoms, the prediction of certain fragments can pose problem, e.g., small inorganic groups. In this case, `auto-martini` tries to parametrize alternative mappings. If none of them shows successful, the code will return an error.
-```
-; ERROR: no successful mapping found.
-; Try running with the '--fpred' and/or '--verbose' options.
-```
-As mentioned in the error message, an alternative solution consists of relying on an atom-based partitioning coefficient prediction algorithm (Wildman-Crippen), which is less accurate but can predict any fragment.  In case the `--fpred` option is selected, only fragments for which ALOGPS fail will be predicted using Wildman-Crippen.
-
-### Boost error
-
-Some versions of Boost will fail to correctly exit at the end of the program, generating such output messages:
-```
-python: /usr/include/boost/thread/pthread/mutex.hpp:108: boost::mutex::~mutex(): Assertion `!posix::pthread_mutex_destroy(&m)' failed.
-[1]    31433 abort (core dumped)  ./auto_martini --smi "N1=C(N)NN=C1N" --mol GUA
-```
-the results provided by the code are unaffected by this error message. Simply ignore it.
-
-### RDKit outdated
-
-Older RDKit versions will report the following error:
-```
-[...]
-distBdAt = Chem.rdMolTransforms.GetBondLength(conf,i,beadId)
-AttributeError: 'module' object has no attribute 'GetBondLength'
-```
-Simply update your version of RDKit. Most package managers will allow you to do this, unless you've installed RDKit from source.
