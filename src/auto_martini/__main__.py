@@ -27,6 +27,7 @@ and LICENSE files.
 '''
 
 import argparse
+from .common import __version__
 import logging
 
 from .solver import cg_molecule
@@ -78,10 +79,16 @@ elif args.verbose >= 1:
 else:
     level = logging.WARNING
 
+logging.basicConfig(filename="auto_martini.log", format='%(asctime)s [%(levelname)s](%(name)s:%(funcName)s:%(lineno)d): %(message)s', level=level)
+
+logger = logging.getLogger(__name__)
+
+logger.info('Running auto_martini v{}'.format(__version__))
+
 # Generate molecule's structure from SDF or SMILES
 if args.sdf:
     mol = gen_molecule_sdf(args.sdf)
 else:
-    mol = gen_molecule_smi(args.smi)
+    mol, _ = gen_molecule_smi(args.smi)
 
 cg_molecule(mol, args.molname, args.topfname, args.aa, args.cg, args.forcepred)
