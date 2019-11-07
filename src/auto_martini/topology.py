@@ -29,6 +29,8 @@ and LICENSE files.
 from .common import *
 from . import __version__
 
+logger = logging.getLogger(__name__)
+
 # For feature extraction
 fdefName = os.path.join(RDConfig.RDDataDir, 'BaseFeatures.fdef')
 factory = ChemicalFeatures.BuildFeatureFactory(fdefName)
@@ -60,47 +62,58 @@ def read_delta_f_types():
 
 def gen_molecule_smi(smi):
     """Generate mol object from smiles string"""
-
-    logging.debug('Entering gen_molecule_smi()')
-
+    logger.debug('Entering gen_molecule_smi()')
+    errval = 0
     if '.' in smi:
-        raise ValueError('Error. Only one molecule may be provided.')
-
+        logger.warning('Error. Only one molecule may be provided.')
+        logger.warning(smi)
+        errval = 4
+        exit(1)
+    # If necessary, adjust smiles for Aromatic Ns
+    # Redirect current stderr in log file
+    stderr_fd = None
+    stderr_save = None
+    try:
+        stderr_fileno = sys.stderr.fileno()
+        stderr_save = os.dup(stderr_fileno)
+        stderr_fd = open('sanitize.log', 'w')
+        os.dup2(stderr_fd.fileno(), stderr_fileno)
+    except:
+        stderr_fileno = None
     # Get smiles without sanitization
     molecule = Chem.MolFromSmiles(smi, False)
-
     try:
         cp = Chem.Mol(molecule)
         Chem.SanitizeMol(cp)
+        # Close log file and restore old sys err
+        if stderr_fileno is not None:
+            stderr_fd.close()
+            os.dup2(stderr_save, stderr_fileno)
         molecule = cp
-
     except ValueError:
-        logging.warning(f'Bad smiles format {smi} found')
-
-    nm = AdjustAromaticNs(molecule)
-
-    if nm is not None:
-      Chem.SanitizeMol(nm)
-      molecule = nm
-      smi = Chem.MolToSmiles(nm)
-      logging.warning(f'Fixed smiles format to {smi}')
-    else:
-      logging.warning(f'Smiles cannot be adjusted {smi}')
+        logger.warning('Bad smiles format %s found' % smi)
+        nm = AdjustAromaticNs(molecule)
+        if nm is not None:
+            Chem.SanitizeMol(nm)
+            molecule = nm
+            smi = Chem.MolToSmiles(nm)
+            logger.warning('Fixed smiles format to %s' % smi)
+        else:
+            logger.warning('Smiles cannot be adjusted %s' % smi)
+            errval = 1
     # Continue
-
     molecule = Chem.AddHs(molecule)
     AllChem.EmbedMolecule(molecule, randomSeed = 1, useRandomCoords=True) # Set Seed for random coordinate generation = 1.
     try:
         AllChem.UFFOptimizeMolecule(molecule)
-    except: 
-      raise ValueError
-    
-    return molecule
-
+    except ValueError as e:
+        logger.warning('%s' % e)
+        exit(1)
+    return molecule, errval
 
 def gen_molecule_sdf(sdf):
     """Generate mol object from SD file"""
-    logging.debug('Entering gen_molecule_sdf()')
+    logger.debug('Entering gen_molecule_sdf()')
     suppl = Chem.SDMolSupplier(sdf)
     if len(suppl) > 1:
         print('Error. Only one molecule may be provided.')
@@ -114,7 +127,7 @@ def gen_molecule_sdf(sdf):
 
 def print_header(molname):
     """Print topology header"""
-    logging.debug('Entering print_header()')
+    logger.debug('Entering print_header()')
 
     text = '; GENERATED WITH auto_Martini v{} for {}\n'.format(__version__, molname)
 
@@ -127,23 +140,21 @@ def print_header(molname):
 
 def letter_occurrences(string):
     """Count letter occurences"""
-    logging.debug('Entering letter_occurrences()')
+    logger.debug('Entering letter_occurrences()')
     frequencies = defaultdict(lambda: 0)
     for character in string:
         if character.isalnum():
             frequencies[character.upper()] += 1
     return frequencies
 
-
 def get_charge(molecule):
     """Get net charge of molecule"""
-    logging.debug('Entering get_charge()')
+    logger.debug('Entering get_charge()')
     return Chem.rdmolops.GetFormalCharge(molecule)
-
 
 def get_hbond_a(features):
     """Get Hbond acceptor information"""
-    logging.debug('Entering get_hbond_a()')
+    logger.debug('Entering get_hbond_a()')
     hbond = []
     for feat in features:
         if feat.GetFamily() == "Acceptor":
@@ -155,7 +166,7 @@ def get_hbond_a(features):
 
 def get_hbond_d(features):
     """Get Hbond donor information"""
-    logging.debug('Entering get_hbond_d()')
+    logger.debug('Entering get_hbond_d()')
     hbond = []
     for feat in features:
         if feat.GetFamily() == "Donor":
@@ -166,7 +177,7 @@ def get_hbond_d(features):
 
 def get_atoms(molecule):
     """List all heavy atoms"""
-    logging.debug('Entering get_atoms()')
+    logger.debug('Entering get_atoms()')
     conformer = molecule.GetConformer()
     num_atoms = conformer.GetNumAtoms()
     list_heavyatoms = []
@@ -186,7 +197,7 @@ def get_atoms(molecule):
 
 def get_ring_atoms(molecule):
     """Get ring atoms"""
-    logging.debug('Entering get_ring_atoms()')
+    logger.debug('Entering get_ring_atoms()')
     ringatoms = []
     ringinfo = molecule.GetRingInfo()
     rings = ringinfo.AtomRings()
@@ -197,7 +208,7 @@ def get_ring_atoms(molecule):
 
 def get_heavy_atom_coords(molecule):
     """Extract atomic coordinates of heavy atoms in molecule mol"""
-    logging.debug('Entering get_heavy_atom_coords()')
+    logger.debug('Entering get_heavy_atom_coords()')
     heavyatom_coords = []
     conformer = molecule.GetConformer()
     # number of atoms in mol
@@ -206,11 +217,12 @@ def get_heavy_atom_coords(molecule):
         if molecule.GetAtomWithIdx(i).GetSymbol() != "H":
             heavyatom_coords.append(np.array(
                 [conformer.GetAtomPosition(i)[j] for j in range(3)]))
+
     return conformer, heavyatom_coords
 
 def extract_features(molecule):
     """Extract features of molecule"""
-    logging.debug('Entering extract_features()')
+    logger.debug('Entering extract_features()')
     features = factory.GetFeaturesForMol(molecule)
     return features
 
@@ -258,7 +270,7 @@ def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
             chg += molecule.GetAtomWithIdx(i).GetFormalCharge()
 
     smi = Chem.MolToSmiles(Chem.rdmolops.AddHs(frag.GetMol(), addCoords=True))
- 
+
     # fragment smi: Nc1ncnn1 ---------> FAILURE! Need to fix this Andrew! For now, just a hackish soln:
     # smi = smi.lower() if smi.islower() else smi.upper()
 
@@ -267,7 +279,7 @@ def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
 def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partitioning, ringatoms, ringatoms_flat, trial=False):
     """Print CG Atoms in itp format"""
 
-    logging.debug('Entering print_atoms()')
+    logger.debug('Entering print_atoms()')
     atomnames = []
     beadtypes = []
     text = ''
@@ -276,53 +288,63 @@ def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partition
         # Determine SMI of substructure
         try:
             smi_frag, wc_log_p, charge = substruct2smi(molecule, partitioning, bead, cgbeads, ringatoms)
-        except:
+        except Exception:
           raise
 
         atom_name = ""
         for character, count in sorted(six.iteritems(letter_occurrences(smi_frag))):
-
-            if count == 1:
-              atom_name += "{:s}".format(character)
-            else:
-              atom_name += "{:s}{:s}".format(character, str(count))
+            try:
+                float(character)
+            except ValueError:
+                if count == 1:
+                    atom_name += "{:s}".format(character)
+                else:
+                    atom_name += "{:s}{:s}".format(character, str(count))
 
         # Get charge for smi_frag
-        mol_frag = gen_molecule_smi(smi_frag)
+        mol_frag, errval = gen_molecule_smi(smi_frag)
         charge_frag = get_charge(mol_frag)
 
-        # Extract ALOGPS free energy
-        try:
-            if charge_frag == 0:
-                alogps = smi2alogps(forcepred, smi_frag, wc_log_p, bead + 1, trial)
-            else:
-                alogps = 0.0
-        except:
-          raise
+        if errval == 0:
+            #frag_heavyatom_coord = get_heavy_atom_coords(mol_frag)
+            #frag_HA_coord_towrite = frag_heavyatom_coord[1]
+            #frag_HA_coord_towrite[:0] = [smi_frag]
+            #frag_heavyatom_coord_list.append(frag_HA_coord_towrite)
+            charge_frag = get_charge(mol_frag)
 
-        hbond_a_flag = 0
-        for at in hbonda:
-            if partitioning[at] == bead:
-                hbond_a_flag = 1
-                break
-        hbond_d_flag = 0
-        for at in hbondd:
-            if partitioning[at] == bead:
-                hbond_d_flag = 1
-                break
-        in_ring = cgbeads[bead] in ringatoms_flat
-        bead_type = determine_bead_type(alogps, charge, hbond_a_flag, hbond_d_flag, in_ring)
-        atom_name = ""
-        name_index = 0
-        while atom_name in atomnames or name_index == 0:
-            name_index += 1
-            atom_name = "{:1s}{:02d}".format(bead_type[0], name_index)
-        atomnames.append(atom_name)
+            # Extract ALOGPS free energy
+            try:
+                if charge_frag == 0:
+                    alogps = smi2alogps(forcepred, smi_frag, wc_log_p, bead + 1, trial)
+                else:
+                    alogps = 0.0
+            except (NameError, TypeError, ValueError):
+                return atomnames, beadtypes, errval
 
-        if not trial:
-            text = text + '    {:<5d} {:5s}   1     {:5s}     {:7s} {:<5d}    {:2d}   ; {:s}\n'.format(
-                bead + 1, bead_type, molname, atom_name, bead + 1, charge, smi_frag)
-        beadtypes.append(bead_type)
+            hbond_a_flag = 0
+            for at in hbonda:
+                if partitioning[at] == bead:
+                    hbond_a_flag = 1
+                    break
+            hbond_d_flag = 0
+            for at in hbondd:
+                if partitioning[at] == bead:
+                    hbond_d_flag = 1
+                    break
+        
+            in_ring = cgbeads[bead] in ringatoms_flat
+            bead_type = determine_bead_type(alogps, charge, hbond_a_flag, hbond_d_flag, in_ring)
+            atom_name = ""
+            name_index = 0
+            while atom_name in atomnames or name_index == 0:
+                name_index += 1
+                atom_name = "{:1s}{:02d}".format(bead_type[0], name_index)
+            atomnames.append(atom_name)
+
+            if not trial:
+                text = text + '    {:<5d} {:5s}   1     {:5s}     {:7s} {:<5d}    {:2d}   ; {:s}\n'.format(
+                    bead + 1, bead_type, molname, atom_name, bead + 1, charge, smi_frag)
+            beadtypes.append(bead_type)
 
     text = text + '\n'
 
@@ -331,7 +353,7 @@ def print_atoms(molname, forcepred, cgbeads, molecule, hbonda, hbondd, partition
 
 def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial=False):
     """print CG bonds in itp format"""
-    logging.debug('Entering print_bonds()')
+    logger.debug('Entering print_bonds()')
 
     # Bond information
     bondlist = []
@@ -505,7 +527,7 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
 
 def print_angles(cgbeads, molecule, partitioning, cgbead_coords, bondlist, constlist, ringatoms):
     """print CG angles in itp format"""
-    logging.debug('Entering print_angles()')
+    logger.debug('Entering print_angles()')
 
     text = ''
 
@@ -581,7 +603,7 @@ def print_angles(cgbeads, molecule, partitioning, cgbead_coords, bondlist, const
 
 def print_dihedrals(cgbeads, constlist, ringatoms, cgbead_coords):
     """Print CG dihedrals in itp format"""
-    logging.debug('Entering print_dihedrals()')
+    logger.debug('Entering print_dihedrals()')
 
     text = ''
 
@@ -651,12 +673,12 @@ def print_dihedrals(cgbeads, constlist, ringatoms, cgbead_coords):
 def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
     """Returns water/octanol partitioning free energy
     according to ALOGPS"""
-    logging.debug('Entering smi2alogps()')
+    logger.debug('Entering smi2alogps()')
     req = ""
     soup = ""
     try:
         session = requests.session()
-        logging.debug('Calling http://vcclab.org/web/alogps/calc?SMILES='+str(smi))
+        logger.debug('Calling http://vcclab.org/web/alogps/calc?SMILES='+str(smi))
         req = session.get('http://vcclab.org/web/alogps/calc?SMILES=' + str(smi.replace('#','%23')))
     except:
         print("Error. Can't reach vcclab.org to estimate free energy.")
@@ -689,20 +711,20 @@ def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
         else:
             print('ALOGPS can\'t predict fragment: %s' % smi)
             exit(1)
-    logging.debug('logp value: %7.4f' % log_p)
+    logger.debug('logp value: %7.4f' % log_p)
     return convert_log_k(log_p)
 
 
 def convert_log_k(log_k):
     """Convert log_{10}K to free energy (in kJ/mol)"""
     val = 0.008314 * 300.0 * log_k / math.log10(math.exp(1))
-    logging.debug('free energy %7.4f kJ/mol' % val)
+    logger.debug('free energy %7.4f kJ/mol' % val)
     return val
 
 
 def mad(bead_type, delta_f, in_ring=False):
     """Mean absolute difference between type type and delta_f"""
-    # logging.debug('Entering mad()')
+    # logger.debug('Entering mad()')
     delta_f_types = read_delta_f_types()
     return math.fabs(delta_f_types[bead_type] - delta_f)
 
@@ -751,7 +773,7 @@ def determine_bead_type(delta_f, charge, hbonda, hbondd, in_ring):
                 if tmp_error < min_error:
                     min_error = tmp_error
                     bead_type = cgtype
-            logging.debug("closest type: %s; error %7.4f" % (bead_type, min_error))
+            logger.debug("closest type: %s; error %7.4f" % (bead_type, min_error))
     if in_ring:
         bead_type = "S" + bead_type
     return bead_type
