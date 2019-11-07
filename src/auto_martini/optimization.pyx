@@ -27,13 +27,10 @@ and LICENSE files.
 '''
 
 from .common import *
-
+cimport numpy as np
 import numpy as np
 
-try:
-  cimport numpy as np
-except Exception:
-  pass # no Cython .. no problem
+logger = logging.getLogger(__name__)
 
 def read_bead_params():
     """Returns bead parameter dictionary
@@ -52,7 +49,7 @@ def read_bead_params():
 def gaussian_overlap(conformer, bead1, bead2, ringatoms):
     """"Returns overlap coefficient between two gaussians
     given distance dist"""
-    logging.debug('Entering gaussian_overlap()')
+    logger.debug('Entering gaussian_overlap()')
     dist = Chem.rdMolTransforms.GetBondLength(conformer, int(bead1), int(bead2))
     bead_params = read_bead_params()
     sigma = bead_params['rvdw']
@@ -66,7 +63,7 @@ def gaussian_overlap(conformer, bead1, bead2, ringatoms):
 
 def atoms_in_gaussian(molecule, conformer, bead_id, ringatoms):
     """Returns weighted sum of atoms contained in bead bead_id"""
-    logging.debug('Entering atoms_in_gaussian()')
+    logger.debug('Entering atoms_in_gaussian()')
     weight_sum = 0.0
     bead_params = read_bead_params()
     sigma = bead_params['rvdw']
@@ -84,7 +81,7 @@ def atoms_in_gaussian(molecule, conformer, bead_id, ringatoms):
 def penalize_lonely_atoms(molecule, conformer, lumped_atoms):
     """Penalizes configuration if atoms aren't included
     in any CG bead"""
-    logging.debug('Entering penalize_lonely_atoms()')
+    logger.debug('Entering penalize_lonely_atoms()')
     weight_sum = 0.0
     bead_params = read_bead_params()
     num_atoms = conformer.GetNumAtoms()
@@ -98,7 +95,7 @@ def penalize_lonely_atoms(molecule, conformer, lumped_atoms):
 def eval_gaussian_interac(molecule, conformer, list_beads, ringatoms):
     """From collection of CG beads placed on mol, evaluate
     objective function of interacting beads"""
-    logging.debug('Entering eval_gaussian_interac()')
+    logger.debug('Entering eval_gaussian_interac()')
 
     weight_sum = 0.0
     weight_overlap = 0.0
@@ -138,13 +135,12 @@ def eval_gaussian_interac(molecule, conformer, list_beads, ringatoms):
     # Penalty for excluding atoms
     weight_lonely_atoms = penalize_lonely_atoms(molecule, conformer, lumped_atoms)
     weight_sum += weight_lonely_atoms
-    logging.debug(weight_sum, weight_offset_bd_weights, weight_overlap, weight_at_in_bd, weight_lonely_atoms)
     return weight_sum
 
 
 def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, ring_atoms, listbonds):
     """Check if CG bead positions in trailComb are acceptable"""
-    logging.debug('Entering check_beads()')
+    logger.debug('Entering check_beads()')
     acceptable_trial = ''
     # Check for beads at the same place
     count = Counter(trial_comb)
@@ -153,7 +149,7 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, ring_atoms, listb
         if val != 1:
             all_different = False
             acceptable_trial = False
-            logging.debug('Error. Multiple beads on the same atom position for %s' % trial_comb)
+            logger.debug('Error. Multiple beads on the same atom position for %s' % trial_comb)
             break
     if all_different:
         acceptable_trial = True
@@ -170,13 +166,13 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, ring_atoms, listb
                             bond_in_ring = True
                     if not bond_in_ring:
                         acceptable_trial = False
-                        logging.debug('Error. No bond in ring for %s' % trial_comb)
+                        logger.debug('Error. No bond in ring for %s' % trial_comb)
                         break
         if acceptable_trial:
             # Don't allow bonds between atoms of the same ring.
             for bir in range(len(bonds_in_rings)):
                 if bonds_in_rings[bir] > 0:
-                    logging.debug('Error. Bonds between atoms of the same ring for %s', trial_comb)
+                    logger.debug('Error. Bonds between atoms of the same ring for %s', trial_comb)
                     acceptable_trial = False
         if acceptable_trial:
             # Check for two terminal beads linked by only one atom
@@ -201,7 +197,7 @@ def check_beads(list_heavyatoms, heavyatom_coords, trial_comb, ring_atoms, listb
                                 partnerj = bond[0]
                         if partneri == partnerj:
                             acceptable_trial = False
-                            logging.debug('Error. Two terminal beads linked to the same atom for %s' % trial_comb)
+                            logger.debug('Error. Two terminal beads linked to the same atom for %s' % trial_comb)
     return acceptable_trial
 
 
@@ -209,7 +205,7 @@ def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_
     """Try out all possible combinations of CG beads up to threshold number of beads per atom. Find
     arrangement with best energy score. Return all possible arrangements sorted by energy score."""
     
-    logging.debug('Entering find_bead_pos()')
+    logger.debug('Entering find_bead_pos()')
     
     # Check number of heavy atoms
     if len(list_heavy_atoms) == 0:
@@ -265,7 +261,7 @@ def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_
                 combs.append(trial_comb)
                 energies.append(trial_ene)
                 
-                logging.info('; %s %s', trial_comb, trial_ene)
+                logger.info('; %s %s', trial_comb, trial_ene)
                 # Make sure all atoms within one bead would be connected
                 if all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavy_atoms, list_bonds):
                     # Accept the move
@@ -292,14 +288,14 @@ def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_
 def all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, bondlist):
     """Make sure all atoms within one CG bead are connected to at least
     one other atom in that bead"""
-    logging.debug('Entering all_atoms_in_beads_connected()')
+    logger.debug('Entering all_atoms_in_beads_connected()')
     # Bead coordinates are given by heavy atoms themselves
     cgbead_coords = []
 
     for i in range(len(trial_comb)):
         cgbead_coords.append(heavyatom_coords[list_heavyatoms.index(trial_comb[i])])
     voronoi = voronoi_atoms(cgbead_coords, heavyatom_coords)
-    logging.debug('voronoi %s' % voronoi)
+    logger.debug('voronoi %s' % voronoi)
 
     for i in range(len(trial_comb)):
         cg_bead = trial_comb[i]
@@ -312,15 +308,15 @@ def all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, 
                 sub_bond_list.append(bondlist[j])
         num_bonds = len(sub_bond_list)
         if num_bonds < num_atoms - 1 or num_atoms == 1:
-            logging.debug('Error: Not all atoms in beads connected in %s' % trial_comb)
-            logging.debug('Error: %s < %s, %s' % (num_bonds, num_atoms-1, sub_bond_list))
+            logger.debug('Error: Not all atoms in beads connected in %s' % trial_comb)
+            logger.debug('Error: %s < %s, %s' % (num_bonds, num_atoms-1, sub_bond_list))
             return False
     return True
 
 
 def voronoi_atoms(cgbead_coords, heavyatom_coords):
     """Partition all atoms between CG beads"""
-    logging.debug('Entering voronoi_atoms()')
+    logger.debug('Entering voronoi_atoms()')
     partitioning = {}
     for j in range(len(heavyatom_coords)):
         if j not in partitioning.keys():
@@ -345,7 +341,7 @@ def voronoi_atoms(cgbead_coords, heavyatom_coords):
                     closest_dist = dist_bead_at
                     closest_atom = j
             if closest_atom == -1:
-                logging.warning('Error. Can\'t find closest atom to bead %s' % i)
+                logger.warning('Error. Can\'t find closest atom to bead %s' % i)
                 exit(1)
             closest_atoms[i] = closest_atom
         # If one bead has only one heavy atom, include one more
@@ -367,7 +363,7 @@ def voronoi_atoms(cgbead_coords, heavyatom_coords):
                             closest_bead = j
                             closest_bead_dist = dist_bead_at
                 if closest_bead == -1:
-                    logging.warning('Error. Can\'t find an atom close to atom $s' % lonely_bead)
+                    logger.warning('Error. Can\'t find an atom close to atom $s' % lonely_bead)
                     exit(1)
                 partitioning[closest_bead] = lonely_bead
     return partitioning
