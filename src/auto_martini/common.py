@@ -27,14 +27,12 @@ and LICENSE files.
 '''
 
 from __future__ import print_function
+import logging
 
 import sys
 import itertools
 import os
 import math
-
-import logging
-logging.basicConfig(filename='auto_martini.log', format='%(asctime)s:%(levelname)s: %(message)s', level=logging.INFO)
 
 import numpy as np
 import six
