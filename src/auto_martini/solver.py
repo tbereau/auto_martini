@@ -27,18 +27,19 @@ and LICENSE files.
 '''
 
 from .common import *
-from .common import __version__
 
 from . import output
 from . import topology
 from . import optimization
 
+logger = logging.getLogger(__name__)
+
 def get_coords(conformer, sites, avg_pos, ringatoms_flat):
     """Extract coordinates of CG beads"""
-    logging.debug('Entering get_coords()')
+    logger.debug('Entering get_coords()')
     # CG beads are averaged over best trial combinations for all
     # non-aromatic atoms.
-    logging.debug('Entering get_coords()')
+    logger.debug('Entering get_coords()')
     site_coords = []
     for i in range(len(sites)):
         if sites[i] in ringatoms_flat:
@@ -52,7 +53,7 @@ def get_coords(conformer, sites, avg_pos, ringatoms_flat):
 def check_additivity(forcepred, beadtypes, molecule):
     """Check additivity assumption between sum of free energies of CG beads
     and free energy of whole molecule"""
-    logging.debug('Entering check_additivity()')
+    logger.debug('Entering check_additivity()')
     # If there's only one bead, don't check.
     if len(beadtypes) == 1:
         return True
@@ -70,7 +71,7 @@ def check_additivity(forcepred, beadtypes, molecule):
     
     whole_mol_dg = topology.smi2alogps(forcepred, Chem.MolToSmiles(molecule), wc_log_p, "MOL", True)
     m_ad = math.fabs((whole_mol_dg - sum_frag) / whole_mol_dg)
-    logging.info('Mapping additivity assumption ratio: %7.4f (whole vs sum: %7.4f vs. %7.4f)'
+    logger.info('Mapping additivity assumption ratio: %7.4f (whole vs sum: %7.4f vs. %7.4f)'
                 % (m_ad, whole_mol_dg, sum_frag))
 
     if (not rings and m_ad < 0.5) or rings:
@@ -82,12 +83,13 @@ def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, for
     """Main routine to coarse-grain molecule"""
     # Get molecule's features
 
-    logging.info('Running Auto_Martini v{}'.format(__version__))
+    logger.info('Entering cg_molecule()')
 
     feats = topology.extract_features(molecule)
 
     # Get list of heavy atoms and their coordinates
     list_heavy_atoms, list_heavyatom_names = topology.get_atoms(molecule)
+
     conf, heavy_atom_coords = topology.get_heavy_atom_coords(molecule)
 
     # Identify ring-type atoms
@@ -105,12 +107,14 @@ def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, for
     list_cg_beads, list_bead_pos = optimization.find_bead_pos(molecule, conf, list_heavy_atoms, heavy_atom_coords, ring_atoms,
                                                  ring_atoms_flat)
 
+    print("list_cg_beads, list_bead_pos= ", list_cg_beads, list_bead_pos)
+
     # Loop through best 1% cg_beads and avg_pos
     cg_bead_names = []
     cg_bead_coords = []
     max_attempts = int(math.ceil(0.5 * len(list_cg_beads)))
-    logging.info('Max. number of attempts: %s' % max_attempts)
-    attempt = 1
+    logger.info('Max. number of attempts: %s' % max_attempts)
+    attempt = 0
 
     while attempt < max_attempts:
         cg_beads = list_cg_beads[attempt]
@@ -122,7 +126,7 @@ def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, for
 
         # Partition atoms into coarse-grained beads
         atom_partitioning = optimization.voronoi_atoms(cg_bead_coords, heavy_atom_coords)
-        logging.info('; Atom partitioning: %s' % atom_partitioning)
+        logger.info('; Atom partitioning: %s' % atom_partitioning)
 
         cg_bead_names, bead_types, _ = topology.print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d, atom_partitioning, ring_atoms, ring_atoms_flat, True)
 
