@@ -27,14 +27,15 @@ and LICENSE files.
 '''
 
 from .common import *
+logger = logging.getLogger(__name__)
 
 def output_gro(output_file, sites, site_names, molname):
     """Output GRO file of CG structure"""
-    logging.debug('Entering output_gro()')
+    logger.debug('Entering output_gro()')
     num_beads = len(sites)
 
     if len(sites) != len(site_names):
-        logging.warning('Error. Incompatible number of beads and bead names.')
+        logger.warning('Error. Incompatible number of beads and bead names.')
         exit(1)
     if output_file[-4:] != ".gro":
         output_file += ".gro"
@@ -50,6 +51,6 @@ def output_gro(output_file, sites, site_names, molname):
             f.write("{:10.5f}{:10.5f}{:10.5f}\n".format(10., 10., 10.))
             f.close()
     except IOError:
-        logging.warning('Can\'t write to file %s' % output_file)
+        logger.warning('Can\'t write to file %s' % output_file)
         exit(1)
     return
