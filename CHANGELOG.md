@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Method "gen_molecule_smi" in topology module no longer raises an exception when kekulization fails
 - CLI arg "mode" replaced with "--mode", defaults to "run"
+- Initial value of "attempt" set to 0 (from 1) in function solver.cg_molecule()
+- Merged function topology.gen_molecule_smi() with master branch
 
 ### Removed
 - Submodule "test" (replaced with pytest scripts)

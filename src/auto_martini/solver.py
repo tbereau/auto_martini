@@ -107,8 +107,6 @@ def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, for
     list_cg_beads, list_bead_pos = optimization.find_bead_pos(molecule, conf, list_heavy_atoms, heavy_atom_coords, ring_atoms,
                                                  ring_atoms_flat)
 
-    print("list_cg_beads, list_bead_pos= ", list_cg_beads, list_bead_pos)
-
     # Loop through best 1% cg_beads and avg_pos
     cg_bead_names = []
     cg_bead_coords = []
