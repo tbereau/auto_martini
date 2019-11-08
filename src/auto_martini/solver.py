@@ -55,11 +55,9 @@ def check_additivity(forcepred, beadtypes, molecule):
     and free energy of whole molecule"""
     logger.debug('Entering check_additivity()')
     # If there's only one bead, don't check.
-    if len(beadtypes) == 1:
-        return True
     sum_frag = 0.0
     rings = False
-
+    logger.info('; Bead types: %s' % beadtypes)
     for bead in beadtypes:
         if bead[0] == "S":
             bead = bead[1:]
@@ -68,14 +66,21 @@ def check_additivity(forcepred, beadtypes, molecule):
         sum_frag += delta_f_types[bead]
     # Wildman-Crippen log_p
     wc_log_p = rdMolDescriptors.CalcCrippenDescriptors(molecule)[0]
-    
-    whole_mol_dg = topology.smi2alogps(forcepred, Chem.MolToSmiles(molecule), wc_log_p, "MOL", True)
-    m_ad = math.fabs((whole_mol_dg - sum_frag) / whole_mol_dg)
-    logger.info('Mapping additivity assumption ratio: %7.4f (whole vs sum: %7.4f vs. %7.4f)'
-                % (m_ad, whole_mol_dg, sum_frag))
+    # Get SMILES string of entire molecule
 
-    if (not rings and m_ad < 0.5) or rings:
-        return True
+    s = Chem.MolToSmiles(molecule)
+    
+    whole_mol_dg = topology.smi2alogps(forcepred, s, wc_log_p, "MOL", True) 
+    if whole_mol_dg != 0:    
+        m_ad = math.fabs((whole_mol_dg - sum_frag) / whole_mol_dg)
+        logger.info('; Mapping additivity assumption ratio: %7.4f (whole vs sum: %7.4f vs. %7.4f)'
+                    % (m_ad, whole_mol_dg/(-4.184), sum_frag/(-4.184)))
+        if len(beadtypes) == 1:
+            return True
+        if (not rings and m_ad < 0.5) or rings:
+            return True
+        else:
+            return False
     else:
         return False
 
@@ -111,7 +116,7 @@ def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, for
     cg_bead_names = []
     cg_bead_coords = []
     max_attempts = int(math.ceil(0.5 * len(list_cg_beads)))
-    logger.info('Max. number of attempts: %s' % max_attempts)
+    logger.info(f'Max. number of attempts: {max_attempts}')
     attempt = 0
 
     while attempt < max_attempts:
@@ -119,12 +124,16 @@ def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, for
         bead_pos = list_bead_pos[attempt]
         success = True
 
+        #Remove mappings with bead numbers less than most optimal mapping.
+        if len(cg_beads) < len(list_cg_beads[0]) and (len(list_heavy_atoms) - (5*len(cg_beads))) > 3 :
+            success = False
+
         # Extract position of coarse-grained beads
         cg_bead_coords = get_coords(conf, cg_beads, bead_pos, ring_atoms_flat)
 
         # Partition atoms into coarse-grained beads
         atom_partitioning = optimization.voronoi_atoms(cg_bead_coords, heavy_atom_coords)
-        logger.info('; Atom partitioning: %s' % atom_partitioning)
+        logger.info('; Atom partitioning: {atom_partitioning}')
 
         cg_bead_names, bead_types, _ = topology.print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d, atom_partitioning, ring_atoms, ring_atoms_flat, True)
 
@@ -136,8 +145,19 @@ def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, for
         # Bond list
         try:
             bond_list, const_list, _ = topology.print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms, trial=True)
-        except:
+        except Exception:
             raise
+
+        # I added errval below from the master branch ... not sure where to use this anywhere, possibly leave for debugging
+        if not ring_atoms and (len(bond_list)+len(const_list)) >= len(cg_bead_names):
+            errval = 3
+            success = False
+        if (len(bond_list)+len(const_list)) < len(cg_bead_names)-1:
+            errval = 5
+            success = False
+        if len(cg_beads) != len(cg_bead_names):
+            success = False
+            errval = 8
 
         if success:
             header_write = topology.print_header(molname)
@@ -147,12 +167,21 @@ def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, for
             bond_list, const_list, bonds_write = topology.print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms,
                                                 False)
             angles_write = topology.print_angles(cg_beads, molecule, atom_partitioning, cg_bead_coords, bond_list, const_list, ring_atoms)
+
+            if not angles_write and len(bond_list) > 1:
+                errval = 2
+            if bond_list and angle_list:
+                if (len(bond_list)+len(const_list)) < 2 and len(angle_list) > 0:
+                    errval = 6
+                if not ring_atoms and (len(bond_list)+len(const_list)) - len(angle_list) != 1:
+                    errval = 7
+
             dihedrals_write = topology.print_dihedrals(cg_beads, const_list, ring_atoms, cg_bead_coords)
 
             with open(topfname, 'w') as fp:
                 fp.write(header_write + atoms_write + bonds_write +  angles_write + dihedrals_write) 
 
-            print('Converged to solution in {} iteration(s)'.format(attempt))
+            print('Converged to solution in {} iteration(s)'.format(attempt + 1))
             break
         else:
             attempt += 1
