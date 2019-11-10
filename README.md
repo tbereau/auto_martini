@@ -29,7 +29,7 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 ## Developers 
 * Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)   
 * Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)     
-* Andrew Abi-Mansour (Molecular Science Software Institute, Virginia Tech, Blacksburg, US)
+* Andrew Abi-Mansour (Molecular Sciences Software Institute, Virginia Tech, Blacksburg, US)
 
 ## Installation & Testing
 `auto-martini` requires a number of dependencies:
