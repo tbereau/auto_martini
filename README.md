@@ -31,9 +31,7 @@ doi = {10.1021/acs.jctc.5b00056}
 ```
 
 The modifications are detailed in the supporting information of the following article:
-Kanekal, Kiran H., and Tristan Bereau. "Resolution limit of data-driven coarse-grained models spanning chemical space." arXiv preprint arXiv:1907.04082 (2019).
-
-https://arxiv.org/abs/1907.04082
+Kanekal, Kiran H., and Tristan Bereau. "Resolution limit of data-driven coarse-grained models spanning chemical space," *J Chem Phys* 151 (2019) [link](https://doi.org/10.1063/1.5119101); [arXiv](https://arxiv.org/abs/1907.04082)
 
 ## Installation
 `auto-martini` is a python script that requires a number of dependencies:
