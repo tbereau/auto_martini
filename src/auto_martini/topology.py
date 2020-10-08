@@ -526,7 +526,7 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
 
 
 def print_angles(cgbeads, molecule, partitioning, cgbead_coords, bondlist, constlist, ringatoms):
-    """print CG angles in itp format"""
+    """print CG angles in itp format and returns the angles list"""
     logger.debug('Entering print_angles()')
 
     text = ''
@@ -598,7 +598,7 @@ def print_angles(cgbeads, molecule, partitioning, cgbead_coords, bondlist, const
                 text = text + '  {:d} {:d} {:d}         2       {:<5.1f}  {:5.1f}\n'.format(
                     a[0] + 1, a[1] + 1, a[2] + 1, a[3], a[4])
             text = text + '\n'
-    return text
+    return text, angle_list
 
 
 def print_dihedrals(cgbeads, constlist, ringatoms, cgbead_coords):

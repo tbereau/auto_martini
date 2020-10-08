@@ -166,7 +166,7 @@ def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, for
 
             bond_list, const_list, bonds_write = topology.print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms,
                                                 False)
-            angles_write = topology.print_angles(cg_beads, molecule, atom_partitioning, cg_bead_coords, bond_list, const_list, ring_atoms)
+            angles_write, angle_list = topology.print_angles(cg_beads, molecule, atom_partitioning, cg_bead_coords, bond_list, const_list, ring_atoms)
 
             if not angles_write and len(bond_list) > 1:
                 errval = 2
