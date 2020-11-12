@@ -117,7 +117,7 @@ if __name__ == '__main__':
       package_dir={'auto_martini':'src/auto_martini'},
       package_data={'test': ['test/*.sdf'],},
       include_package_data=True,
-      install_requires=['numpy', 'bs4', 'pytool', 'lxml'],
+      install_requires=['numpy', 'bs4', 'pytool', 'lxml', 'requests'],
       classifiers=[
           "Development Status :: 2 - Pre-Alpha",
           "Topic :: Utilities",
