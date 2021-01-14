@@ -42,6 +42,11 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 For optimal performance, we recommend installing [cython](https://cython.org) as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
 will attempt to compile it from its source code. For a detailed installation, see the documentation.
 
+Once cython is installed, installation of auto_martini can be done using
+```
+python setup.py install
+```
+
 Once all the dependencies are correctly installed, auto_martini can be run via:
 ```
 python -m auto_martini [mode] [options]
