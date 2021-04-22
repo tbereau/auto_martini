@@ -31,6 +31,9 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 * Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)     
 * Andrew Abi-Mansour (Molecular Sciences Software Institute, Virginia Tech, Blacksburg, US)
 
+## Update to Python3
+The `main` branch is now fully compatible with Python 3. For the original Python2-based version of the code used in the JCTC 2015 paper, see [branch original_jctc2015](https://github.com/tbereau/auto_martini/tree/original_jctc2015).
+
 ## Installation & Testing
 `auto-martini` requires a number of dependencies:
 * [numpy](http://docs.scipy.org/doc/numpy/user/install.html)
