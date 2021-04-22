@@ -108,7 +108,7 @@ if __name__ == '__main__':
       name = "auto_martini",
       version = __version__,
       author = ["Tristan Bereau", "Andrew Abi-Mansour"],
-      author_email = ["bereau [at] mpip-mainz.mpg.de", "andrew.gaam [at] gmail.com"],
+      author_email = ["t.bereau [at] uva.nl", "andrew.gaam [at] gmail.com"],
       description = ("A tool for automatic MARTINI mapping and parametrization of small organic molecules "),
       license = "GPL v2",
       keywords = "Coarse-grained Molecular Dynamics, MARTINI Force Field",
