@@ -530,10 +530,10 @@ def print_angles(cgbeads, molecule, partitioning, cgbead_coords, bondlist, const
     logger.debug('Entering print_angles()')
 
     text = ''
+    angle_list = []
 
     if len(cgbeads) > 2:
         # Angles
-        angle_list = []
         for i in range(len(cgbeads)):
             for j in range(len(cgbeads)):
                 for k in range(len(cgbeads)):

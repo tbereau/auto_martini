@@ -97,7 +97,7 @@ if __name__ == '__main__':
   try:
   	from Cython.Build import cythonize
   	import numpy
-  	optimal_list = cythonize("src/auto_martini/optimization.pyx")
+  	optimal_list = cythonize("src/auto_martini/optimization.py")
   	include_dirs = [numpy.get_include()]
   except:
     print('Failed to cythonize optimization module. For optimal performance, make sure Cython is properly installed.')

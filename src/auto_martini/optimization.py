@@ -281,7 +281,7 @@ def find_bead_pos(molecule, conformer, list_heavy_atoms, heavyatom_coords, ring_
         list_combs.append(combs)
         list_energies.append(energies)
 
-    sorted_combs = np.array(sorted(list_trial_comb, key=itemgetter(2)))
+    sorted_combs = np.array(sorted(list_trial_comb, key=itemgetter(2)), dtype='object')
     return sorted_combs[:, 0], sorted_combs[:, 1]
 
 def all_atoms_in_beads_connected(trial_comb, heavyatom_coords, list_heavyatoms, bondlist):
