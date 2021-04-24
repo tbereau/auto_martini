@@ -78,7 +78,7 @@ def gen_molecule_smi(smi):
         stderr_save = os.dup(stderr_fileno)
         stderr_fd = open('sanitize.log', 'w')
         os.dup2(stderr_fd.fileno(), stderr_fileno)
-    except:
+    except Exception:
         stderr_fileno = None
     # Get smiles without sanitization
     molecule = Chem.MolFromSmiles(smi, False)
