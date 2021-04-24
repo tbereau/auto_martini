@@ -1,0 +1,21 @@
+name: autom
+channels:
+  - conda-forge
+dependencies:
+    # Base depends
+  - python
+  - pip
+  - rdkit
+
+    # Testing
+  - pytest
+  - pytest-cov
+
+    # Pip-only installs
+  - pip:
+    - codecov
+    - numpy
+    - bs4
+    - pytool
+    - lxml
+    - requests
