@@ -1,6 +1,5 @@
-;;;; GENERATED WITH auto-martini
-; INPUT SMILES: N1=C(N)NN=C1N
-; Tristan Bereau (2014)
+; GENERATED WITH auto_Martini v0.1.0 for GUA
+; Developed by: Kiran Kanekal, Tristan Bereau, and Andrew Abi-Mansour
 
 [moleculetype]
 ; molname       nrexcl
