@@ -52,4 +52,3 @@ from itertools import chain
 from collections import defaultdict
 from operator import itemgetter
 from .sanifix4 import AdjustAromaticNs
-from . import __version__
