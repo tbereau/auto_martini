@@ -27,7 +27,7 @@ and LICENSE files.
 '''
 
 import argparse
-from .common import __version__
+from . import __version__
 import logging
 
 from .solver import cg_molecule
