@@ -2,6 +2,5 @@ global-include *.pyx
 include README.md 
 include CHANGELOG.md
 include LICENSE
-include test/*.sdf
 include versioneer.py
 include src/auto_martini/_version.py
