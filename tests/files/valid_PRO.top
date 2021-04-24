@@ -1,0 +1,11 @@
+; GENERATED WITH auto_Martini v1.0.0 for PRO
+; Developed by: Kiran Kanekal, Tristan Bereau, and Andrew Abi-Mansour
+
+[moleculetype]
+; molname       nrexcl
+  PRO           2
+
+[atoms]
+; id    type    resnr   residue  atom    cgnr    charge  smiles
+    1     C3      1     PRO       C01     1         0   ; CCC
+
