@@ -38,8 +38,7 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 ## Update to Python3
 The `main` branch is now fully compatible with Python 3. For the original Python2-based version of the code used in the JCTC 2015 paper, see [branch original_jctc2015](https://github.com/tbereau/auto_martini/tree/original_jctc2015).
 
-## Installation & Testing
-
+## Installation
 ### Installation with conda
 The easiest way to install `auto_martini` is with conda:
 ```bash
@@ -71,14 +70,19 @@ Once cython is installed, installation of `auto_martini` can be done using
 python setup.py install
 ```
 
-Once all the dependencies are correctly installed, auto_martini can be run via:
+Once all the dependencies are correctly installed, auto_martini can be tested or run.
+
+## Testing
+To run the test cases and validate your installation, you will need to have [pytest](https://docs.pytest.org/en/stable/getting-started.html) 
+installed. If you installed `auto_martini` with conda, then pytest should already be available in your environment.
+
+## Command-line Interface
+You can invoke `auto_martini` from the command-line via:
 ```
 python -m auto_martini [mode] [options]
 ```
-By default, mode is set to 'run', which computes the MARTINI forcefield for a given molecule. In order to make sure `auto_martini` runs correctly on your system, run:
-```
-python -m auto_martini test
-```
+By default, mode is set to 'run', which computes the MARTINI forcefield for a given molecule.
+
 To display the usage-information (help), either supply -h, --help, or nothing to auto_martini:
  
 ```
