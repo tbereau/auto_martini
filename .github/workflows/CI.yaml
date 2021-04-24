@@ -59,4 +59,11 @@ jobs:
       shell: bash -l {0}
 
       run: |
-        python -m auto_martini test
+        pytest -v --cov=auto_martini --cov-report=xml --color=yes tests
+
+    - name: CodeCov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
