@@ -1,5 +1,8 @@
 Auto_MARTINI
 ============
+
+[![CI](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml/badge.svg)](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml)
+
 ## What is Auto_MARTINI?
 A toolkit that enables automatic generation of MARTINI forcefields for small organic molecules. 
 
@@ -35,17 +38,34 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 The `main` branch is now fully compatible with Python 3. For the original Python2-based version of the code used in the JCTC 2015 paper, see [branch original_jctc2015](https://github.com/tbereau/auto_martini/tree/original_jctc2015).
 
 ## Installation & Testing
-`auto-martini` requires a number of dependencies:
+
+### Installation with conda
+The easiest way to install `auto_martini` is with conda:
+```bash
+conda env create -f environment.yaml
+```
+
+This will create a conda environment called `autom` which you can activate with
+```bash
+conda activate autom
+```
+
+### Installation with pip
+If you wish to install `auto_martini` with setuptools, you will need to satisfy the following dependencies:
+
+`autom_martini` has the following dependencies:
 * [numpy](http://docs.scipy.org/doc/numpy/user/install.html)
 * [rdkit](http://www.rdkit.org/docs/Install.html)
 * [bs4](http://www.crummy.com/software/BeautifulSoup)
 * [requests](http://docs.python-requests.org/en/latest/user/install)
 * [lxml](https://github.com/lxml/lxml)
 
-For optimal performance, we recommend installing [cython](https://cython.org) as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
+Note: for optimal performance, we recommend installing [cython](https://cython.org) as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
 will attempt to compile it from its source code. For a detailed installation, see the documentation.
 
-Once cython is installed, installation of auto_martini can be done using
+Note: setup.py will attempt to compile rdkit from source if it does not detect any installation of rdkit.
+
+Once cython is installed, installation of `auto_martini` can be done using
 ```
 python setup.py install
 ```
@@ -54,7 +74,7 @@ Once all the dependencies are correctly installed, auto_martini can be run via:
 ```
 python -m auto_martini [mode] [options]
 ```
-By default, mode is set to 'run', which computes the MARTINI forcefield for a given molecule. In order to make sure auto_martini runs correctly on your system, run:
+By default, mode is set to 'run', which computes the MARTINI forcefield for a given molecule. In order to make sure `auto_martini` runs correctly on your system, run:
 ```
 python -m auto_martini test
 ```
