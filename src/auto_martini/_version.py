@@ -26,4 +26,4 @@ If not, see http://www.gnu.org/licenses . See also top-level README
 and LICENSE files.
 '''
 
-__version__ = '0.0.2'
+__version__ = '1.0.0'
