@@ -115,7 +115,6 @@ if __name__ == '__main__':
       url = "https://github.com/Andrew-AbiMansour/Auto_MARTINI",
       packages=find_packages('src'),
       package_dir={'auto_martini':'src/auto_martini'},
-      package_data={'test': ['test/*.sdf'],},
       include_package_data=True,
       install_requires=['numpy', 'bs4', 'pytool', 'lxml', 'requests'],
       classifiers=[
