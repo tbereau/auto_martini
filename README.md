@@ -76,6 +76,13 @@ Once all the dependencies are correctly installed, auto_martini can be tested or
 To run the test cases and validate your installation, you will need to have [pytest](https://docs.pytest.org/en/stable/getting-started.html) 
 installed. If you installed `auto_martini` with conda, then pytest should already be available in your environment.
 
+To initiate the testing, run the following:
+```bash
+pytest -v tests
+```
+
+All tests should pass within few minutes. If any of the tests fail, please open an [issue](https://github.com/tbereau/auto_martini/issues).
+
 ## Command-line Interface
 You can invoke `auto_martini` from the command-line via:
 ```
