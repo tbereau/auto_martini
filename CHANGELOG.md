@@ -35,3 +35,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Submodule "test" (replaced with pytest scripts)
+
+## [0.1.0]
+
+### Added
+- Added pytest routines and test files for validation
+- Conda environment file for easy installation
+- Github actions CI
+- Versioneer for automated version handling
+
+### Changed
+- Improved exception handling in topology.py
+
+### Removed
+- Mode=test no longer supported by the CLI
+- TravisCI and CircleCI config files
