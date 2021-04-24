@@ -2,6 +2,7 @@ Auto_MARTINI
 ============
 
 [![CI](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml/badge.svg)](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml)
+[![codecov](https://codecov.io/gh/tbereau/auto_martini/branch/main/graph/badge.svg)](https://codecov.io/gh/tbereau/auto_martini/branch/main)
 
 ## What is Auto_MARTINI?
 A toolkit that enables automatic generation of MARTINI forcefields for small organic molecules. 
@@ -44,26 +45,26 @@ The easiest way to install `auto_martini` is with conda:
 ```bash
 conda env create -f environment.yaml
 ```
-
 This will create a conda environment called `autom` which you can activate with
 ```bash
 conda activate autom
 ```
+Now use pip from the `auto_martini` src dir to run the installation:
+```bash
+pip install .
+```
 
 ### Installation with pip
-If you wish to install `auto_martini` with setuptools, you will need to satisfy the following dependencies:
+If you wish to install `auto_martini` with setuptools, take note of the following dependencies:
 
-`autom_martini` has the following dependencies:
 * [numpy](http://docs.scipy.org/doc/numpy/user/install.html)
 * [rdkit](http://www.rdkit.org/docs/Install.html)
 * [bs4](http://www.crummy.com/software/BeautifulSoup)
 * [requests](http://docs.python-requests.org/en/latest/user/install)
 * [lxml](https://github.com/lxml/lxml)
 
-Note: for optimal performance, we recommend installing [cython](https://cython.org) as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
-will attempt to compile it from its source code. For a detailed installation, see the documentation.
-
-Note: setup.py will attempt to compile rdkit from source if it does not detect any installation of rdkit.
+`Note`: *for optimal performance, we recommend installing [cython](https://cython.org) as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
+will attempt to compile it from its source code. For a detailed installation, see the [documentation](http://www.rdkit.org).*
 
 Once cython is installed, installation of `auto_martini` can be done using
 ```
