@@ -1,0 +1,15 @@
+; GENERATED WITH auto_Martini v0.1.0 for GUA
+; Developed by: Kiran Kanekal, Tristan Bereau, and Andrew Abi-Mansour
+
+[moleculetype]
+; molname       nrexcl
+  GUA           2
+
+[atoms]
+; id    type    resnr   residu  atom    cgnr    charge  smiles
+  1     SP2     1       GUA     S01     1       0     ; Nc1ncnn1
+  2     SP2     1       GUA     S02     2       0     ; Nc1ncnn1
+
+[constraints]
+;  i   j     funct   length
+   1   2     1       0.21

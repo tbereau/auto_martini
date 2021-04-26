@@ -1,5 +1,9 @@
 Auto_MARTINI
 ============
+
+[![CI](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml/badge.svg)](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml)
+[![codecov](https://codecov.io/gh/tbereau/auto_martini/branch/main/graph/badge.svg)](https://codecov.io/gh/tbereau/auto_martini/branch/main)
+
 ## What is Auto_MARTINI?
 A toolkit that enables automatic generation of MARTINI forcefields for small organic molecules. 
 
@@ -34,30 +38,58 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 ## Update to Python3
 The `main` branch is now fully compatible with Python 3. For the original Python2-based version of the code used in the JCTC 2015 paper, see [branch original_jctc2015](https://github.com/tbereau/auto_martini/tree/original_jctc2015).
 
-## Installation & Testing
-`auto-martini` requires a number of dependencies:
+## Installation
+### Installation with conda
+The easiest way to install `auto_martini` is with conda:
+```bash
+conda env create -f environment.yaml
+```
+This will create a conda environment called `autom` which you can activate with
+```bash
+conda activate autom
+```
+Now use pip from the `auto_martini` src dir to run the installation:
+```bash
+pip install .
+```
+
+### Installation with pip
+If you wish to install `auto_martini` with setuptools, take note of the following dependencies:
+
 * [numpy](http://docs.scipy.org/doc/numpy/user/install.html)
 * [rdkit](http://www.rdkit.org/docs/Install.html)
 * [bs4](http://www.crummy.com/software/BeautifulSoup)
 * [requests](http://docs.python-requests.org/en/latest/user/install)
 * [lxml](https://github.com/lxml/lxml)
 
-For optimal performance, we recommend installing [cython](https://cython.org) as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
-will attempt to compile it from its source code. For a detailed installation, see the documentation.
+`Note`: *for optimal performance, we recommend installing [cython](https://cython.org) as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
+will attempt to compile it from its source code. For a detailed installation, see the [documentation](http://www.rdkit.org).*
 
-Once cython is installed, installation of auto_martini can be done using
+Once cython is installed, installation of `auto_martini` can be done using
 ```
 python setup.py install
 ```
 
-Once all the dependencies are correctly installed, auto_martini can be run via:
+Once all the dependencies are correctly installed, auto_martini can be tested or run.
+
+## Testing
+To run the test cases and validate your installation, you will need to have [pytest](https://docs.pytest.org/en/stable/getting-started.html) 
+installed. If you installed `auto_martini` with conda, then pytest should already be available in your environment.
+
+To initiate the testing, run the following:
+```bash
+pytest -v tests
+```
+
+All tests should pass within few minutes. If any of the tests fail, please open an [issue](https://github.com/tbereau/auto_martini/issues).
+
+## Command-line Interface
+You can invoke `auto_martini` from the command-line via:
 ```
 python -m auto_martini [mode] [options]
 ```
-By default, mode is set to 'run', which computes the MARTINI forcefield for a given molecule. In order to make sure auto_martini runs correctly on your system, run:
-```
-python -m auto_martini test
-```
+By default, mode is set to 'run', which computes the MARTINI forcefield for a given molecule.
+
 To display the usage-information (help), either supply -h, --help, or nothing to auto_martini:
  
 ```
@@ -116,9 +148,9 @@ In case no problem arises, it will output the gromacs GUA.itp file:
 ```
 Optionally, the code can also output a corresponding `.gro` file for the coarse-grained coordinates
 ```
-python -m auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --gro gua.gro --top GUA.itp
+python -m auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --cg gua.gro --top GUA.itp
 ```
-Atomistic coordinates can be output in XYZ format using the `--xyz output.xyz` option.
+Atomistic coordinates can be written using the `--aa output.gro` option.
 
 ## Caveats
 

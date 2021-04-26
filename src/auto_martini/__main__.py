@@ -27,7 +27,7 @@ and LICENSE files.
 '''
 
 import argparse
-from .common import __version__
+from . import __version__
 import logging
 
 from .solver import cg_molecule
@@ -51,7 +51,7 @@ parser = argparse.ArgumentParser(prog='auto_martini', description='Generates Mar
                                  epilog='''Developers:\n===========\nTristan Bereau (bereau [at] mpip-mainz.mpg.de)\nKiran Kanekal (kanekal [at] mpip-mainz.mpg.de)
 Andrew Abi-Mansour (andrew.gaam [at] gmail.com)''')
 
-parser.add_argument('--mode', type=str, choices=['run','test'], default='run', help="mode: run (compute FF) or test (validate)")
+parser.add_argument('--mode', type=str, choices=['run'], default='run', help="mode: run (compute FF)")
 
 group = parser.add_mutually_exclusive_group(required=False)
 

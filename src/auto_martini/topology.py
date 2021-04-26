@@ -27,7 +27,9 @@ and LICENSE files.
 '''
 
 from .common import *
-from . import __version__
+from auto_martini._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +80,7 @@ def gen_molecule_smi(smi):
         stderr_save = os.dup(stderr_fileno)
         stderr_fd = open('sanitize.log', 'w')
         os.dup2(stderr_fd.fileno(), stderr_fileno)
-    except:
+    except Exception:
         stderr_fileno = None
     # Get smiles without sanitization
     molecule = Chem.MolFromSmiles(smi, False)
