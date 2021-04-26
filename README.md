@@ -148,9 +148,9 @@ In case no problem arises, it will output the gromacs GUA.itp file:
 ```
 Optionally, the code can also output a corresponding `.gro` file for the coarse-grained coordinates
 ```
-python -m auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --gro gua.gro --top GUA.itp
+python -m auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --cg gua.gro --top GUA.itp
 ```
-Atomistic coordinates can be output in XYZ format using the `--xyz output.xyz` option.
+Atomistic coordinates can be written using the `--aa output.gro` option.
 
 ## Caveats
 
