@@ -127,7 +127,7 @@ if __name__ == "__main__":
         ),
         license="GPL v2",
         keywords="Coarse-grained Molecular Dynamics, MARTINI Force Field",
-        url="https://github.com/Andrew-AbiMansour/Auto_MARTINI",
+        url="https://github.com/tbereau/auto_martini",
         packages=find_packages("src"),
         package_dir={"auto_martini": "src/auto_martini"},
         include_package_data=True,
