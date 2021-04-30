@@ -29,28 +29,19 @@ and LICENSE files.
 from .common import *
 logger = logging.getLogger(__name__)
 
-def output_gro(output_file, sites, site_names, molname):
+def output_gro(sites, site_names, molname):
     """Output GRO file of CG structure"""
     logger.debug('Entering output_gro()')
     num_beads = len(sites)
-
+    gro_out = ""
     if len(sites) != len(site_names):
         logger.warning('Error. Incompatible number of beads and bead names.')
         exit(1)
-    if output_file[-4:] != ".gro":
-        output_file += ".gro"
-    try:
-        with open(output_file, 'w') as f:
-            f.write("{:s} generated from {:s}\n".format(
-                molname, os.path.basename(__file__)))
-            f.write("{:5d}\n".format(num_beads))
-            for i in range(num_beads):
-                f.write("{:5d}{:<6s} {:3s}{:5d}{:8.3f}{:8.3f}{:8.3f}\n".format(
-                    i + 1, molname, site_names[i], i + 1, sites[i][0] / 10.,
-                    sites[i][1] / 10., sites[i][2] / 10.))
-            f.write("{:10.5f}{:10.5f}{:10.5f}\n".format(10., 10., 10.))
-            f.close()
-    except IOError:
-        logger.warning('Can\'t write to file %s' % output_file)
-        exit(1)
-    return
+    gro_out += "{:s} generated from auto_martini\n".format(molname)
+    gro_out += "{:5d}\n".format(num_beads)
+    for i in range(num_beads):
+        gro_out += "{:5d}{:<6s} {:3s}{:5d}{:8.3f}{:8.3f}{:8.3f}\n".format(
+            i + 1, molname, site_names[i], i + 1, sites[i][0] / 10.,
+            sites[i][1] / 10., sites[i][2] / 10.)
+    gro_out += "{:10.5f}{:10.5f}{:10.5f}\n".format(10., 10., 10.)
+    return gro_out

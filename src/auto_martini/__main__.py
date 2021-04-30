@@ -30,7 +30,7 @@ import argparse
 from . import __version__
 import logging
 
-from .solver import cg_molecule
+from . import solver
 from .topology import gen_molecule_smi, gen_molecule_sdf
 
 import sys
@@ -91,4 +91,9 @@ if args.sdf:
 else:
     mol, _ = gen_molecule_smi(args.smi)
 
-cg_molecule(mol, args.molname, args.topfname, args.aa, args.cg, args.forcepred)
+cg = solver.Cg_molecule(mol, args.molname, args.topfname, args.forcepred)
+
+if args.aa:
+    cg.output_aa(args.aa)
+if args.cg:
+    cg.output_cg(args.cg)

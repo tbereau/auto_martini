@@ -51,3 +51,6 @@ coverage.xml
 # Django stuff:
 *.log
 *.pot
+
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*

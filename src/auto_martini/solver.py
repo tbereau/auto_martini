@@ -84,115 +84,134 @@ def check_additivity(forcepred, beadtypes, molecule):
     else:
         return False
 
-def cg_molecule(molecule, molname, topfname, aa_output=None, cg_output=None, forcepred=False):
-    """Main routine to coarse-grain molecule"""
-    # Get molecule's features
+class Cg_molecule:
+    """Main class to coarse-grain molecule"""
+    def __init__(self, molecule, molname, topfname=None, forcepred=False):
+        self.heavy_atom_coords = None
+        self.list_heavyatom_names = None
+        self.atom_partitioning = None
+        self.cg_bead_names = []
+        self.cg_bead_coords = []
+        self.topout = None
 
-    logger.info('Entering cg_molecule()')
+        # Get molecule's features
 
-    feats = topology.extract_features(molecule)
+        logger.info('Entering cg_molecule()')
 
-    # Get list of heavy atoms and their coordinates
-    list_heavy_atoms, list_heavyatom_names = topology.get_atoms(molecule)
+        feats = topology.extract_features(molecule)
 
-    conf, heavy_atom_coords = topology.get_heavy_atom_coords(molecule)
+        # Get list of heavy atoms and their coordinates
+        list_heavy_atoms, self.list_heavyatom_names = topology.get_atoms(molecule)
 
-    # Identify ring-type atoms
-    ring_atoms = topology.get_ring_atoms(molecule)
+        conf, self.heavy_atom_coords = topology.get_heavy_atom_coords(molecule)
 
-    # Get Hbond information
-    hbond_a = topology.get_hbond_a(feats)
-    hbond_d = topology.get_hbond_d(feats)
+        # Identify ring-type atoms
+        ring_atoms = topology.get_ring_atoms(molecule)
 
-    # Flatten list of ring atoms
-    ring_atoms_flat = list(chain.from_iterable(ring_atoms))
+        # Get Hbond information
+        hbond_a = topology.get_hbond_a(feats)
+        hbond_d = topology.get_hbond_d(feats)
 
-    # Optimize coarse-grained bead positions -- keep all possibilities in case something goes
-    # wrong later in the code.
-    list_cg_beads, list_bead_pos = optimization.find_bead_pos(molecule, conf, list_heavy_atoms, heavy_atom_coords, ring_atoms,
-                                                 ring_atoms_flat)
+        # Flatten list of ring atoms
+        ring_atoms_flat = list(chain.from_iterable(ring_atoms))
 
-    # Loop through best 1% cg_beads and avg_pos
-    cg_bead_names = []
-    cg_bead_coords = []
-    max_attempts = int(math.ceil(0.5 * len(list_cg_beads)))
-    logger.info(f'Max. number of attempts: {max_attempts}')
-    attempt = 0
+        # Optimize coarse-grained bead positions -- keep all possibilities in case something goes
+        # wrong later in the code.
+        list_cg_beads, list_bead_pos = optimization.find_bead_pos(molecule, conf, list_heavy_atoms, self.heavy_atom_coords, ring_atoms,
+                                                    ring_atoms_flat)
 
-    while attempt < max_attempts:
-        cg_beads = list_cg_beads[attempt]
-        bead_pos = list_bead_pos[attempt]
-        success = True
+        # Loop through best 1% cg_beads and avg_pos
+        max_attempts = int(math.ceil(0.5 * len(list_cg_beads)))
+        logger.info(f'Max. number of attempts: {max_attempts}')
+        attempt = 0
 
-        #Remove mappings with bead numbers less than most optimal mapping.
-        if len(cg_beads) < len(list_cg_beads[0]) and (len(list_heavy_atoms) - (5*len(cg_beads))) > 3 :
-            success = False
+        while attempt < max_attempts:
+            cg_beads = list_cg_beads[attempt]
+            bead_pos = list_bead_pos[attempt]
+            success = True
 
-        # Extract position of coarse-grained beads
-        cg_bead_coords = get_coords(conf, cg_beads, bead_pos, ring_atoms_flat)
+            #Remove mappings with bead numbers less than most optimal mapping.
+            if len(cg_beads) < len(list_cg_beads[0]) and (len(list_heavy_atoms) - (5*len(cg_beads))) > 3 :
+                success = False
 
-        # Partition atoms into coarse-grained beads
-        atom_partitioning = optimization.voronoi_atoms(cg_bead_coords, heavy_atom_coords)
-        logger.info('; Atom partitioning: {atom_partitioning}')
+            # Extract position of coarse-grained beads
+            self.cg_bead_coords = get_coords(conf, cg_beads, bead_pos, ring_atoms_flat)
 
-        cg_bead_names, bead_types, _ = topology.print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d, atom_partitioning, ring_atoms, ring_atoms_flat, True)
+            # Partition atoms into coarse-grained beads
+            self.atom_partitioning = optimization.voronoi_atoms(self.cg_bead_coords, self.heavy_atom_coords)
+            logger.info('; Atom partitioning: {atom_partitioning}')
 
-        if not cg_bead_names:
-            success = False
-        # Check additivity between fragments and entire molecule
-        if not check_additivity(forcepred, bead_types, molecule):
-            success = False
-        # Bond list
-        try:
-            bond_list, const_list, _ = topology.print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms, trial=True)
-        except Exception:
-            raise
+            self.cg_bead_names, bead_types, _ = topology.print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d, self.atom_partitioning, ring_atoms, ring_atoms_flat, True)
 
-        # I added errval below from the master branch ... not sure where to use this anywhere, possibly leave for debugging
-        if not ring_atoms and (len(bond_list)+len(const_list)) >= len(cg_bead_names):
-            errval = 3
-            success = False
-        if (len(bond_list)+len(const_list)) < len(cg_bead_names)-1:
-            errval = 5
-            success = False
-        if len(cg_beads) != len(cg_bead_names):
-            success = False
-            errval = 8
+            if not self.cg_bead_names:
+                success = False
+            # Check additivity between fragments and entire molecule
+            if not check_additivity(forcepred, bead_types, molecule):
+                success = False
+            # Bond list
+            try:
+                bond_list, const_list, _ = topology.print_bonds(cg_beads, molecule, self.atom_partitioning, self.cg_bead_coords, ring_atoms, trial=True)
+            except Exception:
+                raise
 
-        if success:
-            header_write = topology.print_header(molname)
-            cg_bead_names, bead_types, atoms_write = topology.print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d,
-                                                    atom_partitioning, ring_atoms, ring_atoms_flat, trial=False)
+            # I added errval below from the master branch ... not sure where to use this anywhere, possibly leave for debugging
+            if not ring_atoms and (len(bond_list)+len(const_list)) >= len(self.cg_bead_names):
+                errval = 3
+                success = False
+            if (len(bond_list)+len(const_list)) < len(self.cg_bead_names)-1:
+                errval = 5
+                success = False
+            if len(cg_beads) != len(self.cg_bead_names):
+                success = False
+                errval = 8
 
-            bond_list, const_list, bonds_write = topology.print_bonds(cg_beads, molecule, atom_partitioning, cg_bead_coords, ring_atoms,
-                                                False)
-            angles_write, angle_list = topology.print_angles(cg_beads, molecule, atom_partitioning, cg_bead_coords, bond_list, const_list, ring_atoms)
+            if success:
+                header_write = topology.print_header(molname)
+                self.cg_bead_names, bead_types, atoms_write = topology.print_atoms(molname, forcepred, cg_beads, molecule, hbond_a, hbond_d,
+                                                        self.atom_partitioning, ring_atoms, ring_atoms_flat, trial=False)
 
-            if not angles_write and len(bond_list) > 1:
-                errval = 2
-            if bond_list and angle_list:
-                if (len(bond_list)+len(const_list)) < 2 and len(angle_list) > 0:
-                    errval = 6
-                if not ring_atoms and (len(bond_list)+len(const_list)) - len(angle_list) != 1:
-                    errval = 7
+                bond_list, const_list, bonds_write = topology.print_bonds(cg_beads, molecule, self.atom_partitioning, self.cg_bead_coords, ring_atoms,
+                                                    False)
+                angles_write, angle_list = topology.print_angles(cg_beads, molecule, self.atom_partitioning, self.cg_bead_coords, bond_list, const_list, ring_atoms)
 
-            dihedrals_write = topology.print_dihedrals(cg_beads, const_list, ring_atoms, cg_bead_coords)
+                if not angles_write and len(bond_list) > 1:
+                    errval = 2
+                if bond_list and angle_list:
+                    if (len(bond_list)+len(const_list)) < 2 and len(angle_list) > 0:
+                        errval = 6
+                    if not ring_atoms and (len(bond_list)+len(const_list)) - len(angle_list) != 1:
+                        errval = 7
 
-            with open(topfname, 'w') as fp:
-                fp.write(header_write + atoms_write + bonds_write +  angles_write + dihedrals_write) 
+                dihedrals_write = topology.print_dihedrals(cg_beads, const_list, ring_atoms, self.cg_bead_coords)
 
-            print('Converged to solution in {} iteration(s)'.format(attempt + 1))
-            break
+                self.topout = header_write + atoms_write + bonds_write +  angles_write + dihedrals_write
+                if topfname:
+                    with open(topfname, 'w') as fp:
+                        fp.write(self.topout) 
+
+                print('Converged to solution in {} iteration(s)'.format(attempt + 1))
+                break
+            else:
+                attempt += 1
+
+        if attempt == max_attempts:
+            raise RuntimeError('ERROR: no successful mapping found.\nTry running with the --fpred and/or --verbose options.')
+
+    def output_aa(self, aa_output=None, molname="MOL"):
+        # Optional all-atom output to GRO file
+        aa_out = output.output_gro(self.heavy_atom_coords, 
+                                    self.list_heavyatom_names, molname)
+        if aa_output:
+            with open(aa_output, 'w') as fp:
+                fp.write(aa_out)
         else:
-            attempt += 1
+            return aa_out
 
-    if attempt == max_attempts:
-        raise RuntimeError('ERROR: no successful mapping found.\nTry running with the --fpred and/or --verbose options.')
-
-    # Optional all-atom output to GRO file
-    if aa_output:
-        output.output_gro(aa_output, heavy_atom_coords, list_heavyatom_names, "MOL")
-
-    # Optional coarse-grained output to GRO file
-    if cg_output:
-        output.output_gro(cg_output, cg_bead_coords, cg_bead_names, molname)
+    def output_cg(self, cg_output=None, molname="MOL"):
+        # Optional coarse-grained output to GRO file
+        cg_out = output.output_gro(self.cg_bead_coords, self.cg_bead_names, molname)
+        if cg_output:
+            with open(cg_output, 'w') as fp:
+                fp.write(cg_out)
+        else:
+            return cg_out

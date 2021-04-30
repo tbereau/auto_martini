@@ -28,6 +28,7 @@ and LICENSE files.
 
 from .common import *
 import numpy as np
+from sys import exit
 
 logger = logging.getLogger(__name__)
 
