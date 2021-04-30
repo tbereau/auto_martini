@@ -1,11 +1,11 @@
-Auto_MARTINI
+Auto_Martini
 ============
 
 [![CI](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml/badge.svg)](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml)
 [![codecov](https://codecov.io/gh/tbereau/auto_martini/branch/main/graph/badge.svg)](https://codecov.io/gh/tbereau/auto_martini/branch/main)
 
-## What is Auto_MARTINI?
-A toolkit that enables automatic generation of MARTINI forcefields for small organic molecules. 
+## What is Auto_Martini?
+A toolkit that enables automatic generation of Martini forcefields for small organic molecules. 
 
 For a detailed account of the software, see:
 
@@ -31,7 +31,7 @@ doi = {10.1021/acs.jctc.5b00056}
 For full documentation, click [here](https://tbereau.github.io/auto_martini/docs/html/index.html).
 
 ## Developers 
-* Tristan Bereau (Max Planck Institute for Polymer Research, Mainz, Germany)   
+* Tristan Bereau (University of Amsterdam, Netherlands)   
 * Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)     
 * Andrew Abi-Mansour (Molecular Sciences Software Institute, Virginia Tech, Blacksburg, US)
 
