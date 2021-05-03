@@ -29,6 +29,8 @@ and LICENSE files.
 from .common import *
 logger = logging.getLogger(__name__)
 
+from sys import exit
+
 def output_gro(sites, site_names, molname):
     """Output GRO file of CG structure"""
     logger.debug('Entering output_gro()')

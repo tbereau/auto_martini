@@ -31,6 +31,8 @@ from auto_martini._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
+from sys import exit
+
 logger = logging.getLogger(__name__)
 
 # For feature extraction
