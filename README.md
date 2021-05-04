@@ -4,6 +4,7 @@ Auto_Martini
 [![CI](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml/badge.svg)](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml)
 [![codecov](https://codecov.io/gh/tbereau/auto_martini/branch/main/graph/badge.svg)](https://codecov.io/gh/tbereau/auto_martini/branch/main)
 [![slack](https://img.shields.io/badge/chat-on_slack-808493.svg?longCache=true&style=flat&logo=slack&color=purple)](https://join.slack.com/t/levnon/shared_invite/zt-pto6zigl-qqTr9B4ThQ_LhF8Z5onN~Q)
+[![heroku](http://heroku-badge.herokuapp.com/?app=auto-martini)](https://auto-martini.herokuapp.com)
 
 For reporting bugs or suggesting new features/improvements to the code, please open an [issue](https://github.com/andrew-abimansour/PyGran/issues).
 
@@ -37,6 +38,9 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 * Tristan Bereau (University of Amsterdam, Netherlands)   
 * Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)     
 * Andrew Abi-Mansour (Molecular Sciences Software Institute, Virginia Tech, Blacksburg, US)
+
+## ‼️ Online web app
+`auto_martini` can now be run in the browser! The [Heroku-based `auto_martini` web app](https://auto-martini.herokuapp.com) allows you to try out `auto_martini` without any installation. (Please be patient on the first connection: the web app may take up to 30s to boot up after staying idle for a while.)
 
 ## Update to Python3
 The `main` branch is now fully compatible with Python 3. For the original Python2-based version of the code used in the JCTC 2015 paper, see [branch original_jctc2015](https://github.com/tbereau/auto_martini/tree/original_jctc2015).
