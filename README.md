@@ -3,7 +3,7 @@ Auto_Martini
 
 [![CI](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml/badge.svg)](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml)
 [![codecov](https://codecov.io/gh/tbereau/auto_martini/branch/main/graph/badge.svg)](https://codecov.io/gh/tbereau/auto_martini/branch/main)
-[![slack](https://img.shields.io/badge/chat-on_slack-808493.svg?longCache=true&style=flat&logo=slack&color=purple)](https://levnon.slack.com/archives/CPQHSE4SG)
+[![slack](https://img.shields.io/badge/chat-on_slack-808493.svg?longCache=true&style=flat&logo=slack&color=purple)](https://join.slack.com/t/levnon/shared_invite/zt-pto6zigl-qqTr9B4ThQ_LhF8Z5onN~Q)
 
 For reporting bugs or suggesting new features/improvements to the code, please open an [issue](https://github.com/andrew-abimansour/PyGran/issues).
 
