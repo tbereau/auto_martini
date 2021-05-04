@@ -42,6 +42,8 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 ## ‼️ Online web app
 `auto_martini` can now be run in the browser! The [Heroku-based `auto_martini` web app](https://auto-martini.herokuapp.com) allows you to try out `auto_martini` without any installation. (Please be patient on the first connection: the web app may take up to 30s to boot up after staying idle for a while.)
 
+![Heroku demo](examples/am_demo.gif)
+
 ## Update to Python3
 The `main` branch is now fully compatible with Python 3. For the original Python2-based version of the code used in the JCTC 2015 paper, see [branch original_jctc2015](https://github.com/tbereau/auto_martini/tree/original_jctc2015).
 
