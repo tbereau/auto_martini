@@ -118,7 +118,7 @@ optional arguments:
   --cg CG            filename of coarse-grained structure .gro file
   --top TOPFNAME     filename of output topology file
   -v, --verbose      increase verbosity
-  --fpred            verbose
+  --fpred            Atomic partitioning prediction
 
 Developers:
 ===========
