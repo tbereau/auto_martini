@@ -6,7 +6,7 @@ Auto_Martini
 [![slack](https://img.shields.io/badge/chat-on_slack-808493.svg?longCache=true&style=flat&logo=slack&color=purple)](https://join.slack.com/t/levnon/shared_invite/zt-pto6zigl-qqTr9B4ThQ_LhF8Z5onN~Q)
 [![heroku](http://heroku-badge.herokuapp.com/?app=auto-martini)](https://auto-martini.herokuapp.com)
 
-For reporting bugs or suggesting new features/improvements to the code, please open an [issue](https://github.com/andrew-abimansour/PyGran/issues).
+For reporting bugs or suggesting new features/improvements to the code, please open an [issue](https://github.com/tbereau/auto_martini/issues).
 
 ## What is Auto_Martini?
 A toolkit that enables automatic generation of Martini forcefields for small organic molecules. 
