@@ -4,3 +4,4 @@ include CHANGELOG.md
 include LICENSE
 include versioneer.py
 include src/auto_martini/_version.py
+include auto_martini/_version.py

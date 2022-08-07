@@ -1,13 +1,16 @@
 """
 Basic sanity test for the auto_martini package.
 """
-import pytest
-import auto_martini
 import filecmp
-from pathlib import Path
 import os
+from pathlib import Path
 
-dpath = Path("tests/files")
+import pytest
+
+import auto_martini
+
+dpath = Path("auto_martini/tests/files")
+
 
 def test_auto_martini_imported():
     """Sample test, will always pass so long as import statement worked"""
@@ -17,11 +20,7 @@ def test_auto_martini_imported():
 
 
 @pytest.mark.parametrize(
-    "sdf_file,num_beads", 
-    [
-        (dpath / "benzene.sdf", 3),
-        (dpath / "ibuprofen.sdf", 5)
-    ]
+    "sdf_file,num_beads", [(dpath / "benzene.sdf", 3), (dpath / "ibuprofen.sdf", 5)]
 )
 def test_auto_martini_run_sdf(sdf_file: str, num_beads: int):
     mol = auto_martini.topology.gen_molecule_sdf(str(sdf_file))
@@ -34,7 +33,7 @@ def test_auto_martini_run_sdf(sdf_file: str, num_beads: int):
     [
         ("N1=C(N)NNC1N", "valid_GUA.top", "GUA", 2),
         ("CCC", "valid_PRO.top", "PRO", 1),
-    ]
+    ],
 )
 def test_auto_martini_run_smiles(smiles: str, top_file: Path, name: str, num_beads: int):
     mol, _ = auto_martini.topology.gen_molecule_smi(smiles)
