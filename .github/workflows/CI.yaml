@@ -56,12 +56,12 @@ jobs:
     - name: Generate conda-lock file
       shell: bash -l {0}
       run: |
-        conda-lock -f pyproject.toml --lockfile conda-${{ matrix.python-version }}.lock
+        conda-lock -f pyproject.toml --lockfile conda-lock-${{ matrix.python-version }}.yml
 
     - uses: actions/upload-artifact@v2
       with:
         name: conda-lock-file
-        path: conda-${{ matrix.python-version }}.lock
+        path: conda-lock-${{ matrix.python-version }}.yml
 
   test:
     needs: prep
@@ -90,8 +90,7 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
-        environment-file: conda-${{ matrix.python-version }}.lock
-
+        environment-file: conda-lock-${{ matrix.python-version }}.yml
         activate-environment: test
         auto-update-conda: true
         auto-activate-base: false
