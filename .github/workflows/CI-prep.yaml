@@ -46,7 +46,10 @@ jobs:
         auto-activate-base: true
         show-channel-urls: true
 
-    - name: Generate conda-lock file
+    - name: Install conda-lock
       shell: bash -l {0}
       run: conda install conda-lock
+
+    - name: Generate conda-lock file
+      shell: bash -l {0}
       run: conda-lock -f pyproject.toml --lockfile conda-${{ matrix.python-version }}.lock
