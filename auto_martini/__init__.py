@@ -26,7 +26,6 @@ If not, see http://www.gnu.org/licenses . See also top-level README
 and LICENSE files.
 """
 
-from . import solver, topology
+from . import _version, solver, topology
 
-from . import _version
-__version__ = _version.get_versions()['version']
+__version__ = _version.get_versions()["version"]
