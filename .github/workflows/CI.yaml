@@ -28,7 +28,27 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
+  prep:
+    # More info on options: https://github.com/conda-incubator/setup-miniconda
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        channels: conda-forge
+        activate-environment: test
+        auto-update-conda: true
+        auto-activate-base: true
+        show-channel-urls: true
+
+    - name: Install conda-lock
+      shell: bash -l {0}
+      run: conda install conda-lock
+
+    - name: Generate conda-lock file
+      shell: bash -l {0}
+      run: conda-lock -f pyproject.toml --lockfile conda-${{ matrix.python-version }}.lock
+
   test:
+    needs: prep
     name: Test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
