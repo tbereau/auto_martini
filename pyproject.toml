@@ -19,8 +19,6 @@ requires = [
     "poetry-dynamic-versioning-plugin"
 ]
 build-backend = "poetry.core.masonry.api"
-#build-backend = "setuptools.build_meta"
-
 
 # Project package metadata ----------
 
@@ -94,10 +92,7 @@ flake8-bugbear = "22.1.11"
 flake8-comprehensions = "3.8.0"
 flake8-logging-format = "0.6.0"
 flake8-mutable = "1.2.0"
-footing = {version = "*", source = "pypi"}
-grayskull = "1.1.2"
 isort = "5.10.1"
-packaging = ">=19.2"
 pip = "*"
 poetry = "1.1.13"
 pytest = "6.2.5"
