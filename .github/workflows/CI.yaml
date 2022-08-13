@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - "main"
+      - "v0.2.0"
   pull_request:
     branches:
       - "main"
@@ -39,19 +40,26 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
-        environment-file: environment.yaml
 
         activate-environment: test
-        auto-update-conda: false
+        auto-update-conda: true
         auto-activate-base: false
         show-channel-urls: true
 
-    - name: Install package & its deps
-      # conda setup requires this special shell
+    - name: Generate conda-lock file
       shell: bash -l {0}
-      run: |
-        python -m pip install . --no-deps
-        conda list
+      run: conda-lock -f pyproject.toml --lockfile conda.lock
+
+    # More info on options: https://github.com/conda-incubator/setup-miniconda
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        environment-file: conda.lock
+
+        activate-environment: test
+        auto-update-conda: true
+        auto-activate-base: false
+        show-channel-urls: true
 
     - name: Run tests
 
