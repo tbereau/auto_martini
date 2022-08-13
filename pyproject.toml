@@ -10,9 +10,17 @@
 # Build system dependencies ----------
 
 [build-system]
-requires = ["poetry-core>=1.0.8", "setuptools", "wheel", "Cython>=0.29.21", "numpy", "poetry-dynamic-versioning-plugin"]
-#build-backend = "poetry.core.masonry.api"
-build-backend = "setuptools.build_meta"
+requires = [
+    "poetry-core>=1.0.8", 
+    "setuptools", 
+    "wheel", 
+    "Cython>=0.29.21",
+    "numpy", 
+    "poetry-dynamic-versioning-plugin"
+]
+build-backend = "poetry.core.masonry.api"
+#build-backend = "setuptools.build_meta"
+
 
 # Project package metadata ----------
 
@@ -26,7 +34,8 @@ exclude = [
   "*/tests/"
 ]
 include = [
-  "auto_martini/optimization.pyx"
+  {path = "auto_martini/optimization.pyx", format = "wheel"},
+  {path = "auto_martini/*.so", format = "wheel"},
 ]
 description = "A tool for automatic MARTINI mapping and parametrization of small organic molecules"
 authors = ["Tristan Bereau", "Andrew Abi-Mansour"]
@@ -40,7 +49,7 @@ readme = "README.md"
 homepage = "https://github.com/tbereau/auto_martini"
 repository = "https://github.com/tbereau/auto_martini"
 documentation = "https://github.com/tbereau/auto_martini"
-build = "build.py"
+build = "build_ext.py"
 
 [tool.poetry-dynamic-versioning]
 enable = true
@@ -54,11 +63,10 @@ dirty = true
 # The conda channels and platforms from which to resolve dependencies
 [tool.conda-lock]
 channels = [
-#  'https://conda.prod.vant.dev',
   'conda-forge',
 ]
 platforms = [
-    'osx-64', 'linux-64'
+    'linux-64'
 ]
 
 # Runtime dependencies that are only conda installable
@@ -69,11 +77,12 @@ rdkit = ">=v2022.03.4"
 [tool.poetry.dependencies]
 python = ">=3.8.0,<4"
 importlib_metadata = {version = ">=1.6.0,<2.0.0", python = "~3.7"}
-numpy = ">=1.23.1"
-bs4 = "*"
-pytool = ">=3.16.2"
+beautifulsoup4 = ">=4.11.1"
 lxml = ">=4.9.1"
 requests = ">=2.28.1"
+numpy = ">=1.23.1"
+cython = ">=0.29.21"
+six = ">=1.16.0"
 
 # Development dependencies that are at least pip installable.
 # If dependencies are only pip installable, set
@@ -113,6 +122,9 @@ exclude_lines = [
     "pass",
     "pytest.mark.skip"
 ]
+omit = [
+    "auto_martini/tests/*"
+]
 show_missing = true
 fail_under = 100
 
@@ -123,3 +135,4 @@ profile = "black"
 # Pytest options
 [tool.pytest.ini_options]
 xfail_strict = true
+testpaths = "auto_martini/tests"
