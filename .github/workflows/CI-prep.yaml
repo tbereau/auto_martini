@@ -1,4 +1,4 @@
-name: CI
+name: CI-prep
 
 on:
   # GitHub has started calling new repo's first branch "main" https://github.com/github/renaming
@@ -40,24 +40,13 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
-        environment-file: conda-${{ matrix.python-version }}.lock
 
         activate-environment: test
         auto-update-conda: true
-        auto-activate-base: false
+        auto-activate-base: true
         show-channel-urls: true
 
-    - name: Run tests
-
-      # conda setup requires this special shell
+    - name: Generate conda-lock file
       shell: bash -l {0}
-
-      run: |
-        pytest -v --cov=auto_martini --cov-report=xml --color=yes tests
-
-    - name: CodeCov
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
+      run: conda install conda-lock
+      run: conda-lock -f pyproject.toml --lockfile conda-${{ matrix.python-version }}.lock
