@@ -56,14 +56,12 @@ jobs:
     - name: Generate conda-lock file
       shell: bash -l {0}
       run: |
-        conda-lock -f pyproject.toml --lockfile conda-lock-${{ matrix.python-version }}.yml
-        conda-lock install --name explicit-env conda-lock-${{ matrix.python-version }}.yml
-        conda list --explicit >> conda-explicit-${{ matrix.python-version }}.lock
+        conda-lock -f pyproject.toml  -k explicit --filename-template ${{ matrix.python-version }}.conda.lock
 
     - uses: actions/upload-artifact@v2
       with:
         name: conda-lock-file
-        path: conda-explicit-${{ matrix.python-version }}.lock
+        path: ${{ matrix.python-version }}.conda.lock
 
   test:
     needs: prep
@@ -93,7 +91,7 @@ jobs:
       with:
         auto-update-conda: false
         activate-environment: explicit-env
-        environment-file: conda-explicit-${{ matrix.python-version }}.lock
+        environment-file: ${{ matrix.python-version }}.conda.lock
 
     - name: Run tests
 
