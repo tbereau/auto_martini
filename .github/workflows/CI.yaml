@@ -45,7 +45,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         channels: conda-forge
         activate-environment: test
-        auto-update-conda: true
+        auto-update-conda: false
         auto-activate-base: true
         show-channel-urls: true
 
@@ -90,11 +90,9 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
+        auto-update-conda: false
+        activate-environment: explicit-env
         environment-file: conda-lock-${{ matrix.python-version }}.yml
-        activate-environment: test
-        auto-update-conda: true
-        auto-activate-base: false
-        show-channel-urls: true
 
     - name: Run tests
 
