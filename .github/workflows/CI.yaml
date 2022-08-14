@@ -106,7 +106,7 @@ jobs:
       shell: bash -l {0}
 
       run: |
-        pytest -v --cov=auto_martini --cov-report=xml --color=yes auto_martini/tests
+        pytest -v --cov=auto_martini --cov-report=xml --cov-report=html --color=yes
 
     - name: CodeCov
       uses: codecov/codecov-action@v1
