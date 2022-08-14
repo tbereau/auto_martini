@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0]
 
 ### Added
-- Added pytest routines and test files for validation
+- Pytest routines and test files for validation
 - Conda environment file for easy installation
 - Github actions CI
 - Versioneer for automated version handling
@@ -50,3 +50,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Mode=test no longer supported by the CLI
 - TravisCI and CircleCI config files
+
+## [0.2.0]
+
+### Added
+- PEP 518 compliance with pyproject.toml
+- Conda and pypi packages
+- New directory structure
+- Poetry build and deployment
+- Build ext file: `build_ext.py`
+- Dynamic versioning with poetry-dynamic-versioning
+
+### Changed
+- Replaced bs4 with beautifulsoup4 pkg
+- Code format and style complies with PEP8
+
+### Removed
+- Old setup file `setup.py` 
+- `MANIFEST.in`
+- Conda env file `environment.yaml`
+- Versioneer
