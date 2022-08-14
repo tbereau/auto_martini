@@ -26,14 +26,11 @@ If not, see http://www.gnu.org/licenses . See also top-level README
 and LICENSE files.
 """
 
-from auto_martini._version import get_versions
+from sys import exit
+
+from auto_martini._version import __version__
 
 from .common import *
-
-__version__ = get_versions()["version"]
-del get_versions
-
-from sys import exit
 
 logger = logging.getLogger(__name__)
 
