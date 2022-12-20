@@ -4,9 +4,20 @@ on:
   # GitHub has started calling new repo's first branch "main" https://github.com/github/renaming
   # Existing codes likely still have "master" as the primary branch
   # Both are tracked here to keep legacy and new codes working
+
+  workflow_run:
+    workflows:
+      - "CI-prep"
+    branches:
+      - "main"
+      - "v0.2.0"
+    types:
+      - completed
+
   push:
     branches:
       - "main"
+      - "v0.2.0"
   pull_request:
     branches:
       - "main"
@@ -17,7 +28,43 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
+  prep:
+    name: Prep on ${{ matrix.os }}, Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.7, 3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    # More info on options: https://github.com/conda-incubator/setup-miniconda
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        channels: conda-forge
+        activate-environment: test
+        auto-update-conda: false
+        auto-activate-base: true
+        show-channel-urls: true
+
+    - name: Install conda-lock
+      shell: bash -l {0}
+      run: conda install conda-lock
+
+    - name: Generate conda-lock file
+      shell: bash -l {0}
+      run: |
+        conda-lock -f pyproject.toml  -k explicit --filename-template ${{ matrix.python-version }}.conda.lock
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: conda-lock-file
+        path: ${{ matrix.python-version }}.conda.lock
+
   test:
+    needs: prep
     name: Test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -26,7 +73,7 @@ jobs:
         python-version: [3.7, 3.8, 3.9]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Additional info about the build
       shell: bash
@@ -35,16 +82,16 @@ jobs:
         df -h
         ulimit -a
 
+    - uses: actions/download-artifact@v2
+      with:
+        name: conda-lock-file
+
     # More info on options: https://github.com/conda-incubator/setup-miniconda
     - uses: conda-incubator/setup-miniconda@v2
       with:
-        python-version: ${{ matrix.python-version }}
-        environment-file: environment.yaml
-
-        activate-environment: test
         auto-update-conda: false
-        auto-activate-base: false
-        show-channel-urls: true
+        activate-environment: explicit-env
+        environment-file: ${{ matrix.python-version }}.conda.lock
 
     - name: Install package & its deps
       # conda setup requires this special shell
@@ -59,7 +106,7 @@ jobs:
       shell: bash -l {0}
 
       run: |
-        pytest -v --cov=auto_martini --cov-report=xml --color=yes tests
+        pytest -v --cov=auto_martini --cov-report=xml --cov-report=html --color=yes
 
     - name: CodeCov
       uses: codecov/codecov-action@v1

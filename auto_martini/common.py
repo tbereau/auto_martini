@@ -1,5 +1,5 @@
-'''
-Created on March 17, 2019 by Andrew Abi-Mansour
+"""
+Created on March 14, 2019 by Andrew Abi-Mansour
 
 This is the::
 
@@ -24,11 +24,32 @@ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
 received a copy of the GNU General Public License along with PyGran.
 If not, see http://www.gnu.org/licenses . See also top-level README
 and LICENSE files.
-'''
+"""
 
-from . import solver, topology
+from __future__ import print_function
 
-# Handle versioneer
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+import itertools
+import logging
+import math
+import os
+import sys
+from collections import Counter, defaultdict
+from itertools import chain
+from operator import itemgetter
+
+import numpy as np
+import requests
+import six
+from bs4 import BeautifulSoup
+from rdkit import Chem, RDConfig
+from rdkit.Chem import (
+    AllChem,
+    ChemicalFeatures,
+    rdchem,
+    rdMolDescriptors,
+    rdmolfiles,
+    rdmolops,
+    rdMolTransforms,
+)
+
+from .sanifix4 import AdjustAromaticNs

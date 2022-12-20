@@ -12,26 +12,28 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../../src'))
+
+sys.path.insert(0, os.path.abspath("../../../src"))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'Auto-Martini'
-copyright = ' '
-author = 'Tristan Bereau, Kiran Kanekal, Andrew Abi-Mansour'
+project = "Auto-Martini"
+copyright = " "
+author = "Tristan Bereau, Kiran Kanekal, Andrew Abi-Mansour"
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.2'
+release = "0.0.2"
 
 # -- General configuration ------------------------------------------------
 autoclass_content = "both"  # include both class docstring and __init__
 autodoc_default_flags = [
-	# Make sure that any autodoc declarations show the right members
-	"members",
-	"inherited-members",
-	"private-members",
-	"show-inheritance"]
+    # Make sure that any autodoc declarations show the right members
+    "members",
+    "inherited-members",
+    "private-members",
+    "show-inheritance",
+]
 
 autosummary_generate = True  # Make _autosummary files and include them
 napoleon_numpy_docstring = False  # Force consistency, leave only Google
@@ -42,13 +44,15 @@ napoleon_use_rtype = False  # More legible
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 
-	'sphinx.ext.autosummary',
-	# The Napoleon extension allows for nicer argument formatting.
-	'sphinx.ext.napoleon']
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    # The Napoleon extension allows for nicer argument formatting.
+    "sphinx.ext.napoleon",
+]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -62,6 +66,7 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 
-html_theme = 'rtcat_sphinx_theme'
+html_theme = "rtcat_sphinx_theme"
 import rtcat_sphinx_theme
+
 html_theme_path = [rtcat_sphinx_theme.get_html_theme_path()]
