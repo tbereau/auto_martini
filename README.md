@@ -105,11 +105,11 @@ Andrew Abi-Mansour (andrew.gaam [at] gmail.com)
 ## Example
 To coarse-grain a molecule, simply provide its SMILES code (option `--smi SMI`) or a .SDF file (option `'--sdf file.sdf`). You also need to provide a name for the CG molecule (not longer than 5 characters) using the `--mol` option.  For instance, to coarse grain [guanazole](http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=15078), you can either obtain/generate (e.g., from Open Babel) an SDF file:
 ```
-python -m auto-martini --sdf guanazole.sdf --mol GUA --top GUA.itp
+python -m auto_martini --sdf guanazole.sdf --mol GUA --top GUA.itp
 ```
 (the name GUA is arbitrary) or use its SMILES code within double quotes
 ```
-python -m auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --top GUA.itp
+python -m auto_martini --smi "N1=C(N)NN=C1N" --mol GUA --top GUA.itp
 ```
 In case no problem arises, it will output the gromacs GUA.itp file:
 ```
@@ -132,7 +132,7 @@ In case no problem arises, it will output the gromacs GUA.itp file:
 ```
 Optionally, the code can also output a corresponding `.gro` file for the coarse-grained coordinates
 ```
-python -m auto-martini --smi "N1=C(N)NN=C1N" --mol GUA --cg gua.gro --top GUA.itp
+python -m auto_martini --smi "N1=C(N)NN=C1N" --mol GUA --cg gua.gro --top GUA.itp
 ```
 Atomistic coordinates can be written using the `--aa output.gro` option.
 
