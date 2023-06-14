@@ -62,7 +62,7 @@ installed. If you installed `auto_martini` with conda, then pytest should alread
 
 To initiate the testing, run the following:
 ```bash
-pytest -v tests
+poetry run pytest
 ```
 
 All tests should pass within few minutes. If any of the tests fail, please open an [issue](https://github.com/tbereau/auto_martini/issues).
