@@ -47,38 +47,14 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 The `main` branch is now fully compatible with Python 3. For the original Python2-based version of the code used in the JCTC 2015 paper, see [branch original_jctc2015](https://github.com/tbereau/auto_martini/tree/original_jctc2015).
 
 ## Installation
-### Installation with conda
-The easiest way to install `auto_martini` is with conda:
+### Installation with poetry
+Simply run the following commands
 ```bash
-conda env create -f environment.yaml
+poetry shell
+poetry add rdkit
+poetry install
 ```
-This will create a conda environment called `autom` which you can activate with
-```bash
-conda activate autom
-```
-Now use pip from the `auto_martini` src dir to run the installation:
-```bash
-pip install .
-```
-
-### Installation with pip
-If you wish to install `auto_martini` with setuptools, take note of the following dependencies:
-
-* [numpy](http://docs.scipy.org/doc/numpy/user/install.html)
-* [rdkit](http://www.rdkit.org/docs/Install.html)
-* [bs4](http://www.crummy.com/software/BeautifulSoup)
-* [requests](http://docs.python-requests.org/en/latest/user/install)
-* [lxml](https://github.com/lxml/lxml)
-
-`Note`: *for optimal performance, we recommend installing [cython](https://cython.org) as well. We also recommend installing the latest version of rdkit with conda. If no rdkit installation is found, auto_martini
-will attempt to compile it from its source code. For a detailed installation, see the [documentation](http://www.rdkit.org).*
-
-Once cython is installed, installation of `auto_martini` can be done using
-```
-python setup.py install
-```
-
-Once all the dependencies are correctly installed, auto_martini can be tested or run.
+You'll need to run the first line every time you start a new terminal, so that it activates the virtual environment. If you call `python`, it will know about `auto_martini`.
 
 ## Testing
 To run the test cases and validate your installation, you will need to have [pytest](https://docs.pytest.org/en/stable/getting-started.html) 
