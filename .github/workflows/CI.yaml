@@ -101,6 +101,7 @@ jobs:
         python -m pip install poetry
         poetry shell
         poetry add rdkit
+        poetry lock
         poetry install
         conda list
 
