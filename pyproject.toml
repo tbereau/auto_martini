@@ -85,6 +85,7 @@ six = ">=1.16.0"
 # Development dependencies that are at least pip installable.
 # If dependencies are only pip installable, set
 # them as {version = "<version number>", source = "pypi"}
+rdkit = "^2023.3.3"
 [tool.poetry.dev-dependencies]
 black = "22.3.0"
 flake8 = "3.9.2"

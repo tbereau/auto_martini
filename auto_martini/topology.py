@@ -141,12 +141,12 @@ def print_header(molname):
     text = "; GENERATED WITH auto_Martini v{} for {}\n".format(__version__, molname)
 
     info = (
-        "; Developed by: Kiran Kanekal, Tristan Bereau, and Andrew Abi-Mansour\n\n"
-        + "[moleculetype]\n"
-        + "; molname       nrexcl\n"
-        + "  {:5s}         2\n\n".format(molname)
-        + "[atoms]\n"
-        + "; id    type    resnr   residue  atom    cgnr    charge  smiles\n"
+            "; Developed by: Kiran Kanekal, Tristan Bereau, and Andrew Abi-Mansour\n\n"
+            + "[moleculetype]\n"
+            + "; molname       nrexcl\n"
+            + "  {:5s}         2\n\n".format(molname)
+            + "[atoms]\n"
+            + "; id    type    resnr   residue  atom    cgnr    charge  smiles\n"
     )
 
     return text + info
@@ -262,8 +262,8 @@ def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
             submol = frag.GetMol()
             for j in range(submol.GetConformer().GetNumAtoms()):
                 if (
-                    molecule.GetConformer().GetAtomPosition(i)[0]
-                    == submol.GetConformer().GetAtomPosition(j)[0]
+                        molecule.GetConformer().GetAtomPosition(i)[0]
+                        == submol.GetConformer().GetAtomPosition(j)[0]
                 ):
                     frag.RemoveAtom(j)
     # Identify atoms involved in same ring as cg_bead (only one ring)
@@ -280,8 +280,8 @@ def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
             submol = frag.GetMol()
             for j in range(submol.GetConformer().GetNumAtoms()):
                 if (
-                    molecule.GetConformer().GetAtomPosition(i)[0]
-                    == submol.GetConformer().GetAtomPosition(j)[0]
+                        molecule.GetConformer().GetAtomPosition(i)[0]
+                        == submol.GetConformer().GetAtomPosition(j)[0]
                 ):
                     frag.RemoveAtom(j)
     # Wildman-Crippen log_p
@@ -302,16 +302,16 @@ def substruct2smi(molecule, partitioning, cg_bead, cgbeads, ringatoms):
 
 
 def print_atoms(
-    molname,
-    forcepred,
-    cgbeads,
-    molecule,
-    hbonda,
-    hbondd,
-    partitioning,
-    ringatoms,
-    ringatoms_flat,
-    trial=False,
+        molname,
+        forcepred,
+        cgbeads,
+        molecule,
+        hbonda,
+        hbondd,
+        partitioning,
+        ringatoms,
+        ringatoms_flat,
+        trial=False,
 ):
     """Print CG Atoms in itp format"""
 
@@ -381,16 +381,16 @@ def print_atoms(
 
             if not trial:
                 text = (
-                    text
-                    + "    {:<5d} {:5s}   1     {:5s}     {:7s} {:<5d}    {:2d}   ; {:s}\n".format(
-                        bead + 1,
-                        bead_type,
-                        molname,
-                        atom_name,
-                        bead + 1,
-                        charge,
-                        smi_frag,
-                    )
+                        text
+                        + "    {:<5d} {:5s}   1     {:5s}     {:7s} {:<5d}    {:2d}   ; {:s}\n".format(
+                    bead + 1,
+                    bead_type,
+                    molname,
+                    atom_name,
+                    bead + 1,
+                    charge,
+                    smi_frag,
+                )
                 )
             beadtypes.append(bead_type)
 
@@ -438,11 +438,11 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                         for ib in range(len(molecule.GetBonds())):
                             abond = molecule.GetBondWithIdx(ib)
                             if (
-                                abond.GetBeginAtomIdx() in atoms_in_bead_i
-                                and abond.GetEndAtomIdx() in atoms_in_bead_j
+                                    abond.GetBeginAtomIdx() in atoms_in_bead_i
+                                    and abond.GetEndAtomIdx() in atoms_in_bead_j
                             ) or (
-                                abond.GetBeginAtomIdx() in atoms_in_bead_j
-                                and abond.GetEndAtomIdx() in atoms_in_bead_i
+                                    abond.GetBeginAtomIdx() in atoms_in_bead_j
+                                    and abond.GetEndAtomIdx() in atoms_in_bead_i
                             ):
                                 found_connection = True
                         if found_connection:
@@ -457,7 +457,7 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                     for b in bondlist:
                         bead = i
                         if (cgbeads[b[0]] in ring and b[1] == bead) or (
-                            b[0] == bead and cgbeads[b[1]] in ring
+                                b[0] == bead and cgbeads[b[1]] in ring
                         ):
                             bonds_to_ring.append(b)
                     # keep closest
@@ -477,7 +477,7 @@ def print_bonds(cgbeads, molecule, partitioning, cgbead_coords, ringatoms, trial
                         atoms_in_bead.append(key)
                 for b in bondlist:
                     if (cgbeads[b[0]] in ring and b[1] in atoms_in_bead) or (
-                        b[0] in atoms_in_bead and cgbeads[b[1]] in ring
+                            b[0] in atoms_in_bead and cgbeads[b[1]] in ring
                     ):
                         bead_bonded_to_ring.append(i)
             # Delete bond between 2 beads if they're both linked
@@ -610,28 +610,28 @@ def print_angles(cgbeads, molecule, partitioning, cgbead_coords, bondlist, const
                     if ij_const and jk_const:
                         all_constraints = True
                     if (
-                        not all_in_ring
-                        and ij_bonded
-                        and jk_bonded
-                        and i != j
-                        and j != k
-                        and i != k
-                        and not all_constraints
+                            not all_in_ring
+                            and ij_bonded
+                            and jk_bonded
+                            and i != j
+                            and j != k
+                            and i != k
+                            and not all_constraints
                     ):
                         # Measure angle between i, j, and k.
                         angle = (
-                            180.0
-                            / math.pi
-                            * math.acos(
-                                np.dot(
-                                    cgbead_coords[i] - cgbead_coords[j],
-                                    cgbead_coords[k] - cgbead_coords[j],
-                                )
-                                / (
+                                180.0
+                                / math.pi
+                                * math.acos(
+                            np.dot(
+                                cgbead_coords[i] - cgbead_coords[j],
+                                cgbead_coords[k] - cgbead_coords[j],
+                            )
+                            / (
                                     np.linalg.norm(cgbead_coords[i] - cgbead_coords[j])
                                     * np.linalg.norm(cgbead_coords[k] - cgbead_coords[j])
-                                )
                             )
+                        )
                         )
                         # Look for any double bond between atoms belonging to these CG beads.
                         atoms_in_fragment = []
@@ -642,8 +642,8 @@ def print_angles(cgbeads, molecule, partitioning, cgbead_coords, bondlist, const
                         for ib in range(len(molecule.GetBonds())):
                             abond = molecule.GetBondWithIdx(ib)
                             if (
-                                abond.GetBeginAtomIdx() in atoms_in_fragment
-                                and abond.GetEndAtomIdx() in atoms_in_fragment
+                                    abond.GetBeginAtomIdx() in atoms_in_fragment
+                                    and abond.GetEndAtomIdx() in atoms_in_fragment
                             ):
                                 bondtype = molecule.GetBondBetweenAtoms(
                                     abond.GetBeginAtomIdx(), abond.GetEndAtomIdx()
@@ -705,12 +705,12 @@ def print_dihedrals(cgbeads, constlist, ringatoms, cgbead_coords):
                             disthres = 0.35
                             close_enough = False
                             if (
-                                np.linalg.norm(cgbead_coords[i] - cgbead_coords[j]) * 0.1
-                                < disthres
-                                and np.linalg.norm(cgbead_coords[j] - cgbead_coords[k]) * 0.1
-                                < disthres
-                                and np.linalg.norm(cgbead_coords[k] - cgbead_coords[l]) * 0.1
-                                < disthres
+                                    np.linalg.norm(cgbead_coords[i] - cgbead_coords[j]) * 0.1
+                                    < disthres
+                                    and np.linalg.norm(cgbead_coords[j] - cgbead_coords[k]) * 0.1
+                                    < disthres
+                                    and np.linalg.norm(cgbead_coords[k] - cgbead_coords[l]) * 0.1
+                                    < disthres
                             ):
                                 close_enough = True
                             already_dih = False
@@ -737,10 +737,10 @@ def print_dihedrals(cgbeads, constlist, ringatoms, cgbead_coords):
 
             for d in dihed_list:
                 text = (
-                    text
-                    + "   {:d}     {:d}    {:d}    {:d}       2     {:<5.1f}  {:5.1f}\n".format(
-                        d[0] + 1, d[1] + 1, d[2] + 1, d[3] + 1, d[4], d[5]
-                    )
+                        text
+                        + "   {:d}     {:d}    {:d}    {:d}       2     {:<5.1f}  {:5.1f}\n".format(
+                    d[0] + 1, d[1] + 1, d[2] + 1, d[3] + 1, d[4], d[5]
+                )
                 )
             text = text + "\n"
 
@@ -784,11 +784,11 @@ def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
         if forcepred:
             if trial:
                 wrn = (
-                    "; Warning: bead ID "
-                    + str(bead)
-                    + " predicted from Wildman-Crippen. Fragment "
-                    + str(smi)
-                    + "\n"
+                        "; Warning: bead ID "
+                        + str(bead)
+                        + " predicted from Wildman-Crippen. Fragment "
+                        + str(smi)
+                        + "\n"
                 )
                 sys.stderr.write(wrn)
             log_p = wc_log_p
