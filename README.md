@@ -10,8 +10,6 @@ For reporting bugs or suggesting new features/improvements to the code, please o
 
 ---
 
-❗The water/octanol prediction algorithm used in Auto Martini is currently down. Atomic predictions are supported (`--fpred`), but may lead to decreased accuracy.
-
 ## What is Auto_Martini?
 A toolkit that enables automatic generation of Martini forcefields for small organic molecules. 
 

@@ -96,7 +96,7 @@ flake8-mutable = "1.2.0"
 isort = "5.10.1"
 pip = "*"
 poetry = "1.1.13"
-pytest = "6.2.5"
+pytest = "^6.2.5"
 pytest-cov = "3.0.0"
 poetry-dynamic-versioning = "0.17.1"
 # Dev tool configuration ---
