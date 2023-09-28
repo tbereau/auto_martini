@@ -98,12 +98,6 @@ jobs:
       shell: bash -l {0}
       run: |
         python -m pip install . --no-deps
-        python -m pip install poetry
-        poetry self update
-        poetry shell
-        poetry add rdkit
-        poetry lock
-        poetry install
         conda list
 
     - name: Run tests
