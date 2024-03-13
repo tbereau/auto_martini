@@ -759,9 +759,8 @@ def smi2alogps(forcepred, smi, wc_log_p, bead, trial=False):
         req = session.get(
             "http://vcclab.org/web/alogps/calc?SMILES=" + str(smi.replace("#", "%23"))
         )
-    except:
-        print("Error. Can't reach vcclab.org to estimate free energy.")
-        exit(1)
+    except requests.HTTPError as exc:
+        raise Exception(f"Error. Can't reach vcclab.org to estimate free energy: {exc}")
     try:
         doc = BeautifulSoup(req.content, "lxml")
     except Exception:
