@@ -22,7 +22,7 @@ def test_auto_martini_imported():
 @pytest.mark.parametrize(
     "sdf_file,num_beads", [(dpath / "benzene.sdf", 3), (dpath / "ibuprofen.sdf", 5)]
 )
-def test_auto_martini_run_sdf(sdf_file: str, num_beads: int):
+def test_auto_martini_run_sdf(sdf_file: Path, num_beads: int):
     mol = auto_martini.topology.gen_molecule_sdf(str(sdf_file))
     cg_mol = auto_martini.solver.Cg_molecule(mol, "MOL")
     assert len(cg_mol.cg_bead_names) == num_beads

@@ -70,3 +70,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MANIFEST.in`
 - Conda env file `environment.yaml`
 - Versioneer
+
+## [0.2.1]
+
+### Changed
+- Sync optimization.pyx with optimization.py
+- Improve handling of vcclab.org connection timeout
