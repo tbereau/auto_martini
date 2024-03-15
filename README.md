@@ -73,9 +73,9 @@ To exit the environment, simply run `conda deactivate`.
 To run the test cases and validate your installation, you will need to have [pytest](https://docs.pytest.org/en/stable/getting-started.html) 
 installed. If you installed `auto_martini` with conda, then pytest should already be available in your environment.
 
-To initiate the testing, run the following:
+To initiate testing, activate the virtual environment and run the following from the source directory:
 ```bash
-poetry run pytest
+pytest -v auto_martini/tests
 ```
 
 All tests should pass within few minutes. If any of the tests fail, please open an [issue](https://github.com/tbereau/auto_martini/issues).
