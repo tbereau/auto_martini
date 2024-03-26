@@ -24,7 +24,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "auto_martini"
-version = "0.0.0"
+version = "0.2.1"
 packages = [
   { include = "auto_martini" }
 ]

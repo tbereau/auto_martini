@@ -3,8 +3,6 @@ Auto_Martini
 
 [![CI](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml/badge.svg)](https://github.com/tbereau/auto_martini/actions/workflows/CI.yaml)
 [![codecov](https://codecov.io/gh/tbereau/auto_martini/branch/main/graph/badge.svg)](https://codecov.io/gh/tbereau/auto_martini/branch/main)
-[![slack](https://img.shields.io/badge/chat-on_slack-808493.svg?longCache=true&style=flat&logo=slack&color=purple)](https://join.slack.com/t/levnon/shared_invite/zt-pto6zigl-qqTr9B4ThQ_LhF8Z5onN~Q)
-[![heroku](http://heroku-badge.herokuapp.com/?app=auto-martini)](https://auto-martini.herokuapp.com)
 
 For reporting bugs or suggesting new features/improvements to the code, please open an [issue](https://github.com/tbereau/auto_martini/issues).
 
@@ -39,28 +37,45 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 ## Developers 
 * Tristan Bereau (University of Amsterdam, Netherlands)   
 * Kiran Kanekal (Max Planck Institute for Polymer Research, Mainz, Germany)     
-* Andrew Abi-Mansour (Molecular Sciences Software Institute, Virginia Tech, Blacksburg, US)
+* Andrew Abi-Mansour
 
 ## Update to Python3
 The `main` branch is now fully compatible with Python 3. For the original Python2-based version of the code used in the JCTC 2015 paper, see [branch original_jctc2015](https://github.com/tbereau/auto_martini/tree/original_jctc2015).
 
 ## Installation
 ### Installation with poetry
-Simply run the following commands
+You can install auto_martini with [poetry](https://python-poetry.org) by running the following command from the source directory:
 ```bash
-poetry shell
-poetry add rdkit
 poetry install
 ```
-You'll need to run the first line every time you start a new terminal, so that it activates the virtual environment. If you call `python`, it will know about `auto_martini`.
+This will install auto_martini in a virtual environment, which you can activate via:
+```bash
+poetry shell
+```
+To exit the environment, simply run `deactivate`.
+
+### Installation with conda-lock
+You can use [conda-lock](https://conda.github.io/conda-lock) to install auto_martini as well. From the source directory run:
+```
+conda-lock -f pyproject.toml  -k explicit --filename-template auto_martini-py3.11.conda.lock
+```
+This generates a conda lock file which you can use to create a new conda virtual environment:
+```
+conda create --name YOURENV --file auto_martini-py3.11.conda.lock
+```
+Finally activate your conda envrionment via:
+```
+conda activate YOURENV
+```
+To exit the environment, simply run `conda deactivate`.
 
 ## Testing
 To run the test cases and validate your installation, you will need to have [pytest](https://docs.pytest.org/en/stable/getting-started.html) 
 installed. If you installed `auto_martini` with conda, then pytest should already be available in your environment.
 
-To initiate the testing, run the following:
+To initiate testing, activate the virtual environment and run the following from the source directory:
 ```bash
-poetry run pytest
+pytest -v auto_martini/tests
 ```
 
 All tests should pass within few minutes. If any of the tests fail, please open an [issue](https://github.com/tbereau/auto_martini/issues).
