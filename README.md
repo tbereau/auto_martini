@@ -72,8 +72,9 @@ conda-lock -f pyproject.toml  -k explicit --filename-template auto_martini-py3.1
 ```
 This generates a conda lock file which you can use to create a new conda virtual environment:
 ```
-conda create --name YOURENV --file auto_martini-py3.11.conda.lock
+conda create --name YOURENV --file auto_martini-py3.11.conda.lock 
 ```
+`YOURENV` is the name of your conda env, and the lock filename can change depending on the python interpreter version.
 Finally activate your conda envrionment via:
 ```
 conda activate YOURENV
