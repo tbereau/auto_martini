@@ -43,6 +43,11 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 The `main` branch is now fully compatible with Python 3. For the original Python2-based version of the code used in the JCTC 2015 paper, see [branch original_jctc2015](https://github.com/tbereau/auto_martini/tree/original_jctc2015).
 
 ## Installation
+### Installation with pip
+You can install auto_martini with [pip](https://pypi.org/project/pip/) by running the following command from the source directory, better to do it in virtual enviroment:
+```bash
+pip install git+https://github.com/tbereau/auto_martini
+```
 ### Installation with poetry
 You can install auto_martini with [poetry](https://python-poetry.org) by running the following command from the source directory:
 ```bash
