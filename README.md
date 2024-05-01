@@ -43,6 +43,17 @@ For full documentation, click [here](https://tbereau.github.io/auto_martini/docs
 The `main` branch is now fully compatible with Python 3. For the original Python2-based version of the code used in the JCTC 2015 paper, see [branch original_jctc2015](https://github.com/tbereau/auto_martini/tree/original_jctc2015).
 
 ## Installation
+
+### Installation with pip
+You can install auto_martini with pip by running the following command from the source directory:
+```bash
+pip install .
+```
+If you do not wish to clone the repo, you can instead run:
+```bash
+pip install git+https://github.com/tbereau/auto_martini
+```
+
 ### Installation with poetry
 You can install auto_martini with [poetry](https://python-poetry.org) by running the following command from the source directory:
 ```bash
@@ -61,11 +72,16 @@ conda-lock -f pyproject.toml  -k explicit --filename-template auto_martini-py3.1
 ```
 This generates a conda lock file which you can use to create a new conda virtual environment:
 ```
-conda create --name YOURENV --file auto_martini-py3.11.conda.lock
+conda create --name YOURENV --file auto_martini-py3.11.conda.lock 
 ```
+`YOURENV` is the name of your conda env, and the lock filename can change depending on the python interpreter version.
 Finally activate your conda envrionment via:
 ```
 conda activate YOURENV
+```
+Now you can install the pkg with pip by running from the source directory:
+```
+pip install .
 ```
 To exit the environment, simply run `conda deactivate`.
 
