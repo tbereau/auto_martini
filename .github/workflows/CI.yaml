@@ -82,7 +82,7 @@ jobs:
         df -h
         ulimit -a
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4.1.7
       with:
         name: conda-lock-file
 
