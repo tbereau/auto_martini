@@ -58,7 +58,7 @@ jobs:
       run: |
         conda-lock -f pyproject.toml  -k explicit --filename-template ${{ matrix.python-version }}.conda.lock
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: conda-lock-file
         path: ${{ matrix.python-version }}.conda.lock
@@ -73,7 +73,7 @@ jobs:
         python-version: [3.11]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Additional info about the build
       shell: bash
@@ -109,8 +109,8 @@ jobs:
         pytest -v --cov=auto_martini --cov-report=xml --cov-report=html --color=yes
 
     - name: CodeCov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v5
       with:
-        file: ./coverage.xml
+        files: ./coverage.xml
         flags: unittests
         name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
